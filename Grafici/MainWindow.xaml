@@ -84,6 +84,7 @@
         <ColumnDefinition />
         <ColumnDefinition />
         <ColumnDefinition />
+        <ColumnDefinition />
       </Grid.ColumnDefinitions>
 
       <Label Grid.Column="0"
@@ -142,6 +143,12 @@
               Padding="5"
               Click="Reset_Click"
               Content="Reset" />
+
+      <Button Grid.Column="7"
+              Margin="5"
+              Padding="5"
+              Click="Ricarica_Click"
+              Content="Ricarica" />
     </Grid>
   </Grid>
 </Window>

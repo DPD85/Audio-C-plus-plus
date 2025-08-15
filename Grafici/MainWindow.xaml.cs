@@ -37,5 +37,10 @@ namespace Grafici
         {
             Plot.ResetAllAxes();
         }
+
+        private void Ricarica_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.Ricarica();
+        }
     }
 }

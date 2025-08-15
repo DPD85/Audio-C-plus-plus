@@ -110,6 +110,8 @@ namespace Grafici
             for (int i = 0; i < FileRegistrazioni.Length; ++i)
                 FileRegistrazioni[i] = Path.GetFileName(FileRegistrazioni[i]);
 
+            fileSelezionato = FileRegistrazioni[0];
+
             PlotModel.Axes.Add(new LinearAxis()
             {
                 Position = AxisPosition.Left,
@@ -152,6 +154,12 @@ namespace Grafici
         public void Aggiorna()
         {
             TempoFine = tempoInizio + intervallo;
+            CaricaIntervallo();
+        }
+
+        public void Ricarica()
+        {
+            CaricaRegistrazione(fileSelezionato);
             CaricaIntervallo();
         }
 
