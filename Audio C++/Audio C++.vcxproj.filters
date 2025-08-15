@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Audio C++.cpp" />
+    <ClCompile Include="CodaEliminazione.cpp" />
+    <ClCompile Include="WAVE.cpp" />
+    <ClCompile Include="IntestazionePrecompilata.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CodaEliminazione.h" />
+    <ClInclude Include="WAVE.h" />
+    <ClInclude Include="Oscillatori.h" />
+    <ClInclude Include="CostantiEdAltro.h" />
+    <ClInclude Include="IntestazionePrecompilata.h" />
+    <ClInclude Include="SmussamentoEsponenziale.h" />
+    <ClInclude Include="Normalizzatore.h" />
+  </ItemGroup>
+</Project>
