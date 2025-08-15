@@ -14,5 +14,6 @@
     <ClInclude Include="IntestazionePrecompilata.h" />
     <ClInclude Include="SmussamentoEsponenziale.h" />
     <ClInclude Include="Normalizzatore.h" />
+    <ClInclude Include="Inviluppo.h" />
   </ItemGroup>
 </Project>

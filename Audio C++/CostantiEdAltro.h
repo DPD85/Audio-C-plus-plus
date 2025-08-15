@@ -103,3 +103,8 @@ template<> inline constexpr double Max(double v1, double v2)
 {
     return std::max(v1, v2);
 }
+
+inline size_t DaSecondiACampioni(double secondi)
+{
+    return static_cast<size_t>(std::floor(Costanti::FrequenzaCampionamento * secondi));
+}
