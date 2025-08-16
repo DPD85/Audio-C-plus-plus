@@ -39,6 +39,9 @@ namespace Costanti
     const constexpr double FrequenzaLa  = FrequenzaDo * RapportoLa;  // [Hz]
     const constexpr double FrequenzaSi  = FrequenzaDo * RapportoSi;  // [Hz]
 #else
+    // Frequenza delle note calcolata secondo l'intonazione equanime (tutte i semi toni sono equidistanti).
+    // Il rapporto tra due semitoni consecutivi è sempre pari alla radice dodicesima di due.
+
     // Formula: FrequenzaRiferimentoLa * std::pow(2.0, N / 12.0)
     // dove N è il numero di semitoni di distanza dalla nota di riferimento
     const double FrequenzaDo  = FrequenzaRiferimentoLa * std::pow(2.0, -9.0 / 12.0); // [Hz]
