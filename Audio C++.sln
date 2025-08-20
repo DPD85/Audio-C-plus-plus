@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36203.30
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Audio C++", "Audio C++\Audio C++.vcxproj", "{CA8EB50D-BD11-49FF-A210-095A4D5DE9D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grafici", "Grafici\Grafici.csproj", "{1571F16F-4C61-407D-AE91-83F6C3D5FBAA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 - AnyCPU = Debug|x64 - AnyCPU
+		Release|x64 - AnyCPU = Release|x64 - AnyCPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CA8EB50D-BD11-49FF-A210-095A4D5DE9D3}.Debug|x64 - AnyCPU.ActiveCfg = Debug|x64
+		{CA8EB50D-BD11-49FF-A210-095A4D5DE9D3}.Debug|x64 - AnyCPU.Build.0 = Debug|x64
+		{CA8EB50D-BD11-49FF-A210-095A4D5DE9D3}.Release|x64 - AnyCPU.ActiveCfg = Release|x64
+		{CA8EB50D-BD11-49FF-A210-095A4D5DE9D3}.Release|x64 - AnyCPU.Build.0 = Release|x64
+		{1571F16F-4C61-407D-AE91-83F6C3D5FBAA}.Debug|x64 - AnyCPU.ActiveCfg = Debug|Any CPU
+		{1571F16F-4C61-407D-AE91-83F6C3D5FBAA}.Debug|x64 - AnyCPU.Build.0 = Debug|Any CPU
+		{1571F16F-4C61-407D-AE91-83F6C3D5FBAA}.Release|x64 - AnyCPU.ActiveCfg = Release|Any CPU
+		{1571F16F-4C61-407D-AE91-83F6C3D5FBAA}.Release|x64 - AnyCPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2BD54FD3-1159-48A5-8DBF-CF0983FC1301}
+	EndGlobalSection
+EndGlobal

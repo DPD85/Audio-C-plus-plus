@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Grafici": {
+      "commandName": "Project",
+      "workingDirectory": "$(ProjectDir)..\\Audio C++"
+    }
+  }
+}
