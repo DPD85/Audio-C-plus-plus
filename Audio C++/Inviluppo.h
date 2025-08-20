@@ -2,7 +2,7 @@
 
 #include "CostantiEdAltro.h"
 
-class Inviluppo
+class InviluppoADSR
 {
   public:
     /// @brief Inizializza un inviluppo di tipo ADSR
@@ -10,7 +10,7 @@ class Inviluppo
     /// @param decadimento_ Durata della fase di decadimento dell'inviluppo espressa in secondi
     /// @param sostentamento_ Ampiezza (volume) della fase di sostentamento [0, 1]
     /// @param rilascio_ Durata della fase di rilascio dell'inviluppo espressa in secondi
-    Inviluppo(double attacco_, double decadimento_, double sostentamento_, double rilascio_)
+    InviluppoADSR(double attacco_, double decadimento_, double sostentamento_, double rilascio_)
     {
         attacco       = DaSecondiACampioni(attacco_);
         decadimento   = DaSecondiACampioni(decadimento_);
@@ -73,8 +73,8 @@ class Inviluppo
                     (1.0 - (tempo - attacco) / static_cast<double>(decadimento)) * (1 - sostentamento) + sostentamento;
                 break;
             case Stati::Sostentamento:
-                // Intenzionale così non faccio avanzare il tempo, in questo modo il tempo di inizio del rilascio sarà
-                // sempre uguale alla durata dell'attacco sommata alla durata del decadimento.
+                // Intenzionale.Il tempo non avanza, in questo modo il tempo di inizio del rilascio sarà sempre uguale
+                // alla durata dell'attacco sommata alla durata del decadimento.
                 return sostentamento;
             case Stati::Rilascio:
                 valore = (1.0 - (tempo - (attacco + decadimento)) / static_cast<double>(rilascio)) * sostentamento;
@@ -83,7 +83,7 @@ class Inviluppo
 
         // ----- Avanzamento tempo
 
-        tempo++;
+        ++tempo;
 
         // -----
 

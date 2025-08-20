@@ -7,6 +7,7 @@ namespace Oscillatori
     class Oscillatore
     {
       public:
+        /// @brief Restituisce il campione corrente e calcola il successivo
         virtual double Campione() = 0;
 
         virtual void Frequenza(double frequenza, unsigned int frequenzaCampionamento) = 0;
@@ -30,8 +31,7 @@ namespace Oscillatori
             aggiornato.test_and_set();
         }
 
-        /// @brief Genera il campione successivo dell'onda
-        /// @return Il campione appena generato
+        /// @copydoc Oscillatore::Campione
         double Campione()
         {
             if (!aggiornato.test_and_set()) m = nuovoM;
@@ -85,8 +85,7 @@ namespace Oscillatori
             this->Frequenza(frequenza, frequenzaCampionamento);
         }
 
-        /// @brief Genera il campione successivo dell'onda
-        /// @return Il campione appena generato
+        /// @copydoc Oscillatore::Campione
         double Campione()
         {
             double _campione = sin.Campione();
