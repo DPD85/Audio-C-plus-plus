@@ -15,5 +15,6 @@
     <ClInclude Include="SmussamentoEsponenziale.h" />
     <ClInclude Include="Normalizzatore.h" />
     <ClInclude Include="Inviluppo.h" />
+    <ClInclude Include="StrumentoMusicale.h" />
   </ItemGroup>
 </Project>

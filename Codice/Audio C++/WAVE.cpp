@@ -86,7 +86,7 @@ namespace WAVE
 
         unsigned int timeLen = 30;
 
-        DataFormatChunk df(1, 44100, 8);
+        DataFormatChunk df(1, static_cast<unsigned int>(Costanti::FrequenzaCampionamento), 8);
 
         SampledDataChunk dc;
         dc.dimensione = df.bytePerSecondo * timeLen;
@@ -109,8 +109,8 @@ namespace WAVE
         file.write(reinterpret_cast<char *>(&df), sizeof(DataFormatChunk));
         file.write(reinterpret_cast<char *>(&dc), sizeof(SampledDataChunk));
 
-        Oscillatori::OndaSinusoidale sin480(480, df.frequenza);
-        Oscillatori::OndaSinusoidale sin320(320, df.frequenza);
+        Oscillatori::OndaSinusoidale sin480(480);
+        Oscillatori::OndaSinusoidale sin320(320);
 
         for (size_t i = 1; i < df.frequenza * timeLen; ++i)
         {
@@ -136,7 +136,7 @@ namespace WAVE
     {
         unsigned int timeLen = 30;
 
-        DataFormatChunk df(2, 44100, 8);
+        DataFormatChunk df(2, static_cast<unsigned int>(Costanti::FrequenzaCampionamento), 8);
 
         SampledDataChunk dc;
         dc.dimensione = df.bytePerSecondo * timeLen;
@@ -163,8 +163,8 @@ namespace WAVE
             file.write(reinterpret_cast<char *>(&df), sizeof(DataFormatChunk));
             file.write(reinterpret_cast<char *>(&dc), sizeof(SampledDataChunk));
 
-            Oscillatori::OndaSinusoidale sin480(480, df.frequenza);
-            Oscillatori::OndaSinusoidale sin320(320, df.frequenza);
+            Oscillatori::OndaSinusoidale sin480(480);
+            Oscillatori::OndaSinusoidale sin320(320);
 
             for (size_t i = 0; i < df.frequenza * timeLen; ++i)
             {
@@ -204,8 +204,8 @@ namespace WAVE
             file.write(reinterpret_cast<char *>(&df), sizeof(DataFormatChunk));
             file.write(reinterpret_cast<char *>(&dc), sizeof(SampledDataChunk));
 
-            Oscillatori::OndaSinusoidale sin480(480, df.frequenza);
-            Oscillatori::OndaSinusoidale sin320(320, df.frequenza);
+            Oscillatori::OndaSinusoidale sin480(480);
+            Oscillatori::OndaSinusoidale sin320(320);
 
             for (size_t i = 0; i < df.frequenza * timeLen; ++i)
             {

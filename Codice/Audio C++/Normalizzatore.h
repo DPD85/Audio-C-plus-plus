@@ -5,10 +5,6 @@
 class Normalizzatore
 {
   public:
-    void DimensioneStorico(size_t numCampioni)
-    {
-    }
-
     void Normalizza(dvector &dati)
     {
         Normalizza(dati, dati.size());
@@ -39,10 +35,6 @@ class Normalizzatore
 class NormalizzatoreSmussato
 {
   public:
-    void DimensioneStorico(size_t numCampioni)
-    {
-    }
-
     void Normalizza(dvector &dati)
     {
         Normalizza(dati, dati.size());

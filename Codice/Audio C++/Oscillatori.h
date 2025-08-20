@@ -10,7 +10,7 @@ namespace Oscillatori
         /// @brief Restituisce il campione corrente e calcola il successivo
         virtual double Campione() = 0;
 
-        virtual void Frequenza(double frequenza, unsigned int frequenzaCampionamento) = 0;
+        virtual void Frequenza(double frequenza) = 0;
 
         virtual void Reset() = 0;
     };
@@ -21,12 +21,19 @@ namespace Oscillatori
     class OndaSinusoidale: public Oscillatore
     {
       public:
+        /// @brief Inizializza il generatore con frequenza zero
+        OndaSinusoidale()
+        {
+            nuovoM = dcomplex(0, 0);
+            m      = dcomplex(0, 0);
+            aggiornato.test_and_set();
+        }
+
         /// @brief Inizializza la generazione dell'onda sinusoidale
         /// @param frequenza frequenza dell'onda da generare
-        /// @param frequenzaCampionamento numero di campioni per secondo da generare
-        OndaSinusoidale(double frequenza, unsigned int frequenzaCampionamento = Costanti::FrequenzaCampionamento)
+        OndaSinusoidale(double frequenza)
         {
-            this->Frequenza(frequenza, frequenzaCampionamento);
+            Frequenza(frequenza);
             m = nuovoM;
             aggiornato.test_and_set();
         }
@@ -41,7 +48,7 @@ namespace Oscillatori
             // Calcolo il campione successivo dell'onda
             fase *= m;
             // Normalizzo così da mantenere i numeri nell'intervallo [-1, 1] ed usufruire della massima precisione in
-            // virgola mobile
+            // virgola mobile oltre ad ottenere un risultato compreso nell'intervallo [0, 1]
             fase /= std::abs(fase);
 
             return _campione;
@@ -49,10 +56,10 @@ namespace Oscillatori
 
         /// @brief Cambia la frequenza dell'onda sinusoidale
         /// @param frequenza nuova frequenza dell'onda da generare
-        /// @param frequenzaCampionamento nuovo numero di campioni per secondo da generare
-        void Frequenza(double frequenza, unsigned int frequenzaCampionamento = Costanti::FrequenzaCampionamento)
+        void Frequenza(double frequenza)
         {
-            nuovoM = std::exp(dcomplex(0.0, 2 * std::numbers::pi * frequenza * (1.0 / frequenzaCampionamento)));
+            nuovoM =
+                std::exp(dcomplex(0.0, 2 * std::numbers::pi * frequenza * (1.0 / Costanti::FrequenzaCampionamento)));
             aggiornato.clear();
         }
 
@@ -76,14 +83,12 @@ namespace Oscillatori
     class OndaQuadra: public Oscillatore
     {
       public:
+        /// @brief Inizializza il generatore con frequenza zero
+        OndaQuadra() = default;
+
         /// @brief Inizializza la generazione dell'onda sinusoidale
         /// @param frequenza frequenza dell'onda da generare
-        /// @param frequenzaCampionamento numero di campioni per secondo da generare
-        OndaQuadra(double frequenza, unsigned int frequenzaCampionamento = Costanti::FrequenzaCampionamento)
-            : sin(frequenza, frequenzaCampionamento)
-        {
-            this->Frequenza(frequenza, frequenzaCampionamento);
-        }
+        OndaQuadra(double frequenza): sin(frequenza) {}
 
         /// @copydoc Oscillatore::Campione
         double Campione()
@@ -94,10 +99,9 @@ namespace Oscillatori
 
         /// @brief Cambia la frequenza dell'onda sinusoidale
         /// @param frequenza nuova frequenza dell'onda da generare
-        /// @param frequenzaCampionamento nuovo numero di campioni per secondo da generare
-        void Frequenza(double frequenza, unsigned int frequenzaCampionamento = Costanti::FrequenzaCampionamento)
+        void Frequenza(double frequenza)
         {
-            sin.Frequenza(frequenza, frequenzaCampionamento);
+            sin.Frequenza(frequenza);
         }
 
         // ATTENZIONE: non è sincronizzata con il thread audio

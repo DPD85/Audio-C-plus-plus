@@ -108,6 +108,7 @@
     <ClInclude Include="Normalizzatore.h" />
     <ClInclude Include="Oscillatori.h" />
     <ClInclude Include="SmussamentoEsponenziale.h" />
+    <ClInclude Include="StrumentoMusicale.h" />
     <ClInclude Include="WAVE.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

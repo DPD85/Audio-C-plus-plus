@@ -1,9 +1,24 @@
 #pragma once
 
+enum Note
+{
+    DO,
+    RE,
+    MI,
+    FA,
+    SOL,
+    LA,
+    SI,
+
+    NumeroNote,
+};
+
 namespace Costanti
 {
     // Frequenza di campionamento dell'audio prodotto
-    const constexpr unsigned int FrequenzaCampionamento = 44100; // [Hz]
+    const constexpr double FrequenzaCampionamento = 44100; // [Hz]
+    // Numero di audio prodotti
+    const constexpr unsigned int NumeroCanali = 2;
 
     // Campione ad 8 bit corrispondente al silenzio
     const constexpr unsigned char Silenzio8Bit = 128;
@@ -52,22 +67,13 @@ namespace Costanti
     const double FrequenzaLa  = FrequenzaRiferimentoLa * std::pow(2.0, +0.0 / 12.0); // [Hz]
     const double FrequenzaSi  = FrequenzaRiferimentoLa * std::pow(2.0, +2.0 / 12.0); // [Hz]
 #endif
+
+    const constexpr std::array<double, Note::NumeroNote> FrequenzeNote = { FrequenzaDo, FrequenzaRe,  FrequenzaMi,
+                                                                           FrequenzaFa, FrequenzaSol, FrequenzaLa,
+                                                                           FrequenzaSi };
 }
 
 // ----- -----
-
-enum Note
-{
-    DO,
-    RE,
-    MI,
-    FA,
-    SOL,
-    LA,
-    SI,
-
-    NumeroNote,
-};
 
 using dcomplex = std::complex<double>;
 using dvector  = std::vector<double>;
@@ -76,7 +82,10 @@ using dvector  = std::vector<double>;
 
 static_assert(
     std::atomic<double>::is_always_lock_free,
-    "L'architettura non supporta le operazioni atomiche lock-free con il tipo double.");
+    "L'architettura del processore non supporta le operazioni atomiche lock-free con il tipo double.");
+static_assert(
+    std::atomic<void*>::is_always_lock_free,
+    "L'architettura del processore non supporta le operazioni atomiche lock-free con i tipi puntatore.");
 
 // ----- -----
 
