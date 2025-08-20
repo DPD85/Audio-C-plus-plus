@@ -104,6 +104,7 @@
     <ClInclude Include="CodaEliminazione.h" />
     <ClInclude Include="CostantiEdAltro.h" />
     <ClInclude Include="IntestazionePrecompilata.h" />
+    <ClInclude Include="Inviluppo.h" />
     <ClInclude Include="Normalizzatore.h" />
     <ClInclude Include="Oscillatori.h" />
     <ClInclude Include="SmussamentoEsponenziale.h" />
