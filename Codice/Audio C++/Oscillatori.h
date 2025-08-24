@@ -22,26 +22,24 @@ namespace Oscillatori
     {
       public:
         /// @brief Inizializza il generatore con frequenza zero
-        OndaSinusoidale()
-        {
-            nuovoM = dcomplex(0, 0);
-            m      = dcomplex(0, 0);
-            aggiornato.test_and_set();
-        }
+        OndaSinusoidale(): nuovoM(0, 0), m(0, 0) {}
 
         /// @brief Inizializza la generazione dell'onda sinusoidale
         /// @param frequenza frequenza dell'onda da generare
         OndaSinusoidale(double frequenza)
         {
-            Frequenza(frequenza);
+            Frequenza_Interno(frequenza);
             m = nuovoM;
-            aggiornato.test_and_set();
         }
 
         /// @copydoc Oscillatore::Campione
         double Campione()
         {
-            if (!aggiornato.test_and_set()) m = nuovoM;
+            if (daAggiornare.load())
+            {
+                m = nuovoM;
+                daAggiornare.store(false);
+            }
 
             double _campione = fase.imag();
 
@@ -58,9 +56,8 @@ namespace Oscillatori
         /// @param frequenza nuova frequenza dell'onda da generare
         void Frequenza(double frequenza)
         {
-            nuovoM =
-                std::exp(dcomplex(0.0, 2 * std::numbers::pi * frequenza * (1.0 / Costanti::FrequenzaCampionamento)));
-            aggiornato.clear();
+            Frequenza_Interno(frequenza);
+            daAggiornare.store(true);
         }
 
         // ATTENZIONE: non è sincronizzata con il thread audio
@@ -71,10 +68,16 @@ namespace Oscillatori
         }
 
       private:
-        std::atomic_flag aggiornato;
+        std::atomic<bool> daAggiornare;
         dcomplex nuovoM;
         dcomplex m;
         dcomplex fase{ 1.0, 0.0 };
+
+        void Frequenza_Interno(double frequenza)
+        {
+            nuovoM =
+                std::exp(dcomplex(0.0, 2 * std::numbers::pi * frequenza * (1.0 / Costanti::FrequenzaCampionamento)));
+        }
     };
 
     /// @brief Generatore di onda quadra

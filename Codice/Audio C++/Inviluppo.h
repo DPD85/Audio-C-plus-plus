@@ -20,12 +20,12 @@ class InviluppoADSR
 
     void InizioNota()
     {
-        notaAttiva.test_and_set();
+        notaAttiva.store(true);
     }
 
     void FineNota()
     {
-        notaAttiva.clear();
+        notaAttiva.store(false);
     }
 
     /// @brief Calcola il valore dell'inviluppo un campione alla volta
@@ -37,7 +37,7 @@ class InviluppoADSR
         switch (stato)
         {
             case Stati::Silenzio:
-                if (notaAttiva.test())
+                if (notaAttiva.load())
                 {
                     tempo = 0;
                     stato = Stati::Attacco;
@@ -50,7 +50,7 @@ class InviluppoADSR
                 if (tempo - attacco >= decadimento) stato = Stati::Sostentamento;
                 break;
             case Stati::Sostentamento:
-                if (!notaAttiva.test()) stato = Stati::Rilascio;
+                if (!notaAttiva.load()) stato = Stati::Rilascio;
                 break;
             case Stati::Rilascio:
                 if (tempo - (attacco + decadimento) >= rilascio) stato = Stati::Silenzio;
@@ -100,7 +100,7 @@ class InviluppoADSR
         Rilascio,
     };
 
-    std::atomic_flag notaAttiva;
+    std::atomic<bool> notaAttiva;
 
     Stati stato{ Stati::Silenzio };
 
