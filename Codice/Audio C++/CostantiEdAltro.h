@@ -75,8 +75,9 @@ namespace Costanti
 
 // ----- -----
 
-using dcomplex = std::complex<double>;
-using dvector  = std::vector<double>;
+using dcomplex           = std::complex<double>;
+using dvector            = std::vector<double>;
+using DurataMillisecondi = std::chrono::duration<double, std::milli>;
 
 // ----- -----
 
@@ -84,7 +85,7 @@ static_assert(
     std::atomic<double>::is_always_lock_free,
     "L'architettura del processore non supporta le operazioni atomiche lock-free con il tipo double.");
 static_assert(
-    std::atomic<void*>::is_always_lock_free,
+    std::atomic<void *>::is_always_lock_free,
     "L'architettura del processore non supporta le operazioni atomiche lock-free con i tipi puntatore.");
 
 // ----- -----
