@@ -16,5 +16,6 @@
     <ClInclude Include="Normalizzatore.h" />
     <ClInclude Include="Inviluppo.h" />
     <ClInclude Include="StrumentoMusicale.h" />
+    <ClInclude Include="Clock.h" />
   </ItemGroup>
 </Project>

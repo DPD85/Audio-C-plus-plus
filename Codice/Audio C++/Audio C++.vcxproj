@@ -103,6 +103,7 @@
     <ClCompile Include="WAVE.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Clock.h" />
     <ClInclude Include="CodaEliminazione.h" />
     <ClInclude Include="CostantiEdAltro.h" />
     <ClInclude Include="IntestazionePrecompilata.h" />

@@ -2,15 +2,16 @@
 
 // C++ standard library
 
-#include <algorithm>
 #include <array>
 #include <atomic>
 #include <cassert>
 #include <cctype>
 #include <chrono>
+#include <clocale>
 #include <cmath>
 #include <complex>
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <ios>
 #include <iostream>
@@ -18,6 +19,7 @@
 #include <mutex>
 #include <numbers>
 #include <ostream>
+#include <stack>
 #include <thread>
 #include <vector>
 
