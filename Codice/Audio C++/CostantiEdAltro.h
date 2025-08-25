@@ -16,7 +16,7 @@ enum Note
 namespace Costanti
 {
     // Frequenza di campionamento dell'audio prodotto
-    const constexpr double FrequenzaCampionamento = 44100; // [Hz]
+    const constexpr double FrequenzaCampionamento = 48000; // [Hz]
     // Numero di audio prodotti
     const constexpr unsigned int NumeroCanali = 2;
 
