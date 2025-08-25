@@ -19,6 +19,8 @@ namespace Costanti
     const constexpr double FrequenzaCampionamento = 48000; // [Hz]
     // Numero di audio prodotti
     const constexpr unsigned int NumeroCanali = 2;
+    // I campioni sono rappresentati con numeri float oppure da interi
+    const constexpr bool CampioniFloat = true;
 
     // Campione ad 8 bit corrispondente al silenzio
     const constexpr unsigned char Silenzio8Bit = 128;

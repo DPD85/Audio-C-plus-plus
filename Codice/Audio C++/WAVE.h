@@ -4,12 +4,18 @@ namespace WAVE
 {
 #pragma pack(push, 1)
 
+    enum class TipoCampioni
+    {
+        Interi,
+        Float
+    };
+
     struct DataFormatChunk
     {
         unsigned int firma      = MAKEFOURCC('f', 'm', 't', ' ');
         unsigned int dimensione = sizeof(DataFormatChunk) - 8;
         // Formato dei campioni (compressi, non compressi, ecc...)
-        unsigned short formatTag = WAVE_FORMAT_PCM;
+        unsigned short formatTag;
         unsigned short numberoCanali;
         // Frequenza di campionamento
         unsigned int frequenza;
@@ -20,9 +26,17 @@ namespace WAVE
 
         DataFormatChunk();
 
-        inline DataFormatChunk(unsigned short _numberoCanali, unsigned int _frequenza, unsigned short _bitPerCampione);
+        inline DataFormatChunk(
+            unsigned short _numberoCanali,
+            unsigned int _frequenza,
+            unsigned short _bitPerCampione,
+            TipoCampioni tipoCampioni = TipoCampioni::Interi);
 
-        inline void Set(unsigned short _numberoCanali, unsigned int _frequenza, unsigned short _bitPerCampione);
+        inline void
+        Set(unsigned short _numberoCanali,
+            unsigned int _frequenza,
+            unsigned short _bitPerCampione,
+            TipoCampioni tipoCampioni = TipoCampioni::Interi);
 
         operator WAVEFORMATEX();
     };

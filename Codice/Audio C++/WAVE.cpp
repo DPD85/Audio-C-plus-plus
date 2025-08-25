@@ -11,14 +11,23 @@ namespace WAVE
     DataFormatChunk::DataFormatChunk() = default;
 
     inline DataFormatChunk::DataFormatChunk(
-        unsigned short _numberoCanali, unsigned int _frequenza, unsigned short _bitPerCampione)
+        unsigned short _numberoCanali,
+        unsigned int _frequenza,
+        unsigned short _bitPerCampione,
+        TipoCampioni tipoCampioni)
     {
-        Set(_numberoCanali, _frequenza, _bitPerCampione);
+        Set(_numberoCanali, _frequenza, _bitPerCampione, tipoCampioni);
     }
 
-    inline void
-    DataFormatChunk::Set(unsigned short _numberoCanali, unsigned int _frequenza, unsigned short _bitPerCampione)
+    inline void DataFormatChunk::Set(
+        unsigned short _numberoCanali,
+        unsigned int _frequenza,
+        unsigned short _bitPerCampione,
+        TipoCampioni tipoCampioni)
     {
+        if (tipoCampioni == TipoCampioni::Interi) formatTag = WAVE_FORMAT_PCM;
+        else formatTag = WAVE_FORMAT_IEEE_FLOAT;
+
         numberoCanali   = _numberoCanali;
         frequenza       = _frequenza;
         bitsPerCampione = _bitPerCampione;
