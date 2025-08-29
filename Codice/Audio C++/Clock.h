@@ -61,6 +61,20 @@ class Clock
         return attesa * 1000.0;
     }
 
+    /// @brief Restituisce il periodo del clock espresso in secondi
+    double Periodo() const
+    {
+        return periodo * 1000.0;
+    }
+
+    /// @brief Imposta il periodo del clock
+    /// @param periodo_ Il nuovo periodo del clock espresso in secondi
+    /// @warning Questo metodo non è sincronizzato con il metodo @ref AspettaTicchettioSuccessivo()
+    void Periodo(double periodo_)
+    {
+        periodo = periodo_ * 1000.0;
+    }
+
   private:
     // Se il tempo restante prima del prossimo ticchettio supera questo valore allora sarà usata la funzione Sleep()
     // altrimenti verrà effettuato un busy wait.
