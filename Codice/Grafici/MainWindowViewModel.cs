@@ -1,5 +1,6 @@
 ﻿using OxyPlot;
 using OxyPlot.Axes;
+using OxyPlot.Legends;
 using OxyPlot.Series;
 using System.Diagnostics;
 using System.IO;
@@ -8,7 +9,7 @@ namespace Grafici
 {
     public class MainWindowViewModel : INotifyBase
     {
-        private const double FREQUENZA_CAMPIONAMENTO = 44100.0;
+        private const double FREQUENZA_CAMPIONAMENTO = 48000.0;
         private const double INV_FREQUENZA_CAMPIONAMENTO = 1.0 / FREQUENZA_CAMPIONAMENTO;
         private const int DIMENSIONE_CAMPIONE = sizeof(double);
 
@@ -34,8 +35,8 @@ namespace Grafici
             }
         }
 
-        private DataPoint[] campioni;
-        private readonly LineSeries serie = new();
+        private DataPoint[][] campioni;
+        private LineSeries[] serie;
 
         private PlotModel plotModel = new();
         public PlotModel PlotModel { get => plotModel; set => SetProperty(ref plotModel, value); }
@@ -127,7 +128,12 @@ namespace Grafici
                 MinorGridlineStyle = LineStyle.Solid
             });
 
-            PlotModel.Series.Add(serie);
+            var leggenda = new Legend
+            {
+                LegendPosition = LegendPosition.LeftMiddle,
+                LegendPlacement = LegendPlacement.Outside
+            };
+            PlotModel.Legends.Add(leggenda);
 
             CaricaRegistrazione(fileSelezionato);
             CaricaIntervallo();
@@ -167,29 +173,33 @@ namespace Grafici
         {
             try
             {
-                serie.Points.Clear();
-
-                int inizio = (int)Math.Ceiling(tempoInizio * FREQUENZA_CAMPIONAMENTO);
-                int fine = (int)Math.Ceiling(tempoFine * FREQUENZA_CAMPIONAMENTO);
-
-                var mas = new DataPoint(0, double.NegativeInfinity);
-                var min = new DataPoint(0, double.PositiveInfinity);
-
-                for (int i = inizio; i < fine; ++i)
+                for (int s = 0; s < campioni.Length; ++s)
                 {
-                    serie.Points.Add(campioni[i]);
+                    serie[s].Points.Clear();
 
-                    if (campioni[i].Y > mas.Y) mas = campioni[i];
-                    if (campioni[i].Y < min.Y) min = campioni[i];
+                    int inizio = (int)Math.Ceiling(tempoInizio * FREQUENZA_CAMPIONAMENTO);
+                    int fine = (int)Math.Ceiling(tempoFine * FREQUENZA_CAMPIONAMENTO);
+
+                    var mas = new DataPoint(0, double.NegativeInfinity);
+                    var min = new DataPoint(0, double.PositiveInfinity);
+
+                    for (int i = inizio; i < fine; ++i)
+                    {
+                        serie[s].Points.Add(campioni[s][i]);
+
+                        if (campioni[s][i].Y > mas.Y) mas = campioni[s][i];
+                        if (campioni[s][i].Y < min.Y) min = campioni[s][i];
+                    }
+
+                    Massimo = mas;
+                    Minimo = min;
                 }
-
-                Massimo = mas;
-                Minimo = min;
 
                 PlotModel.InvalidatePlot(true);
             }
             catch (Exception ex)
             {
+                if (!Debugger.IsAttached) Debugger.Launch();
                 Console.WriteLine(ex.ToString());
                 Debugger.Break();
             }
@@ -199,14 +209,37 @@ namespace Grafici
         {
             byte[] dati = File.ReadAllBytes(percorsoFile);
 
-            int numCampioni = dati.Length / DIMENSIONE_CAMPIONE;
-            campioni = new DataPoint[numCampioni];
+            int numeroSerie = dati[0];
+            int numCampioni = (dati.Length - 1) / DIMENSIONE_CAMPIONE / numeroSerie;
 
-            double tempo = 0;
-            for (int i = 0; i < dati.Length; i += DIMENSIONE_CAMPIONE, tempo += INV_FREQUENZA_CAMPIONAMENTO)
-                campioni[i / DIMENSIONE_CAMPIONE] = new DataPoint(tempo, BitConverter.ToDouble(dati, i));
+            campioni = new DataPoint[numeroSerie][];
 
-            DurataTotale = campioni.Length / FREQUENZA_CAMPIONAMENTO;
+            int byteOffset = 1;
+            for (int s = 0; s < numeroSerie; ++s)
+            {
+                campioni[s] = new DataPoint[numCampioni];
+
+                double tempo = 0;
+                for (int i = 0;
+                    i < numCampioni;
+                    ++i, byteOffset += DIMENSIONE_CAMPIONE, tempo += INV_FREQUENZA_CAMPIONAMENTO)
+                {
+                    campioni[s][i] = new DataPoint(tempo, BitConverter.ToDouble(dati, byteOffset));
+                }
+            }
+
+            DurataTotale = campioni[0].Length / FREQUENZA_CAMPIONAMENTO;
+
+            // ----- -----
+
+            PlotModel.Series.Clear();
+
+            serie = new LineSeries[campioni.Length];
+            for (int s = 0; s < campioni.Length; ++s)
+            {
+                serie[s] = new LineSeries() { Title = $"Serie {s}" };
+                PlotModel.Series.Add(serie[s]);
+            }
         }
     }
 }

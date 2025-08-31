@@ -103,6 +103,8 @@ namespace WAVE
         MasterRIFFChunk mc;
         mc.SetFileSize(dc.dimensione);
 
+        const size_t numeroCampioni = DaSecondiACampioni(timeLen);
+
         std::ofstream file(L"test.wav", std::ios_base::binary | std::ios_base::trunc, _SH_DENYWR);
         if (!file.is_open())
         {
@@ -121,9 +123,9 @@ namespace WAVE
         Oscillatori::OndaSinusoidale sin480(480);
         Oscillatori::OndaSinusoidale sin320(320);
 
-        for (size_t i = 1; i < df.frequenza * timeLen; ++i)
+        for (size_t i = 1; i < numeroCampioni; ++i)
         {
-            if (i == df.frequenza) sin480.Frequenza(600);
+            if (i == 1ull * df.frequenza) sin480.Frequenza(600);
             if (i == 2ull * df.frequenza) sin480.Frequenza(480);
             if (i == 3ull * df.frequenza) sin480.Frequenza(600);
             if (i == 4ull * df.frequenza) sin480.Frequenza(480);
@@ -143,7 +145,7 @@ namespace WAVE
 
     void CreaFileStereo()
     {
-        unsigned int timeLen = 30;
+        const constexpr unsigned int timeLen = 30;
 
         DataFormatChunk df(2, static_cast<unsigned int>(Costanti::FrequenzaCampionamento), 8);
 
@@ -152,6 +154,8 @@ namespace WAVE
 
         MasterRIFFChunk mc;
         mc.SetFileSize(dc.dimensione);
+
+        const size_t numeroCampioni = DaSecondiACampioni(timeLen);
 
         // Solo canale 1° canale (sinistro)
         {
@@ -175,7 +179,7 @@ namespace WAVE
             Oscillatori::OndaSinusoidale sin480(480);
             Oscillatori::OndaSinusoidale sin320(320);
 
-            for (size_t i = 0; i < df.frequenza * timeLen; ++i)
+            for (size_t i = 0; i < numeroCampioni; ++i)
             {
                 // 1° canale
                 double v = 0;
@@ -190,7 +194,7 @@ namespace WAVE
                 file << ConvertiA8Bits(v);
 
                 // 2° canale - silenzio
-                file << static_cast<unsigned char>(Costanti::Silenzio8Bit);
+                file << Costanti::Silenzio8Bit;
             }
         }
 
@@ -216,10 +220,10 @@ namespace WAVE
             Oscillatori::OndaSinusoidale sin480(480);
             Oscillatori::OndaSinusoidale sin320(320);
 
-            for (size_t i = 0; i < df.frequenza * timeLen; ++i)
+            for (size_t i = 0; i < numeroCampioni; ++i)
             {
                 // 1° canale - silenzio
-                file << static_cast<unsigned char>(Costanti::Silenzio8Bit);
+                file << Costanti::Silenzio8Bit;
 
                 // 2° canale
                 double v = 0;

@@ -123,3 +123,8 @@ inline size_t DaSecondiACampioni(double secondi)
 {
     return static_cast<size_t>(std::floor(Costanti::FrequenzaCampionamento * secondi));
 }
+
+inline constexpr double DaCampioniASecondi(size_t campioni)
+{
+    return campioni / Costanti::FrequenzaCampionamento;
+}
