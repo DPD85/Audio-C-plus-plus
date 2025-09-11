@@ -128,3 +128,9 @@ inline constexpr double DaCampioniASecondi(size_t campioni)
 {
     return campioni / Costanti::FrequenzaCampionamento;
 }
+
+inline constexpr double DaSmussamentoAGuadagno(double valore)
+{
+    if (valore == 0) return 1.0;
+    else return -std::expm1(-1.0 / Costanti::FrequenzaCampionamento / valore);
+}

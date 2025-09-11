@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SmussamentoEsponenziale.h"
+#include "Volume.h"
 
 class Normalizzatore
 {
@@ -24,8 +24,6 @@ class Normalizzatore
         for (size_t i = 0; i < numeroCampioni; ++i)
         {
             dati[i + offset] *= scala;
-
-            // assert(dati[i + offset] >= -1 && dati[i + offset] <= 1);
         }
     }
 
@@ -49,16 +47,14 @@ class NormalizzatoreSmussato
 
         if (massimo <= 1) return;
 
-        scala.NuovoValore(1.0 / massimo);
+        scala.Valore(1.0 / massimo);
 
         for (size_t i = 0; i < numeroCampioni; ++i)
         {
             dati[i + offset] *= scala.Smussa();
-
-            // assert(dati[i + offset] >= -1 && dati[i + offset] <= 1);
         }
     }
 
   private:
-    SmussamentoEsponenziale scala{ 0.1 };
+    Volume scala{ 0.1 };
 };

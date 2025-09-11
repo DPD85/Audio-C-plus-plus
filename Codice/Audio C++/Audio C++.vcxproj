@@ -110,7 +110,8 @@
     <ClInclude Include="Inviluppo.h" />
     <ClInclude Include="Normalizzatore.h" />
     <ClInclude Include="Oscillatori.h" />
-    <ClInclude Include="SmussamentoEsponenziale.h" />
+    <ClInclude Include="Filtri.h" />
+    <ClInclude Include="Volume.h" />
     <ClInclude Include="StrumentoMusicale.h" />
     <ClInclude Include="WAVE.h" />
   </ItemGroup>
