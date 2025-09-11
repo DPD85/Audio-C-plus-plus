@@ -23,6 +23,10 @@
 #include <thread>
 #include <vector>
 
+// Boost
+
+#include <boost/circular_buffer.hpp>
+
 // O.S. API ed altro
 
 #define NOMINMAX

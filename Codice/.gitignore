@@ -5,3 +5,6 @@ obj/
 
 Audio C++/*.dat
 Audio C++/[Tt]est*.wav
+
+Audio C++/.conan
+Audio C++/conan

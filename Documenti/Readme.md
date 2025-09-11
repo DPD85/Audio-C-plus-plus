@@ -8,6 +8,8 @@
 
 [The blog at the bottom of the sea « Programming, Graphics, Gamedev, Exotic Computation, Audio Synthesis](https://blog.demofox.org/)
 
+[Musicdsp.org](https://www.musicdsp.org)
+
 ## Formato file WAV
 
 [Interpretation of WAV file sample data and asymmetry · GitHub](https://gist.github.com/endolith/e8597a58bcd11a6462f33fa8eb75c43d)
@@ -17,6 +19,12 @@
 [Intonazione naturale - Wikipedia](https://it.wikipedia.org/wiki/Intonazione_naturale)
 
 [Armonici naturali - Wikipedia](https://it.wikipedia.org/wiki/Armonici_naturali)
+
+## Unità di misura
+
+[Neper](https://it.wikipedia.org/wiki/Neper)
+[Bel](https://it.wikipedia.org/wiki/Bel_(unit%C3%A0_di_misura))
+[Decibel](https://it.wikipedia.org/wiki/Decibel)
 
 ## Algoritmi
 

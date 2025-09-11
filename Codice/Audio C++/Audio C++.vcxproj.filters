@@ -12,10 +12,15 @@
     <ClInclude Include="Oscillatori.h" />
     <ClInclude Include="CostantiEdAltro.h" />
     <ClInclude Include="IntestazionePrecompilata.h" />
-    <ClInclude Include="SmussamentoEsponenziale.h" />
+    <ClInclude Include="Volume.h" />
     <ClInclude Include="Normalizzatore.h" />
     <ClInclude Include="Inviluppo.h" />
     <ClInclude Include="StrumentoMusicale.h" />
     <ClInclude Include="Clock.h" />
+    <ClInclude Include="Filtri.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="conandata.yml" />
+    <None Include="conanfile.py" />
   </ItemGroup>
 </Project>
