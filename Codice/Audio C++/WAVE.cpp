@@ -31,7 +31,7 @@ namespace WAVE
         numberoCanali   = _numberoCanali;
         frequenza       = _frequenza;
         bitsPerCampione = _bitPerCampione;
-        bytePerBlocco   = (_numberoCanali * _bitPerCampione) / 8;
+        bytePerBlocco   = (_numberoCanali * _bitPerCampione) / 8u;
         bytePerSecondo  = _frequenza * bytePerBlocco;
     }
 

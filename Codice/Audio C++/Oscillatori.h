@@ -7,8 +7,10 @@ namespace Oscillatori
     class Oscillatore
     {
       public:
+        virtual ~Oscillatore() = default;
+
         /// @brief Restituisce il campione corrente e calcola il successivo
-        virtual double Campione() = 0;
+        virtual double Campione() noexcept = 0;
 
         virtual void Frequenza(double frequenza) = 0;
 
@@ -28,12 +30,12 @@ namespace Oscillatori
         /// @param frequenza frequenza dell'onda da generare
         OndaSinusoidale(double frequenza)
         {
-            Frequenza_Interno(frequenza);
+            ImpostaFrequenza(frequenza);
             m = nuovoM;
         }
 
         /// @copydoc Oscillatore::Campione
-        double Campione()
+        virtual double Campione() noexcept
         {
             if (daAggiornare.load())
             {
@@ -54,14 +56,14 @@ namespace Oscillatori
 
         /// @brief Cambia la frequenza dell'onda sinusoidale
         /// @param frequenza nuova frequenza dell'onda da generare
-        void Frequenza(double frequenza)
+        virtual void Frequenza(double frequenza)
         {
-            Frequenza_Interno(frequenza);
+            ImpostaFrequenza(frequenza);
             daAggiornare.store(true);
         }
 
         // ATTENZIONE: non è sincronizzata con il thread audio
-        void Reset()
+        virtual void Reset()
         {
             fase._Val[0] = 1.0;
             fase._Val[1] = 0.0;
@@ -73,7 +75,7 @@ namespace Oscillatori
         dcomplex m;
         dcomplex fase{ 1.0, 0.0 };
 
-        void Frequenza_Interno(double frequenza)
+        void ImpostaFrequenza(double frequenza)
         {
             nuovoM =
                 std::exp(dcomplex(0.0, 2 * std::numbers::pi * frequenza * (1.0 / Costanti::FrequenzaCampionamento)));
@@ -94,7 +96,7 @@ namespace Oscillatori
         OndaQuadra(double frequenza): sin(frequenza) {}
 
         /// @copydoc Oscillatore::Campione
-        double Campione()
+        virtual double Campione() noexcept
         {
             double _campione = sin.Campione();
             return _campione > 0 ? 1.0 : -1.0;
@@ -102,13 +104,13 @@ namespace Oscillatori
 
         /// @brief Cambia la frequenza dell'onda sinusoidale
         /// @param frequenza nuova frequenza dell'onda da generare
-        void Frequenza(double frequenza)
+        virtual void Frequenza(double frequenza)
         {
             sin.Frequenza(frequenza);
         }
 
         // ATTENZIONE: non è sincronizzata con il thread audio
-        void Reset()
+        virtual void Reset()
         {
             sin.Reset();
         }

@@ -7,6 +7,8 @@
 class StrumentoMusicale
 {
   public:
+    virtual ~StrumentoMusicale() = default;
+
     virtual void InizioNota(Note nota) = 0;
     virtual void FineNota(Note nota)   = 0;
 
@@ -37,17 +39,17 @@ class StrumentoMusicaleSenzaSerieArmonica: public StrumentoMusicale
     };
 
   public:
-    void InizioNota(Note nota)
+    virtual void InizioNota(Note nota)
     {
         inviluppi[nota].InizioNota();
     }
 
-    void FineNota(Note nota)
+    virtual void FineNota(Note nota)
     {
         inviluppi[nota].FineNota();
     }
 
-    double Campione()
+    virtual double Campione()
     {
         double valore = 0;
 
@@ -101,17 +103,17 @@ class StrumentoMusicaleX: public StrumentoMusicale
                 note[i][j].Frequenza((j + 1) * Costanti::FrequenzeNote[i]);
     }
 
-    void InizioNota(Note nota)
+    virtual void InizioNota(Note nota)
     {
         inviluppi[nota].InizioNota();
     }
 
-    void FineNota(Note nota)
+    virtual void FineNota(Note nota)
     {
         inviluppi[nota].FineNota();
     }
 
-    double Campione()
+    virtual double Campione()
     {
         double valore = 0;
 

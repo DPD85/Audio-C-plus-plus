@@ -25,7 +25,7 @@ class Volume
         nuovoValore.store(_valore);
     }
 
-    double Smussa()
+    double Smussa() noexcept
     {
         double _nuovoValore = nuovoValore.load();
         return smussatore.Smussa(_nuovoValore);

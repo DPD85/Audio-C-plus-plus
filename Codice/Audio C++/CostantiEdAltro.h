@@ -134,7 +134,7 @@ inline size_t DaSecondiACampioni(double secondi)
 
 inline constexpr double DaCampioniASecondi(size_t campioni)
 {
-    return campioni / Costanti::FrequenzaCampionamento;
+    return static_cast<double>(campioni) / Costanti::FrequenzaCampionamento;
 }
 
 inline constexpr double DaSmussamentoAGuadagno(double valore)

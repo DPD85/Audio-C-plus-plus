@@ -49,11 +49,7 @@ class Clock
 
         // Aspetto per il tempo restante (busy wait)
         do
-        {
-            hrc::time_point tStop = hrc::now();
-
-            attesa = duration_cast<DurataMillisecondi>(tStop - tStart).count();
-        }
+            attesa = duration_cast<DurataMillisecondi>(hrc::now() - tStart).count();
         while (attesa <= periodo);
 
         tStart = hrc::now();

@@ -30,7 +30,7 @@ class InviluppoADSR
 
     /// @brief Calcola il valore dell'inviluppo un campione alla volta
     /// @return Il valore attuale dell'inviluppo; il valore è sempre compreso nell'intervallo [0, 1]
-    double Computa()
+    double Computa() noexcept
     {
         // ----- Cambio di stato
 
@@ -59,7 +59,7 @@ class InviluppoADSR
 
         // ----- Calcolo valore dell'inviluppo
 
-        double valore;
+        double valore = 0;
 
         switch (stato)
         {
