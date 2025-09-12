@@ -34,7 +34,6 @@
 #include <Audioclient.h>
 #include <ConsoleApi.h>
 #include <Windows.h>
-#include <conio.h>
 #include <mmdeviceapi.h>
 // Deve trovasi dopo mmdeviceapi.h
 #include <Functiondiscoverykeys_devpkey.h>
