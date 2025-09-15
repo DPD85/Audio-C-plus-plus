@@ -10,6 +10,14 @@ enum Note
     LA,
     SI,
 
+    NumeroNoteBase,
+
+    DO_DIESIS = NumeroNoteBase,
+    RE_DIESIS,
+    FA_DIESIS,
+    SOL_DIESIS,
+    LA_DIESIS,
+
     NumeroNote,
 };
 
@@ -51,6 +59,10 @@ namespace Costanti
     const constexpr double RapportoLa  = 5.0 / 3.0;
     const constexpr double RapportoSi  = 15.0 / 8.0;
 
+    // Rapporti dei semitoni secondo l'intonazione naturale
+    const constexpr double RapportoSemitonoCromatico = 25.0 / 24.0;
+    const constexpr double RapportoSemitonoDiatonico = 16.0 / 15.0;
+
     const constexpr double FrequenzaRiferimentoLa = 432; // [Hz]
 
 #if 1
@@ -63,6 +75,28 @@ namespace Costanti
     const constexpr double FrequenzaSol = FrequenzaDo * RapportoSol; // [Hz]
     const constexpr double FrequenzaLa  = FrequenzaDo * RapportoLa;  // [Hz]
     const constexpr double FrequenzaSi  = FrequenzaDo * RapportoSi;  // [Hz]
+    // Frequenze semitoni
+    const constexpr double FrequenzaDoDiesis  = RapportoSemitonoCromatico * FrequenzaDo;  // [Hz]
+    const constexpr double FrequenzaReDiesis  = RapportoSemitonoCromatico * FrequenzaRe;  // [Hz]
+    const constexpr double FrequenzaFaDiesis  = RapportoSemitonoCromatico * FrequenzaFa;  // [Hz]
+    const constexpr double FrequenzaSolDiesis = RapportoSemitonoCromatico * FrequenzaSol; // [Hz]
+    const constexpr double FrequenzaLaDiesis  = RapportoSemitonoCromatico * FrequenzaLa;  // [Hz]
+
+    static_assert(
+        FrequenzaDo < FrequenzaDoDiesis && FrequenzaDoDiesis < FrequenzaRe,
+        "La frequenza del Do# deve essere compresa tra la frequenza del Do ed del Re");
+    static_assert(
+        FrequenzaRe < FrequenzaReDiesis && FrequenzaReDiesis < FrequenzaMi,
+        "La frequenza del Re# deve essere compresa tra la frequenza del Re ed del Mi");
+    static_assert(
+        FrequenzaFa < FrequenzaFaDiesis && FrequenzaFaDiesis < FrequenzaSol,
+        "La frequenza del Fa# deve essere compresa tra la frequenza del Fa ed del Sol");
+    static_assert(
+        FrequenzaSol < FrequenzaSolDiesis && FrequenzaSolDiesis < FrequenzaLa,
+        "La frequenza del Sol# deve essere compresa tra la frequenza del Sol ed del La");
+    static_assert(
+        FrequenzaLa < FrequenzaLaDiesis && FrequenzaLaDiesis < FrequenzaSi,
+        "La frequenza del La# deve essere compresa tra la frequenza del La ed del Si");
 #else
     // Frequenza delle note calcolata secondo l'intonazione equanime (tutte i semi toni sono equidistanti).
     // Il rapporto tra due semitoni consecutivi è sempre pari alla radice dodicesima di due.
@@ -76,11 +110,19 @@ namespace Costanti
     const double FrequenzaSol = FrequenzaRiferimentoLa * std::pow(2.0, -2.0 / 12.0); // [Hz]
     const double FrequenzaLa  = FrequenzaRiferimentoLa * std::pow(2.0, +0.0 / 12.0); // [Hz]
     const double FrequenzaSi  = FrequenzaRiferimentoLa * std::pow(2.0, +2.0 / 12.0); // [Hz]
+
+    // Frequenze semitoni
+    const double FrequenzaDoDiesis  = FrequenzaRiferimentoLa * std::pow(2.0, -8.0 / 12.0); // [Hz]
+    const double FrequenzaReDiesis  = FrequenzaRiferimentoLa * std::pow(2.0, -6.0 / 12.0); // [Hz]
+    const double FrequenzaFaDiesis  = FrequenzaRiferimentoLa * std::pow(2.0, -3.0 / 12.0); // [Hz]
+    const double FrequenzaSolDiesis = FrequenzaRiferimentoLa * std::pow(2.0, -1.0 / 12.0); // [Hz]
+    const double FrequenzaLaDiesis  = FrequenzaRiferimentoLa * std::pow(2.0, +1.0 / 12.0); // [Hz]
 #endif
 
-    const constexpr std::array<double, Note::NumeroNote> FrequenzeNote = { FrequenzaDo, FrequenzaRe,  FrequenzaMi,
-                                                                           FrequenzaFa, FrequenzaSol, FrequenzaLa,
-                                                                           FrequenzaSi };
+    const std::array<double, Note::NumeroNote> FrequenzeNote = {
+        FrequenzaDo, FrequenzaRe,       FrequenzaMi,       FrequenzaFa,       FrequenzaSol,       FrequenzaLa,
+        FrequenzaSi, FrequenzaDoDiesis, FrequenzaReDiesis, FrequenzaFaDiesis, FrequenzaSolDiesis, FrequenzaLaDiesis
+    };
 }
 
 // ----- -----

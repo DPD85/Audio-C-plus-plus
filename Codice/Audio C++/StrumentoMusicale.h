@@ -21,24 +21,38 @@ class StrumentoMusicaleSenzaSerieArmonica: public StrumentoMusicale
 {
   private:
     std::array<Oscillatori::OndaSinusoidale, Note::NumeroNote> note = {
-        Oscillatori::OndaSinusoidale(Costanti::FrequenzaDo),  Oscillatori::OndaSinusoidale(Costanti::FrequenzaRe),
-        Oscillatori::OndaSinusoidale(Costanti::FrequenzaMi),  Oscillatori::OndaSinusoidale(Costanti::FrequenzaFa),
-        Oscillatori::OndaSinusoidale(Costanti::FrequenzaSol), Oscillatori::OndaSinusoidale(Costanti::FrequenzaLa),
+        Oscillatori::OndaSinusoidale(Costanti::FrequenzaDo),
+        Oscillatori::OndaSinusoidale(Costanti::FrequenzaRe),
+        Oscillatori::OndaSinusoidale(Costanti::FrequenzaMi),
+        Oscillatori::OndaSinusoidale(Costanti::FrequenzaFa),
+        Oscillatori::OndaSinusoidale(Costanti::FrequenzaSol),
+        Oscillatori::OndaSinusoidale(Costanti::FrequenzaLa),
         Oscillatori::OndaSinusoidale(Costanti::FrequenzaSi),
+
+        Oscillatori::OndaSinusoidale(Costanti::FrequenzaDoDiesis),
+        Oscillatori::OndaSinusoidale(Costanti::FrequenzaReDiesis),
+        Oscillatori::OndaSinusoidale(Costanti::FrequenzaFaDiesis),
+        Oscillatori::OndaSinusoidale(Costanti::FrequenzaSolDiesis),
+        Oscillatori::OndaSinusoidale(Costanti::FrequenzaLaDiesis),
     };
 
     // La durata della fase di rilascio diminuisce con l'aumentare della frequenza della nota
     std::array<InviluppoADSR, Note::NumeroNote> inviluppi = {
-        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 0), // do
-        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 1), // re
-        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 2), // mi
-        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 3), // fa
-        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 4), // sol
-        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 5), // la
-        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 6), // si
+        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 0),  // do
+        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 2),  // re
+        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 4),  // mi
+        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 5),  // fa
+        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 7),  // sol
+        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 9),  // la
+        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 11), // si
+
+        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 1),  // do#
+        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 3),  // re#
+        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 6),  // fa#
+        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 8),  // sol#
+        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 10), // la#
     };
 
-  public:
     virtual void InizioNota(Note nota)
     {
         inviluppi[nota].InizioNota();
@@ -82,6 +96,12 @@ class StrumentoMusicaleX: public StrumentoMusicale
         InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 4), // sol
         InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 5), // la
         InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 6), // si
+
+        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 1),  // do#
+        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 3),  // re#
+        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 6),  // fa#
+        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 8),  // sol#
+        InviluppoADSR(0.02, 0.01, 0.8, 0.5 - 0.0333 * 10), // la#
     };
 
   public:
