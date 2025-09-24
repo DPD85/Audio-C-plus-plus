@@ -2,24 +2,24 @@
 
 #include "CostantiEdAltro.h"
 
+class Oscillatore
+{
+  public:
+    virtual ~Oscillatore() = default;
+
+    /// @brief Restituisce il campione corrente e calcola il successivo
+    virtual double Campione() noexcept = 0;
+
+    virtual void Frequenza(double frequenza) = 0;
+
+    virtual void Reset() = 0;
+};
+
 namespace Oscillatori
 {
-    class Oscillatore
-    {
-      public:
-        virtual ~Oscillatore() = default;
-
-        /// @brief Restituisce il campione corrente e calcola il successivo
-        virtual double Campione() noexcept = 0;
-
-        virtual void Frequenza(double frequenza) = 0;
-
-        virtual void Reset() = 0;
-    };
-
     /// @brief Generatore di onda sinusoidale
-    /// Genera un'onda sinusoidale della frequenza specificata ed ampiezza uno, generando il numero di campioni per
-    /// secondo specificati. L'onda sinusoidale generata corrisponde alla funzione seno
+    /// Genera un'onda sinusoidale della frequenza specificata ed ampiezza uno. L'onda sinusoidale generata corrisponde
+    /// alla funzione seno.
     class OndaSinusoidale: public Oscillatore
     {
       public:
@@ -83,26 +83,24 @@ namespace Oscillatori
     };
 
     /// @brief Generatore di onda quadra
-    /// Genera un'onda quadra della frequenza specificata ed ampiezza uno, generando il numero di campioni per
-    /// secondo specificati.
+    /// Genera un'onda quadra della frequenza specificata, ampiezza uno ed duty-cycle del 50%.
     class OndaQuadra: public Oscillatore
     {
       public:
         /// @brief Inizializza il generatore con frequenza zero
         OndaQuadra() = default;
 
-        /// @brief Inizializza la generazione dell'onda sinusoidale
+        /// @brief Inizializza la generazione dell'onda quadra
         /// @param frequenza frequenza dell'onda da generare
         OndaQuadra(double frequenza): sin(frequenza) {}
 
         /// @copydoc Oscillatore::Campione
         virtual double Campione() noexcept
         {
-            double _campione = sin.Campione();
-            return _campione > 0 ? 1.0 : -1.0;
+            return std::copysign(1.0, sin.Campione());
         }
 
-        /// @brief Cambia la frequenza dell'onda sinusoidale
+        /// @brief Cambia la frequenza dell'onda quadra
         /// @param frequenza nuova frequenza dell'onda da generare
         virtual void Frequenza(double frequenza)
         {
