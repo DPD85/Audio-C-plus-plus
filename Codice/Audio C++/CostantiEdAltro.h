@@ -3,22 +3,20 @@
 enum Note
 {
     DO,
+    DO_DIESIS,
     RE,
+    RE_DIESIS,
     MI,
     FA,
+    FA_DIESIS,
     SOL,
+    SOL_DIESIS,
     LA,
+    LA_DIESIS,
     SI,
 
-    NumeroNoteBase,
-
-    DO_DIESIS = NumeroNoteBase,
-    RE_DIESIS,
-    FA_DIESIS,
-    SOL_DIESIS,
-    LA_DIESIS,
-
     NumeroNote,
+    NumeroNoteBase = 7,
 };
 
 namespace Costanti
@@ -120,8 +118,8 @@ namespace Costanti
 #endif
 
     const std::array<double, Note::NumeroNote> FrequenzeNote = {
-        FrequenzaDo, FrequenzaRe,       FrequenzaMi,       FrequenzaFa,       FrequenzaSol,       FrequenzaLa,
-        FrequenzaSi, FrequenzaDoDiesis, FrequenzaReDiesis, FrequenzaFaDiesis, FrequenzaSolDiesis, FrequenzaLaDiesis
+        FrequenzaDo,       FrequenzaDoDiesis, FrequenzaRe,        FrequenzaReDiesis, FrequenzaMi,       FrequenzaFa,
+        FrequenzaFaDiesis, FrequenzaSol,      FrequenzaSolDiesis, FrequenzaLa,       FrequenzaLaDiesis, FrequenzaSi,
     };
 }
 
