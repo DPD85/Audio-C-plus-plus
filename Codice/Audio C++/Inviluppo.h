@@ -29,7 +29,7 @@ class InviluppoADSR
     }
 
     /// @brief Calcola il valore dell'inviluppo un campione alla volta
-    /// @return Il valore attuale dell'inviluppo; il valore Ë sempre compreso nell'intervallo [0, 1]
+    /// @return Il valore attuale dell'inviluppo; il valore √® sempre compreso nell'intervallo [0, 1]
     double Computa() noexcept
     {
         // ----- Cambio di stato
@@ -73,7 +73,7 @@ class InviluppoADSR
                     (1.0 - (tempo - attacco) / static_cast<double>(decadimento)) * (1 - sostentamento) + sostentamento;
                 break;
             case Stati::Sostentamento:
-                // Intenzionale.Il tempo non avanza, in questo modo il tempo di inizio del rilascio sar‡ sempre uguale
+                // Intenzionale.Il tempo non avanza, in questo modo il tempo di inizio del rilascio sar√† sempre uguale
                 // alla durata dell'attacco sommata alla durata del decadimento.
                 return sostentamento;
             case Stati::Rilascio:

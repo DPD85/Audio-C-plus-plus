@@ -12,7 +12,7 @@ class StrumentoMusicale
     virtual void InizioNota(Note nota) = 0;
     virtual void FineNota(Note nota)   = 0;
 
-    /// @brief Restituisce il campione audio successivo dello strumento musicale. Il campione è sempre compreso
+    /// @brief Restituisce il campione audio successivo dello strumento musicale. Il campione Ã¨ sempre compreso
     /// nell'intervallo [-1, 1]
     virtual double Campione() = 0;
 };

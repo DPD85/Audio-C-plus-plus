@@ -25,16 +25,16 @@ namespace Costanti
     const constexpr double FrequenzaCampionamento = 48000; // [Hz]
     // Numero di audio prodotti
     const constexpr unsigned int NumeroCanali = 2;
-    // L'audio del computer Ë utilizzato in modalit‡ condivisa oppure esclusiva.
-    // In modalit‡ esclusiva:
-    //   * comunicazione con la scheda audio pi˘ diretta;
-    //   * solo questo programma puÚ usare il dispositivo di output (e/o input);
+    // L'audio del computer √® utilizzato in modalit√† condivisa oppure esclusiva.
+    // In modalit√† esclusiva:
+    //   * comunicazione con la scheda audio pi√π diretta;
+    //   * solo questo programma pu√≤ usare il dispositivo di output (e/o input);
     //   * i campioni sono interi con segno a 16 bit.
-    // In modalit‡ esclusiva:
+    // In modalit√† esclusiva:
     //   * si comunica con il mixer di Window che provvedere a limitare il volume (in modo da non eccedere) e unisce il
     //     suono prodotto a quello degli altri programmi;
     //   * i campioni sono numeri float nell'intervallo [-1, 1].
-    const constexpr bool Modalit‡Condivisa = true;
+    const constexpr bool Modalit√†Condivisa = true;
 
     // Campione ad 8 bit corrispondente al silenzio
     const constexpr unsigned char Silenzio8Bit = 128;
@@ -97,10 +97,10 @@ namespace Costanti
         "La frequenza del La# deve essere compresa tra la frequenza del La ed del Si");
 #else
     // Frequenza delle note calcolata secondo l'intonazione equanime (tutte i semi toni sono equidistanti).
-    // Il rapporto tra due semitoni consecutivi Ë sempre pari alla radice dodicesima di due.
+    // Il rapporto tra due semitoni consecutivi √® sempre pari alla radice dodicesima di due.
 
     // Formula: FrequenzaRiferimentoLa * std::pow(2.0, N / 12.0)
-    // dove N Ë il numero di semitoni di distanza dalla nota di riferimento
+    // dove N √® il numero di semitoni di distanza dalla nota di riferimento
     const double FrequenzaDo  = FrequenzaRiferimentoLa * std::pow(2.0, -9.0 / 12.0); // [Hz]
     const double FrequenzaRe  = FrequenzaRiferimentoLa * std::pow(2.0, -7.0 / 12.0); // [Hz]
     const double FrequenzaMi  = FrequenzaRiferimentoLa * std::pow(2.0, -5.0 / 12.0); // [Hz]
@@ -147,13 +147,13 @@ inline constexpr double Clamp(double value, double min, double max)
 
 inline constexpr unsigned char ConvertiA8Bits(double valore)
 {
-    // Nota: l'intervallo dei valori risultante Ë simmetrico [1, 255] con valore centrale pari a 128
+    // Nota: l'intervallo dei valori risultante √® simmetrico [1, 255] con valore centrale pari a 128
     return static_cast<unsigned char>(Clamp(std::round(valore * 127 + 128), 1, 255));
 }
 
 inline constexpr short ConvertiA16Bits(double valore)
 {
-    // Nota: l'intervallo dei valori risultante Ë simmetrico [-32767, +32767] con valore centrale pari a 0
+    // Nota: l'intervallo dei valori risultante √® simmetrico [-32767, +32767] con valore centrale pari a 0
     return static_cast<short>(Clamp(std::round(valore * 32767), -32767, +32767));
 }
 

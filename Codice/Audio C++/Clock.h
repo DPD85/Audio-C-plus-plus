@@ -33,15 +33,15 @@ class Clock
 
     /// @brief Aspetta fino al ticchettio successivo del clock tenendo in considerazione il tempo trascorso dalla
     /// chiamata precedete.
-    /// @return Il tempo corrispondente alla durata del ticchettio appena passato espresso in secondi. Se il tempo Ë
-    /// negativo significa che la durata del ticchettio Ë stata superiore al periodo del clock.
+    /// @return Il tempo corrispondente alla durata del ticchettio appena passato espresso in secondi. Se il tempo √®
+    /// negativo significa che la durata del ticchettio √® stata superiore al periodo del clock.
     double AspettaTicchettioSuccessivo()
     {
         hrc::time_point tStop = hrc::now();
 
         double dt = duration_cast<DurataMillisecondi>(tStop - tStart).count();
 
-        double attesa  = periodo - dt; // Tempo per il quale Ë necessario aspettare
+        double attesa  = periodo - dt; // Tempo per il quale √® necessario aspettare
         attesa        -= sogliaSleep;  // Tolgo la precisione della funzione Sleep
 
         // Se devo aspettare per un tempo maggiore della precisione della sleep allora la uso riducendo il busy wait
@@ -65,15 +65,15 @@ class Clock
 
     /// @brief Imposta il periodo del clock
     /// @param periodo_ Il nuovo periodo del clock espresso in secondi
-    /// @warning Questo metodo non Ë sincronizzato con il metodo @ref AspettaTicchettioSuccessivo()
+    /// @warning Questo metodo non √® sincronizzato con il metodo @ref AspettaTicchettioSuccessivo()
     void Periodo(double periodo_)
     {
         periodo = periodo_ * 1000.0;
     }
 
   private:
-    // Se il tempo restante prima del prossimo ticchettio supera questo valore allora sar‡ usata la funzione Sleep()
-    // altrimenti verr‡ effettuato un busy wait.
+    // Se il tempo restante prima del prossimo ticchettio supera questo valore allora sar√† usata la funzione Sleep()
+    // altrimenti verr√† effettuato un busy wait.
     // Attenzione: la soglia deve essere superiore o uguale al minimo periodo supportato per i timer dal S.O. ed alla
     // precisione configurata per questo processo.
     static const constexpr double sogliaSleep = 3.0; // [ms]
