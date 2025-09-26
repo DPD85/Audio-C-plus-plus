@@ -182,3 +182,11 @@ inline constexpr double DaSmussamentoAGuadagno(double valore)
     if (valore == 0) return 1.0;
     else return -std::expm1(-1.0 / Costanti::FrequenzaCampionamento / valore);
 }
+
+// Normalizza i numeri della lista in modo che la loro somma sia pari ad uno, mantenendo però invariate le proporzioni
+// tra di loro.
+template<typename... Args> constexpr std::array<double, sizeof...(Args)> CreaListaNormalizzata(Args... args)
+{
+    const double n = (args + ...);
+    return { args * (1.0 / n)... };
+}

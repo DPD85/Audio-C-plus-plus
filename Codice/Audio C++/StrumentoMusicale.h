@@ -81,7 +81,7 @@ namespace StrumentiMusicali
         static const constexpr size_t LunghezzaSerieArmonica = 4;
 
         // Ampiezze dei segnali che formano le serie armoniche delle note [0, 1]
-        std::array<double, LunghezzaSerieArmonica> ampiezze{ 1.0, 0.25, 0.05, 0.01 };
+        std::array<double, LunghezzaSerieArmonica> ampiezze = CreaListaNormalizzata(1.0, 0.25, 0.05, 0.01);
 
         using Onde = std::array<Oscillatori::OndaSinusoidale, LunghezzaSerieArmonica>;
 
@@ -106,15 +106,6 @@ namespace StrumentiMusicali
       public:
         StrumentoX()
         {
-            // ----- Normalizzo le ampiezze dei segnali delle serie armoniche
-
-            double n = 0;
-            for (double &ampiezza : ampiezze)
-                n += ampiezza;
-
-            for (double &ampiezza : ampiezze)
-                ampiezza *= 1.0 / n;
-
             // ----- Calcolo le frequenze dei segnali che formano le serie armoniche delle note
 
             for (size_t i = 0; i < Note::NumeroNote; ++i)
@@ -143,9 +134,7 @@ namespace StrumentiMusicali
                 for (size_t j = 0; j < LunghezzaSerieArmonica; ++j)
                     valoreNota += ampiezze[j] * note[i][j].Campione();
 
-                valoreNota *= inviluppi[i].Computa();
-
-                valore += valoreNota;
+                valore += valoreNota * inviluppi[i].Computa();
             }
 
             return valore;
@@ -156,18 +145,12 @@ namespace StrumentiMusicali
     {
       private:
         std::array<Oscillatori::OndaQuadra, Note::NumeroNote> note = {
-            Oscillatori::OndaQuadra(Costanti::FrequenzaDo),
-            Oscillatori::OndaQuadra(Costanti::FrequenzaDoDiesis),
-            Oscillatori::OndaQuadra(Costanti::FrequenzaRe),
-            Oscillatori::OndaQuadra(Costanti::FrequenzaReDiesis),
-            Oscillatori::OndaQuadra(Costanti::FrequenzaMi),
-            Oscillatori::OndaQuadra(Costanti::FrequenzaFa),
-            Oscillatori::OndaQuadra(Costanti::FrequenzaFaDiesis),
-            Oscillatori::OndaQuadra(Costanti::FrequenzaSol),
-            Oscillatori::OndaQuadra(Costanti::FrequenzaSolDiesis),
-            Oscillatori::OndaQuadra(Costanti::FrequenzaLa),
-            Oscillatori::OndaQuadra(Costanti::FrequenzaLaDiesis),
-            Oscillatori::OndaQuadra(Costanti::FrequenzaSi),
+            Oscillatori::OndaQuadra(Costanti::FrequenzaDo),        Oscillatori::OndaQuadra(Costanti::FrequenzaDoDiesis),
+            Oscillatori::OndaQuadra(Costanti::FrequenzaRe),        Oscillatori::OndaQuadra(Costanti::FrequenzaReDiesis),
+            Oscillatori::OndaQuadra(Costanti::FrequenzaMi),        Oscillatori::OndaQuadra(Costanti::FrequenzaFa),
+            Oscillatori::OndaQuadra(Costanti::FrequenzaFaDiesis),  Oscillatori::OndaQuadra(Costanti::FrequenzaSol),
+            Oscillatori::OndaQuadra(Costanti::FrequenzaSolDiesis), Oscillatori::OndaQuadra(Costanti::FrequenzaLa),
+            Oscillatori::OndaQuadra(Costanti::FrequenzaLaDiesis),  Oscillatori::OndaQuadra(Costanti::FrequenzaSi),
         };
 
         // La durata della fase di rilascio diminuisce con l'aumentare della frequenza della nota
