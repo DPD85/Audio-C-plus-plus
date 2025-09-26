@@ -24,14 +24,16 @@ namespace Oscillatori
     {
       public:
         /// @brief Inizializza il generatore con frequenza zero
-        OndaSinusoidale(): nuovoM(0, 0), m(0, 0) {}
+        OndaSinusoidale(): nuovoDeltaFase(0, 0), deltaFase(0, 0), nuovoInvModuloDeltaFase(0.0), invModuloDeltaFase(0.0)
+        {}
 
         /// @brief Inizializza la generazione dell'onda sinusoidale
         /// @param frequenza frequenza dell'onda da generare
         OndaSinusoidale(double frequenza)
         {
             ImpostaFrequenza(frequenza);
-            m = nuovoM;
+            deltaFase          = nuovoDeltaFase;
+            invModuloDeltaFase = nuovoInvModuloDeltaFase;
         }
 
         /// @copydoc Oscillatore::Campione
@@ -39,17 +41,19 @@ namespace Oscillatori
         {
             if (daAggiornare.load())
             {
-                m = nuovoM;
+                deltaFase          = nuovoDeltaFase;
+                invModuloDeltaFase = nuovoInvModuloDeltaFase;
                 daAggiornare.store(false);
             }
 
             double _campione = fase.imag();
 
             // Calcolo il campione successivo dell'onda
-            fase *= m;
+            fase *= deltaFase;
             // Normalizzo così da mantenere i numeri nell'intervallo [-1, 1] ed usufruire della massima precisione in
             // virgola mobile oltre ad ottenere un risultato compreso nell'intervallo [0, 1]
-            fase /= std::abs(fase);
+            // Nota: siccome la fase inizialmente a modulo uno
+            fase *= invModuloDeltaFase;
 
             return _campione;
         }
@@ -71,14 +75,20 @@ namespace Oscillatori
 
       private:
         std::atomic<bool> daAggiornare;
-        dcomplex nuovoM;
-        dcomplex m;
+        dcomplex nuovoDeltaFase;
+        // Differenza di fase tra due campioni consecutivi dell'onda
+        dcomplex deltaFase;
         dcomplex fase{ 1.0, 0.0 };
+        double nuovoInvModuloDeltaFase;
+        // Inverso della lunghezza di deltaFase come se deltaFase fosse un vettore sul piano cartesiano
+        // (\f$sqrt(r^2 + i^2)\f$)
+        double invModuloDeltaFase;
 
         void ImpostaFrequenza(double frequenza)
         {
-            nuovoM =
+            nuovoDeltaFase =
                 std::exp(dcomplex(0.0, 2 * std::numbers::pi * frequenza * (1.0 / Costanti::FrequenzaCampionamento)));
+            nuovoInvModuloDeltaFase = 1.0 / std::hypot(nuovoDeltaFase.real(), nuovoDeltaFase.imag());
         }
     };
 
