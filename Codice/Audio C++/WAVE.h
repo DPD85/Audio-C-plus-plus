@@ -32,8 +32,8 @@ namespace WAVE
             unsigned short _bitPerCampione,
             TipoCampioni tipoCampioni = TipoCampioni::Interi);
 
-        inline void
-        Set(unsigned short _numberoCanali,
+        inline void Set(
+            unsigned short _numberoCanali,
             unsigned int _frequenza,
             unsigned short _bitPerCampione,
             TipoCampioni tipoCampioni = TipoCampioni::Interi);

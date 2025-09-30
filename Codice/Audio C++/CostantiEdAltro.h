@@ -22,7 +22,7 @@ enum Note
 namespace Costanti
 {
     // Frequenza di campionamento dell'audio prodotto
-    const constexpr double FrequenzaCampionamento = 48000; // [Hz]
+    const constexpr double FrequenzaCampionamento = 48'000; // [Hz]
     // Numero di audio prodotti
     const constexpr unsigned int NumeroCanali = 2;
     // L'audio del computer è utilizzato in modalità condivisa oppure esclusiva.
@@ -154,7 +154,7 @@ inline constexpr unsigned char ConvertiA8Bits(double valore)
 inline constexpr short ConvertiA16Bits(double valore)
 {
     // Nota: l'intervallo dei valori risultante è simmetrico [-32767, +32767] con valore centrale pari a 0
-    return static_cast<short>(Clamp(std::round(valore * 32767), -32767, +32767));
+    return static_cast<short>(Clamp(std::round(valore * 32'767), -32'767, +32'767));
 }
 
 template<typename... Args> inline constexpr double Max(double v1, Args... args)
