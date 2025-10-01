@@ -35,6 +35,7 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT A
 
 # ----- Source code -----
 
+add_subdirectory("Terze parti")
 add_subdirectory("Audio C++")
 
 include_external_msproject(Grafici ${CMAKE_CURRENT_SOURCE_DIR}/Grafici/Grafici.csproj PLATFORM AnyCPU)
@@ -57,6 +58,9 @@ add_custom_target(SolutionItems SOURCES
     "Profili Conan/Linux GCC 12 x64 release"
     "Profili Conan/Windows v143 x64 debug"
     "Profili Conan/Windows v143 x64 release"
+
+    "Terze parti/CMakeLists.txt"
+    "Terze parti/Readme.md"
 
     .clang-format
     .editorconfig
