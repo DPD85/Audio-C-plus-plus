@@ -1,10 +1,6 @@
-.vs/
 bin/
 obj/
-*.user
+out/
 
 Audio C++/*.dat
 Audio C++/[Tt]est*.wav
-
-Audio C++/.conan
-Audio C++/conan

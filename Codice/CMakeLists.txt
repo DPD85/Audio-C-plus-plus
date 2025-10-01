@@ -1,0 +1,67 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 4.0)
+
+# ----- Setup project and languages -----
+
+project("Audio C++" LANGUAGES C CXX)
+
+set(CMAKE_C_STANDARD 17)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS OFF)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# ----- Versione tool set MSVC -----
+
+if(MSVC)
+    if(NOT CMAKE_GENERATOR_TOOLSET)
+        message(FATAL_ERROR "La versione del tool set di MSVC deve essere indicata esplicitamente")
+    endif()
+    message(STATUS "CMAKE_GENERATOR_TOOLSET = ${CMAKE_GENERATOR_TOOLSET}")
+endif()
+
+# ----- Inclusion of modules -----
+
+include(CMake/Piattaforma.cmake)
+include(CMake/Conan.cmake)
+include(CMake/Funzioni.cmake)
+include(CMake/Impostazioni.cmake)
+include(CMake/MostraOpzioni.cmake)
+
+# ----- IDE configuration -----
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Audio-C-plus-plus)
+
+# ----- Source code -----
+
+add_subdirectory("Audio C++")
+
+include_external_msproject(Grafici ${CMAKE_CURRENT_SOURCE_DIR}/Grafici/Grafici.csproj PLATFORM AnyCPU)
+
+# ----- Solution Items -----
+
+add_custom_target(SolutionItems SOURCES
+    CMake/Compilatori/MSVC/Funzioni.cmake
+    CMake/Compilatori/MSVC/Impostazioni.cmake
+    CMake/Conan.cmake
+    CMake/Funzioni.cmake
+    CMake/Impostazioni.cmake
+    CMake/MostraOpzioni.cmake
+    CMake/Piattaforma.cmake
+    CMake/Piattaforme/Windows/Impostazioni.cmake
+
+    "Profili Conan/Windows v143 x64 debug"
+    "Profili Conan/Windows v143 x64 release"
+
+    .clang-format
+    .editorconfig
+    .gitignore
+    CMakeLists.txt
+    CMakePresets.json
+    conanfile.py
+    Directory.Build.props
+)
+
+make_source_group(TARGET SolutionItems)

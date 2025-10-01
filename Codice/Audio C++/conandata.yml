@@ -1,4 +1,0 @@
-# This file is managed by the Conan Visual Studio Extension, contents will be overwritten.
-# To keep your changes, remove these comment lines, but the plugin won't be able to modify your requirements
-requirements:
-- boost/1.88.0

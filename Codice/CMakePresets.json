@@ -1,0 +1,76 @@
+{
+  "version": 9,
+  "cmakeMinimumRequired": {
+    "major": 4,
+    "minor": 0,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "windows-base-preset",
+      "hidden": true,
+      "cmakeExecutable": "C:\\Program Files\\CMake\\bin\\cmake.exe",
+      "binaryDir": "${sourceParentDir}/build/${presetName}",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "windows-x64",
+      "hidden": true,
+      "inherits": [ "windows-base-preset" ],
+      "architecture": "x64",
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "intelliSenseMode": "windows-msvc-x64"
+        }
+      }
+    },
+    {
+      "name": "windows-v143",
+      "hidden": true,
+      "inherits": [ "windows-base-preset" ],
+      "generator": "Visual Studio 17 2022",
+      "toolset": "v143"
+    },
+    {
+      "name": "windows-v143-x64",
+      "displayName": "Windows v143 x64",
+      "inherits": [ "windows-x64", "windows-v143" ]
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "base-build-x64-debug",
+      "hidden": true,
+      "nativeToolOptions": [
+        "/p:Platform=x64",
+        "/p:Configuration=Debug",
+        "/maxcpucount"
+      ]
+    },
+    {
+      "name": "base-build-x64-release",
+      "hidden": true,
+      "nativeToolOptions": [
+        "/p:Platform=x64",
+        "/p:Configuration=Release",
+        "/maxcpucount"
+      ]
+    },
+    {
+      "name": "windows-v143-x64-debug",
+      "displayName": "Windows v143 x64 debug",
+      "configurePreset": "windows-v143-x64",
+      "inherits": [ "base-build-x64-debug" ]
+    },
+    {
+      "name": "windows-v143-x64-release",
+      "displayName": "Windows v143 x64 release",
+      "configurePreset": "windows-v143-x64",
+      "inherits": [ "base-build-x64-release" ]
+    }
+  ]
+}

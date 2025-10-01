@@ -10,7 +10,7 @@ namespace WAVE
 
     DataFormatChunk::DataFormatChunk() = default;
 
-    inline DataFormatChunk::DataFormatChunk(
+    DataFormatChunk::DataFormatChunk(
         unsigned short _numberoCanali,
         unsigned int _frequenza,
         unsigned short _bitPerCampione,
@@ -19,7 +19,7 @@ namespace WAVE
         Set(_numberoCanali, _frequenza, _bitPerCampione, tipoCampioni);
     }
 
-    inline void DataFormatChunk::Set(
+    void DataFormatChunk::Set(
         unsigned short _numberoCanali,
         unsigned int _frequenza,
         unsigned short _bitPerCampione,
@@ -157,7 +157,7 @@ namespace WAVE
 
         const size_t numeroCampioni = DaSecondiACampioni(timeLen);
 
-        // Solo canale 1° canale (sinistro)
+        // Solo 1° canale (sinistro)
         {
             CodaEliminazione eliminatori;
 
@@ -198,7 +198,7 @@ namespace WAVE
             }
         }
 
-        // Solo canale 2° canale (destro)
+        // Solo 2° canale (destro)
         {
             CodaEliminazione eliminatori;
 
@@ -239,4 +239,4 @@ namespace WAVE
             }
         }
     }
-} // namespace WAVE
+}
