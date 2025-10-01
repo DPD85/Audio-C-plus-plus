@@ -5,6 +5,12 @@ if (WIN32)
         NAMES conan
         REQUIRED
     )
+elseif(LINUX)
+    find_program(CONAN_PATH
+        NAMES conan
+        HINTS /home/user/.local/bin
+        REQUIRED
+)
 endif()
 
 # ----- Profilo di Conan -----
@@ -29,6 +35,17 @@ if (WIN32)
     if(NOT EXISTS ${CONAN_PROFILE_RELEASE})
         message(FATAL_ERROR "Il profilo Conan di release non esiste.")
     endif()
+elseif(LINUX)
+    string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWER)
+    set(CONAN_PROFILE_NAME      "Linux GCC 12 x64 ${CMAKE_BUILD_TYPE_LOWER}")
+    set(CONAN_PROFILE           "${CONAN_PROFILE_DIR}/${CONAN_PROFILE_NAME}")
+    set(CONAN_PROFILE_TIMESTAMP "${CMAKE_BINARY_DIR}/${CONAN_PROFILE_NAME}.timestamp")
+
+    message(STATUS "Profilo Conan: ${CONAN_PROFILE}")
+
+    if(NOT EXISTS ${CONAN_PROFILE})
+        message(FATAL_ERROR "Il profilo Conan non esiste.")
+    endif()
 endif()
 
 # ----- Installazione dipendenze (invocazione Conan) -----
@@ -51,6 +68,10 @@ if(WIN32)
     endif()
     if(ESEGUIRE_CONAN OR ${CONAN_PROFILE_RELEASE} IS_NEWER_THAN ${CONAN_PROFILE_RELEASE_TIMESTAMP})
         set(ESEGUIRE_CONAN_PROFILE_RELEASE YES)
+    endif()
+elseif(LINUX)
+    if(ESEGUIRE_CONAN OR ${CONAN_PROFILE} IS_NEWER_THAN ${CONAN_PROFILE_TIMESTAMP})
+        set(ESEGUIRE_CONAN_PROFILE YES)
     endif()
 endif()
 
@@ -83,6 +104,18 @@ if(WIN32)
         )
 
         file(TOUCH "${CONAN_PROFILE_RELEASE_TIMESTAMP}")
+    endif()
+elseif(LINUX)
+    if(ESEGUIRE_CONAN_PROFILE)
+        message(STATUS "Installazione delle dipendenze tramite Conan...")
+
+        execute_process(
+            COMMAND ${CONAN_PATH} install "${CONAN_INPUT_DIR}" -pr:a "${CONAN_PROFILE}" -of "${CONAN_OUTPUT_DIR}" --build=missing
+            COMMAND_ECHO STDOUT
+            COMMAND_ERROR_IS_FATAL ANY
+        )
+
+        file(TOUCH "${CONAN_PROFILE_TIMESTAMP}")
     endif()
 endif()
 

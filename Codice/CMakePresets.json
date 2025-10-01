@@ -39,6 +39,75 @@
       "name": "windows-v143-x64",
       "displayName": "Windows v143 x64",
       "inherits": [ "windows-x64", "windows-v143" ]
+    },
+    {
+      "name": "linux-base-preset",
+      "hidden": true,
+      "binaryDir": "${sourceParentDir}/build/${presetName}",
+      "environment": {
+        "NINJA_STATUS": "[%f/%t] (%e) "
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": "Linux"
+        },
+        "microsoft.com/VisualStudioRemoteSettings/CMake/1.0": {
+          "sourceDir": "$env{HOME}/VSCMakeProjects/$ms{projectDirName}/source",
+          "copySources": true,
+          "rsyncCommandArgs": [ "-t" ],
+          "copySourcesOptions": {
+            "exclusionList": [ "/.vs/", "/.git/", "/out/", "/.build-*/", "/.package_*/", "/bin/", "/packages/", "obj", "/build/", "/install/" ]
+          }
+        }
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "linux-gcc-12",
+      "hidden": true,
+      "inherits": "linux-base-preset",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc-12",
+        "CMAKE_CXX_COMPILER": "g++-12"
+      }
+    },
+    {
+      "name": "linux-x64",
+      "hidden": true,
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "intelliSenseMode": "linux-gcc-x64"
+        }
+      }
+    },
+    {
+      "name": "linux-debug",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "linux-release",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "linux-gcc-12-x64-debug",
+      "displayName": "Linux GCC 12 x64 debug",
+      "inherits": [ "linux-gcc-12", "linux-x64", "linux-debug" ]
+    },
+    {
+      "name": "linux-gcc-12-x64-release",
+      "displayName": "Linux GCC 12 x64 release",
+      "inherits": [ "linux-gcc-12", "linux-x64", "linux-release" ]
     }
   ],
   "buildPresets": [
@@ -71,6 +140,16 @@
       "displayName": "Windows v143 x64 release",
       "configurePreset": "windows-v143-x64",
       "inherits": [ "base-build-x64-release" ]
+    },
+    {
+      "name": "linux-gcc-12-x64-debug",
+      "displayName": "Linux GCC 12 x64 debug",
+      "configurePreset": "linux-gcc-12-x64-debug"
+    },
+    {
+      "name": "linux-gcc-12-x64-release",
+      "displayName": "Linux GCC 12 x64 release",
+      "configurePreset": "linux-gcc-12-x64-release"
     }
   ]
 }
