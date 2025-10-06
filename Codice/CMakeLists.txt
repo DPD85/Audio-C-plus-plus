@@ -27,7 +27,6 @@ include(CMake/Piattaforma.cmake)
 include(CMake/Conan.cmake)
 include(CMake/Funzioni.cmake)
 include(CMake/Impostazioni.cmake)
-include(CMake/MostraOpzioni.cmake)
 
 # ----- IDE configuration -----
 
@@ -48,7 +47,6 @@ add_custom_target(SolutionItems SOURCES
     CMake/Conan.cmake
     CMake/Funzioni.cmake
     CMake/Impostazioni.cmake
-    CMake/MostraOpzioni.cmake
     CMake/Piattaforma.cmake
     CMake/Piattaforme/Windows/Impostazioni.cmake
 
@@ -61,7 +59,7 @@ add_custom_target(SolutionItems SOURCES
     CMakeLists.txt
     CMakePresets.json
     conanfile.py
-    Directory.Build.props
+    Directory.Build.props.in
 )
 
 make_source_group(TARGET SolutionItems)

@@ -19,4 +19,4 @@ add_link_options("/DEBUG")
 
 # Global MSBuild configuration
 #   * disable static code analisys
-configure_file(Directory.Build.props Directory.Build.props COPYONLY)
+configure_file(Directory.Build.props.in Directory.Build.props COPYONLY)
