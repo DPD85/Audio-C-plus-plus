@@ -78,7 +78,7 @@ void PaUtil_BeginCpuLoadMeasurement( PaUtilCpuLoadMeasurer* measurer )
 
 void PaUtil_EndCpuLoadMeasurement( PaUtilCpuLoadMeasurer* measurer, unsigned long framesProcessed )
 {
-    double measurementEndTime, secondsFor100Percent, measuredLoad;
+    double measurementEndTime, secondsFor100Percent;
 
     if( framesProcessed > 0 ){
         measurementEndTime = PaUtil_GetTime();
@@ -86,15 +86,7 @@ void PaUtil_EndCpuLoadMeasurement( PaUtilCpuLoadMeasurer* measurer, unsigned lon
         assert( framesProcessed > 0 );
         secondsFor100Percent = framesProcessed * measurer->samplingPeriod;
 
-        measuredLoad = (measurementEndTime - measurer->measurementStartTime) / secondsFor100Percent;
-
-        /* Low pass filter the calculated CPU load to reduce jitter using a simple IIR low pass filter. */
-        /** FIXME @todo these coefficients shouldn't be hardwired see: http://www.portaudio.com/trac/ticket/113 */
-#define LOWPASS_COEFFICIENT_0   (0.9)
-#define LOWPASS_COEFFICIENT_1   (0.99999 - LOWPASS_COEFFICIENT_0)
-
-        measurer->averageLoad = (LOWPASS_COEFFICIENT_0 * measurer->averageLoad) +
-                                (LOWPASS_COEFFICIENT_1 * measuredLoad);
+        measurer->averageLoad = (measurementEndTime - measurer->measurementStartTime) / secondsFor100Percent;
     }
 }
 
