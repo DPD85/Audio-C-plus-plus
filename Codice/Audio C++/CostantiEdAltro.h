@@ -25,16 +25,6 @@ namespace Costanti
     const constexpr double FrequenzaCampionamento = 48'000; // [Hz]
     // Numero di audio prodotti
     const constexpr unsigned int NumeroCanali = 2;
-    // L'audio del computer è utilizzato in modalità condivisa oppure esclusiva.
-    // In modalità esclusiva:
-    //   * comunicazione con la scheda audio più diretta;
-    //   * solo questo programma può usare il dispositivo di output (e/o input);
-    //   * i campioni sono interi con segno a 16 bit.
-    // In modalità esclusiva:
-    //   * si comunica con il mixer di Window che provvedere a limitare il volume (in modo da non eccedere) e unisce il
-    //     suono prodotto a quello degli altri programmi;
-    //   * i campioni sono numeri float nell'intervallo [-1, 1].
-    const constexpr bool ModalitàCondivisa = true;
 
     // Campione ad 8 bit corrispondente al silenzio
     const constexpr unsigned char Silenzio8Bit = 128;

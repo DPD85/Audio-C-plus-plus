@@ -39,6 +39,7 @@ target_link_libraries(Audio-C-plus-plus
     PRIVATE
         Winmm.lib
         Boost::container
+        portaudio_static
 )
 
 make_source_group(TARGET Audio-C-plus-plus)

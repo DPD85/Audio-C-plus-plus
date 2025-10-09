@@ -28,6 +28,10 @@
 
 #include <boost/circular_buffer.hpp>
 
+// PortAudio
+
+#include <portaudio.h>
+
 // O.S. API ed altro
 
 #define NOMINMAX
