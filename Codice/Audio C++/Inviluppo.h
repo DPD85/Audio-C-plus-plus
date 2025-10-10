@@ -73,7 +73,7 @@ class InviluppoADSR
                     (1.0 - (tempo - attacco) / static_cast<double>(decadimento)) * (1 - sostentamento) + sostentamento;
                 break;
             case Stati::Sostentamento:
-                // Intenzionale.Il tempo non avanza, in questo modo il tempo di inizio del rilascio sarà sempre uguale
+                // Intenzionale. Il tempo non avanza, in questo modo il tempo di inizio del rilascio sarà sempre uguale
                 // alla durata dell'attacco sommata alla durata del decadimento.
                 return sostentamento;
             case Stati::Rilascio:
