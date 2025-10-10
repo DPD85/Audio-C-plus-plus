@@ -58,6 +58,8 @@
 #pragma warning(3:4'822) // 'member': local class member function does not have a body.
 #pragma warning(3:4'946) // Reinterpret_cast used between related classes: 'class1' and 'class2'.
 #pragma warning(3:5'038) // Data member 'member1' will be initialized after data member 'member2'.
+#pragma warning(3:5'233) // explicit lambda capture 'identifier' is not used.
 #pragma warning(3:5'240) // 'attribute-name': attribute is ignored in this syntactic position.
 #pragma warning(3:5'262) // Use [[fallthrough]] when a break statement is intentionally omitted between cases.
+#pragma warning(3:5'264) // 'variable-name': 'const' variable is not used.
 #pragma warning(3:5'266) // 'const' qualifier on return type has no effect.
