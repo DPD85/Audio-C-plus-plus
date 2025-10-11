@@ -90,6 +90,15 @@ class InviluppoADSR
         return valore;
     }
 
+    /// @brief Indica se la nota corrispondente a questo inviluppo sta suonando oppure se è muta
+    /// @retval True La nota sta suonando
+    /// @retval False La nota è muta
+    /// @warning Il metodo non è sincronizzato con il thread audio
+    bool StaSuonando() const
+    {
+        return stato != Stati::Silenzio;
+    }
+
   private:
     enum class Stati
     {

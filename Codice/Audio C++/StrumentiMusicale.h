@@ -68,7 +68,14 @@ namespace StrumentiMusicali
             double valore = 0;
 
             for (size_t i = 0; i < Note::NumeroNote; ++i)
-                valore += inviluppi[i].Computa() * note[i].Campione();
+            {
+                const double valoreInviluppo = inviluppi[i].Computa();
+
+                // Se la nota è muta la salto
+                if (!inviluppi[i].StaSuonando()) continue;
+
+                valore += valoreInviluppo * note[i].Campione();
+            }
 
             return valore;
         }
@@ -129,12 +136,18 @@ namespace StrumentiMusicali
 
             for (size_t i = 0; i < Note::NumeroNote; ++i)
             {
-                double valoreNota = 0;
+                const double valoreInviluppo = inviluppi[i].Computa();
 
+                // Se la nota è muta la salto
+                if (!inviluppi[i].StaSuonando()) continue;
+
+                // Calcolo della serie armonica della nota
+                double valoreNota = 0;
                 for (size_t j = 0; j < LunghezzaSerieArmonica; ++j)
                     valoreNota += ampiezze[j] * note[i][j].Campione();
 
-                valore += valoreNota * inviluppi[i].Computa();
+                // Applico l'inviluppo
+                valore += valoreNota * valoreInviluppo;
             }
 
             return valore;
@@ -184,9 +197,16 @@ namespace StrumentiMusicali
             double valore = 0;
 
             for (size_t i = 0; i < Note::NumeroNote; ++i)
-                valore += inviluppi[i].Computa() * note[i].Campione();
+            {
+                const double valoreInviluppo = inviluppi[i].Computa();
+
+                // Se la nota è muta la salto
+                if (!inviluppi[i].StaSuonando()) continue;
+
+                valore += valoreInviluppo * note[i].Campione();
+            }
 
             return valore;
         }
     };
-} // namespace StrumentiMusicali
+}
