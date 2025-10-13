@@ -5,7 +5,7 @@
 class InviluppoADSR
 {
   public:
-    /// @brief Inizializza un inviluppo di tipo ADSR
+    /// @brief Inizializza un inviluppo lineare di tipo ADSR
     /// @param attacco_ Durata della fase di attacco dell'inviluppo espressa in secondi
     /// @param decadimento_ Durata della fase di decadimento dell'inviluppo espressa in secondi
     /// @param sostentamento_ Ampiezza (volume) della fase di sostentamento [0, 1]
