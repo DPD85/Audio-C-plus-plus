@@ -38,6 +38,14 @@ namespace Costanti
     // Indice canale destro nel caso di audio stereo
     const constexpr unsigned int CanaleDestro = 1;
 
+    // Velocit‡ di default delle note consigliata nelle specifiche MIDI per uno strumento che non supporta velocit‡
+    // dinamiche.
+    // Nota: una velocit‡ pari a zero corrisponde ad una nota muta
+    static const constexpr size_t Velocit‡DefaultMIDI = 60; // [0, 127]
+    // Velocit‡ di default delle note scalata tra 0 ed 1.
+    // Nota: una velocit‡ pari a zero corrisponde ad una nota muta
+    static const constexpr double Velocit‡Default = Costanti::Velocit‡DefaultMIDI / 127.0; // [0, 1]
+
     // Rapporti tra le note di una ottava secondo l'intonazione naturale usando il Do come nota di riferimento
     const constexpr double RapportoDo  = 1.0;
     const constexpr double RapportoRe  = 9.0 / 8.0;
@@ -69,6 +77,12 @@ namespace Costanti
     const constexpr double FrequenzaSolDiesis = RapportoSemitonoCromatico * FrequenzaSol; // [Hz]
     const constexpr double FrequenzaLaDiesis  = RapportoSemitonoCromatico * FrequenzaLa;  // [Hz]
 
+    const std::array<double, Note::NumeroNote> FrequenzeNote = {
+        FrequenzaDo,       FrequenzaDoDiesis, FrequenzaRe,        FrequenzaReDiesis, FrequenzaMi,       FrequenzaFa,
+        FrequenzaFaDiesis, FrequenzaSol,      FrequenzaSolDiesis, FrequenzaLa,       FrequenzaLaDiesis, FrequenzaSi,
+    };
+
+    // Qualche controllo per esser certi che le note abbiano una frequenza sensata
     static_assert(
         FrequenzaDo < FrequenzaDoDiesis && FrequenzaDoDiesis < FrequenzaRe,
         "La frequenza del Do# deve essere compresa tra la frequenza del Do ed del Re");
@@ -84,11 +98,6 @@ namespace Costanti
     static_assert(
         FrequenzaLa < FrequenzaLaDiesis && FrequenzaLaDiesis < FrequenzaSi,
         "La frequenza del La# deve essere compresa tra la frequenza del La ed del Si");
-
-    const std::array<double, Note::NumeroNote> FrequenzeNote = {
-        FrequenzaDo,       FrequenzaDoDiesis, FrequenzaRe,        FrequenzaReDiesis, FrequenzaMi,       FrequenzaFa,
-        FrequenzaFaDiesis, FrequenzaSol,      FrequenzaSolDiesis, FrequenzaLa,       FrequenzaLaDiesis, FrequenzaSi,
-    };
 }
 
 // ----- -----

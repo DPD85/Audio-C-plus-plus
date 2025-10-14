@@ -141,9 +141,9 @@ namespace StrumentiMusicali
         }
     };
 
-    /// @brief Pianoforte a 88 tasti
+    /// @brief Pianoforte a 88 tasti.
     ///
-    /// La serie armonica di tutte le note Ë composta da tre armonici: la frequenza fondamentale pi˘ il 2∞ e 3∞
+    /// La serie armonica di tutte le note Ë composta da tre armonici: la frequenza fondamentale pi˘ il 2∞ ed il 3∞
     /// armonico.
     /// L'inviluppo delle note Ë lineare ed ha un tempo di decadimento e di rilascio progressivamente pi˘ corto con
     /// l'aumentare dell'acutezza della nota.
@@ -153,42 +153,36 @@ namespace StrumentiMusicali
          */
 
       private:
-        // Velocity di default consigliata nelle specifiche MIDI per uno strumento che non supporta velocity dinamiche
-        static const constexpr size_t MIDIVelocity = 60; // [0, 127]
-        // Valore scalato tra 0 ed 1 della velocity MIDI
-        static const constexpr double Velocity = MIDIVelocity / 127.0; // [0, 1]
-
         // Numero di segnali che compongono la serie armonica di una nota
         static const constexpr size_t LunghezzaSerieArmonica = 3;
 
         // Ampiezze dei segnali che formano le serie armoniche delle note [0, 1]
         std::array<double, LunghezzaSerieArmonica> ampiezze =
-            CreaListaNormalizzata(0.8, Velocity * 0.3, Velocity * 0.1);
+            CreaListaNormalizzata(0.8, Costanti::Velocit‡Default * 0.3, Costanti::Velocit‡Default * 0.1);
 
         using Onde = std::array<Oscillatori::OndaSinusoidale, LunghezzaSerieArmonica>;
-
         std::array<Onde, Note::NumeroNote> note;
 
-        // Contributo al 20% della velocity, [1.0, 1.2]
-        static const constexpr double ContributoVel20 = 1.0 + 0.2 * Velocity;
-        // Contributo al 10% della velocity, [1.0, 1.1]
-        static const constexpr double ContributoVel10 = 1.0 + 0.1 * Velocity;
+        // Contributo della velocit‡ tra 0% ed il 20%, [1.0, 1.2]
+        static const constexpr double ContributoVel20 = 1.0 + 0.2 * Costanti::Velocit‡Default;
+        // Contributo della velocit‡ tra 0% ed il 10%, [1.0, 1.1]
+        static const constexpr double ContributoVel10 = 1.0 + 0.1 * Costanti::Velocit‡Default;
 
         // La durata della fase di rilascio e di decadimento diminuisce con l'aumentare della frequenza della nota
         std::array<InviluppoADSR, Note::NumeroNote> inviluppi = {
             // clang-format off
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 60) * 0.002 * ContributoVel10, 0.3 * Velocity, 0.2 + (108 - 60) * 0.005 * ContributoVel20), // do   MIDI #60
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 61) * 0.002 * ContributoVel10, 0.3 * Velocity, 0.2 + (108 - 61) * 0.005 * ContributoVel20), // do#  MIDI #61
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 62) * 0.002 * ContributoVel10, 0.3 * Velocity, 0.2 + (108 - 62) * 0.005 * ContributoVel20), // re   MIDI #62
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 63) * 0.002 * ContributoVel10, 0.3 * Velocity, 0.2 + (108 - 63) * 0.005 * ContributoVel20), // re#  MIDI #63
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 64) * 0.002 * ContributoVel10, 0.3 * Velocity, 0.2 + (108 - 64) * 0.005 * ContributoVel20), // mi   MIDI #64
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 65) * 0.002 * ContributoVel10, 0.3 * Velocity, 0.2 + (108 - 65) * 0.005 * ContributoVel20), // fa   MIDI #65
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 66) * 0.002 * ContributoVel10, 0.3 * Velocity, 0.2 + (108 - 66) * 0.005 * ContributoVel20), // fa#  MIDI #66
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 67) * 0.002 * ContributoVel10, 0.3 * Velocity, 0.2 + (108 - 67) * 0.005 * ContributoVel20), // sol  MIDI #67
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 68) * 0.002 * ContributoVel10, 0.3 * Velocity, 0.2 + (108 - 68) * 0.005 * ContributoVel20), // sol# MIDI #68
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 69) * 0.002 * ContributoVel10, 0.3 * Velocity, 0.2 + (108 - 69) * 0.005 * ContributoVel20), // la   MIDI #69
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 70) * 0.002 * ContributoVel10, 0.3 * Velocity, 0.2 + (108 - 70) * 0.005 * ContributoVel20), // la#  MIDI #70
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 71) * 0.002 * ContributoVel10, 0.3 * Velocity, 0.2 + (108 - 71) * 0.005 * ContributoVel20), // si   MIDI #71
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 60) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 60) * 0.005 * ContributoVel20), // do   MIDI #60
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 61) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 61) * 0.005 * ContributoVel20), // do#  MIDI #61
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 62) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 62) * 0.005 * ContributoVel20), // re   MIDI #62
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 63) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 63) * 0.005 * ContributoVel20), // re#  MIDI #63
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 64) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 64) * 0.005 * ContributoVel20), // mi   MIDI #64
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 65) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 65) * 0.005 * ContributoVel20), // fa   MIDI #65
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 66) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 66) * 0.005 * ContributoVel20), // fa#  MIDI #66
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 67) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 67) * 0.005 * ContributoVel20), // sol  MIDI #67
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 68) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 68) * 0.005 * ContributoVel20), // sol# MIDI #68
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 69) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 69) * 0.005 * ContributoVel20), // la   MIDI #69
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 70) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 70) * 0.005 * ContributoVel20), // la#  MIDI #70
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 71) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 71) * 0.005 * ContributoVel20), // si   MIDI #71
             // clang-format on
         };
 
@@ -228,8 +222,8 @@ namespace StrumentiMusicali
                 for (size_t j = 1; j < LunghezzaSerieArmonica; ++j)
                     valoreNota += ampiezze[j] * note[i][j].Campione();
 
-                // Applico l'inviluppo e la velocity
-                valore += valoreNota * valoreInviluppo * Velocity;
+                // Applico l'inviluppo e la velocit‡
+                valore += valoreNota * valoreInviluppo * Costanti::Velocit‡Default;
             }
 
             return valore;
