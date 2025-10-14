@@ -53,7 +53,6 @@ namespace Costanti
 
     const constexpr double FrequenzaRiferimentoLa = 432; // [Hz]
 
-#if 1
     // Frequenza del DO calcolata rispetto al LA di riferimento
     const constexpr double FrequenzaDo = FrequenzaRiferimentoLa / RapportoLa; // [Hz]
     // Frequenze delle note calcolate rispetto al DO
@@ -85,27 +84,6 @@ namespace Costanti
     static_assert(
         FrequenzaLa < FrequenzaLaDiesis && FrequenzaLaDiesis < FrequenzaSi,
         "La frequenza del La# deve essere compresa tra la frequenza del La ed del Si");
-#else
-    // Frequenza delle note calcolata secondo l'intonazione equanime (tutte i semi toni sono equidistanti).
-    // Il rapporto tra due semitoni consecutivi è sempre pari alla radice dodicesima di due.
-
-    // Formula: FrequenzaRiferimentoLa * std::pow(2.0, N / 12.0)
-    // dove N è il numero di semitoni di distanza dalla nota di riferimento
-    const double FrequenzaDo  = FrequenzaRiferimentoLa * std::pow(2.0, -9.0 / 12.0); // [Hz]
-    const double FrequenzaRe  = FrequenzaRiferimentoLa * std::pow(2.0, -7.0 / 12.0); // [Hz]
-    const double FrequenzaMi  = FrequenzaRiferimentoLa * std::pow(2.0, -5.0 / 12.0); // [Hz]
-    const double FrequenzaFa  = FrequenzaRiferimentoLa * std::pow(2.0, -4.0 / 12.0); // [Hz]
-    const double FrequenzaSol = FrequenzaRiferimentoLa * std::pow(2.0, -2.0 / 12.0); // [Hz]
-    const double FrequenzaLa  = FrequenzaRiferimentoLa * std::pow(2.0, +0.0 / 12.0); // [Hz]
-    const double FrequenzaSi  = FrequenzaRiferimentoLa * std::pow(2.0, +2.0 / 12.0); // [Hz]
-
-    // Frequenze semitoni
-    const double FrequenzaDoDiesis  = FrequenzaRiferimentoLa * std::pow(2.0, -8.0 / 12.0); // [Hz]
-    const double FrequenzaReDiesis  = FrequenzaRiferimentoLa * std::pow(2.0, -6.0 / 12.0); // [Hz]
-    const double FrequenzaFaDiesis  = FrequenzaRiferimentoLa * std::pow(2.0, -3.0 / 12.0); // [Hz]
-    const double FrequenzaSolDiesis = FrequenzaRiferimentoLa * std::pow(2.0, -1.0 / 12.0); // [Hz]
-    const double FrequenzaLaDiesis  = FrequenzaRiferimentoLa * std::pow(2.0, +1.0 / 12.0); // [Hz]
-#endif
 
     const std::array<double, Note::NumeroNote> FrequenzeNote = {
         FrequenzaDo,       FrequenzaDoDiesis, FrequenzaRe,        FrequenzaReDiesis, FrequenzaMi,       FrequenzaFa,
