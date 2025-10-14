@@ -19,7 +19,7 @@ target_sources(Audio-C-plus-plus
         Inviluppo.h
         Normalizzatore.h
         Oscillatori.h
-        StrumentoMusicale.h
+        StrumentiMusicale.h
         Volume.h
         WAVE.cpp
         WAVE.h
