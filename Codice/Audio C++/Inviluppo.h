@@ -53,16 +53,24 @@ class InviluppoADSR
                 }
                 break;
             case Stati::Attacco:
-                if (tempo >= attacco) stato = Stati::Decadimento;
+                if (tempo >= attacco)
+                {
+                    tempo -= attacco;
+                    stato = Stati::Decadimento;
+                }
                 break;
             case Stati::Decadimento:
-                if (tempo - attacco >= decadimento) stato = Stati::Sostentamento;
+                if (tempo >= decadimento)
+                {
+                    tempo -= decadimento;
+                    stato = Stati::Sostentamento;
+                }
                 break;
             case Stati::Sostentamento:
                 if (!notaAttiva.load()) stato = Stati::Rilascio;
                 break;
             case Stati::Rilascio:
-                if (tempo - (attacco + decadimento) >= rilascio) stato = Stati::Silenzio;
+                if (tempo >= rilascio) stato = Stati::Silenzio;
                 break;
         }
 
@@ -79,14 +87,14 @@ class InviluppoADSR
                 break;
             case Stati::Decadimento:
                 valore =
-                    (1.0 - (tempo - attacco) / static_cast<double>(decadimento)) * (1 - sostentamento) + sostentamento;
+                    (1.0 - tempo / static_cast<double>(decadimento)) * (1 - sostentamento) + sostentamento;
                 break;
             case Stati::Sostentamento:
-                // Intenzionale. Il tempo non avanza, in questo modo il tempo di inizio del rilascio sarà sempre uguale
-                // alla durata dell'attacco sommata alla durata del decadimento.
+                // Intenzionale. Il tempo non avanza, in questo modo il tempo di inizio del rilascio sarà indipendente
+                // dalla durata del sostentamento.
                 return sostentamento;
             case Stati::Rilascio:
-                valore = (1.0 - (tempo - (attacco + decadimento)) / static_cast<double>(rilascio)) * sostentamento;
+                valore = (1.0 - tempo / static_cast<double>(rilascio)) * sostentamento;
                 break;
         }
 
