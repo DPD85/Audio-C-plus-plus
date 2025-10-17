@@ -5,6 +5,15 @@
 class InviluppoADSR
 {
   public:
+    enum class Stati
+    {
+        Silenzio, // fuori dall'inviluppo
+        Attacco,
+        Decadimento,
+        Sostentamento,
+        Rilascio,
+    };
+
     /// @brief Inizializza un inviluppo lineare di tipo ADSR.
     /// @param attacco_ Durata della fase di attacco dell'inviluppo espressa in secondi
     /// @param decadimento_ Durata della fase di decadimento dell'inviluppo espressa in secondi
@@ -99,16 +108,13 @@ class InviluppoADSR
         return stato != Stati::Silenzio;
     }
 
-  private:
-    enum class Stati
+    /// @brief Restituisce lo stato attuale dell'inviluppo
+    Stati Stato() const
     {
-        Silenzio, // fuori dall'inviluppo
-        Attacco,
-        Decadimento,
-        Sostentamento,
-        Rilascio,
-    };
+        return stato;
+    }
 
+  private:
     std::atomic<bool> notaAttiva;
 
     Stati stato{ Stati::Silenzio };
