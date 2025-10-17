@@ -19,6 +19,7 @@
 #include <limits>
 #include <mutex>
 #include <numbers>
+#include <numeric>
 #include <ostream>
 #include <stack>
 #include <thread>

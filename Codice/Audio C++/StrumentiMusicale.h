@@ -143,8 +143,7 @@ namespace StrumentiMusicali
 
     /// @brief Pianoforte a 88 tasti.
     ///
-    /// La serie armonica di tutte le note Ë composta da tre armonici: la frequenza fondamentale pi˘ il 2∞ ed il 3∞
-    /// armonico.
+    /// La serie armonica di tutte le note Ë composta da otto armoniche.
     /// L'inviluppo delle note Ë lineare ed ha un tempo di decadimento e di rilascio progressivamente pi˘ corto con
     /// l'aumentare dell'acutezza della nota.
     class Pianoforte: public StrumentoMusicale
@@ -154,46 +153,59 @@ namespace StrumentiMusicali
 
       private:
         // Numero di segnali che compongono la serie armonica di una nota
-        static const constexpr size_t LunghezzaSerieArmonica = 3;
+        static const constexpr size_t NumeroArmoniche = 8;
 
-        // Ampiezze dei segnali che formano le serie armoniche delle note [0, 1]
-        std::array<double, LunghezzaSerieArmonica> ampiezze =
-            CreaListaNormalizzata(0.8, Costanti::Velocit‡Default * 0.3, Costanti::Velocit‡Default * 0.1);
+        using Armoniche = std::array<Oscillatori::OndaSinusoidale, NumeroArmoniche>;
+        using Ampiezze  = std::array<double, NumeroArmoniche>;
 
-        using Onde = std::array<Oscillatori::OndaSinusoidale, LunghezzaSerieArmonica>;
-        std::array<Onde, Note::NumeroNote> note;
+        // Ampiezze base delle armoniche che compongono una nota, [0, 1]
+        static const constexpr Ampiezze AmpiezzeArmoniche =
+            CreaListaNormalizzata(0.3982, 0.2863, 0.1141, 0.0963, 0.0437, 0.0305, 0.0194, 0.0116);
+
+        // Massimo incremento delle ampiezze delle armoniche di una nota durante la fase di attacco dell'inviluppo.
+        static const constexpr double IncrementoAmpiezze = 8.0;
+
+        struct Nota
+        {
+            Armoniche armoniche;
+            Ampiezze ampiezze;
+        };
+
+        std::array<Nota, Note::NumeroNote> note;
 
         // Contributo della velocit‡ tra 0% ed il 20%, [1.0, 1.2]
         static const constexpr double ContributoVel20 = 1.0 + 0.2 * Costanti::Velocit‡Default;
         // Contributo della velocit‡ tra 0% ed il 10%, [1.0, 1.1]
         static const constexpr double ContributoVel10 = 1.0 + 0.1 * Costanti::Velocit‡Default;
+        // Livello di sostentamento delle note
+        static const constexpr double LivelloSostentamento = 0.2 * Costanti::Velocit‡Default;
 
         // La durata della fase di rilascio e di decadimento diminuisce con l'aumentare della frequenza della nota
         std::array<InviluppoADSR, Note::NumeroNote> inviluppi = {
             // clang-format off
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 60) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 60) * 0.005 * ContributoVel20), // do   MIDI #60
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 61) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 61) * 0.005 * ContributoVel20), // do#  MIDI #61
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 62) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 62) * 0.005 * ContributoVel20), // re   MIDI #62
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 63) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 63) * 0.005 * ContributoVel20), // re#  MIDI #63
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 64) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 64) * 0.005 * ContributoVel20), // mi   MIDI #64
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 65) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 65) * 0.005 * ContributoVel20), // fa   MIDI #65
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 66) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 66) * 0.005 * ContributoVel20), // fa#  MIDI #66
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 67) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 67) * 0.005 * ContributoVel20), // sol  MIDI #67
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 68) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 68) * 0.005 * ContributoVel20), // sol# MIDI #68
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 69) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 69) * 0.005 * ContributoVel20), // la   MIDI #69
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 70) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 70) * 0.005 * ContributoVel20), // la#  MIDI #70
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 71) * 0.002 * ContributoVel10, 0.3 * Costanti::Velocit‡Default, 0.2 + (108 - 71) * 0.005 * ContributoVel20), // si   MIDI #71
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 60) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 60) * 0.005 * ContributoVel20), // do   MIDI #60
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 61) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 61) * 0.005 * ContributoVel20), // do#  MIDI #61
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 62) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 62) * 0.005 * ContributoVel20), // re   MIDI #62
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 63) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 63) * 0.005 * ContributoVel20), // re#  MIDI #63
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 64) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 64) * 0.005 * ContributoVel20), // mi   MIDI #64
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 65) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 65) * 0.005 * ContributoVel20), // fa   MIDI #65
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 66) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 66) * 0.005 * ContributoVel20), // fa#  MIDI #66
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 67) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 67) * 0.005 * ContributoVel20), // sol  MIDI #67
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 68) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 68) * 0.005 * ContributoVel20), // sol# MIDI #68
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 69) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 69) * 0.005 * ContributoVel20), // la   MIDI #69
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 70) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 70) * 0.005 * ContributoVel20), // la#  MIDI #70
+            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 71) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 71) * 0.005 * ContributoVel20), // si   MIDI #71
             // clang-format on
         };
 
       public:
         Pianoforte()
         {
-            // ----- Calcolo le frequenze dei segnali che formano le serie armoniche delle note
+            // Calcolo le frequenze dei segnali che formano le serie armoniche delle note
 
-            for (size_t i = 0; i < Note::NumeroNote; ++i)
-                for (size_t j = 0; j < LunghezzaSerieArmonica; ++j)
-                    note[i][j].Frequenza((j + 1) * Costanti::FrequenzeNote[i]);
+            for (size_t i = 0; i < note.size(); ++i)
+                for (size_t j = 0; j < NumeroArmoniche; ++j)
+                    note[i].armoniche[j].Frequenza((j + 1) * Costanti::FrequenzeNote[i]);
         }
 
         virtual void InizioNota(Note nota)
@@ -212,21 +224,72 @@ namespace StrumentiMusicali
 
             for (size_t i = 0; i < Note::NumeroNote; ++i)
             {
-                const double valoreInviluppo = inviluppi[i].Computa();
+                const double inviluppo = inviluppi[i].Computa();
 
                 // Se la nota Ë muta la salto
                 if (!inviluppi[i].StaSuonando()) continue;
 
+                Nota &nota = note[i];
+
+                const InviluppoADSR::Stati stato = inviluppi[i].Stato();
+                if (stato == InviluppoADSR::Stati::Attacco)
+                {
+                    // Converto l'intervallo di variazione dell'inviluppo nella fase di attacco ([0, 1]) nell'intervallo
+                    // [1, 1 + IncrementoAmpiezze].
+                    const double scala = 1.0 + IncrementoAmpiezze * inviluppo;
+                    assert(scala >= 1 && scala <= 1 + IncrementoAmpiezze);
+
+                    AggiornaArmonica(nota.ampiezze, scala);
+                }
+                else if (stato == InviluppoADSR::Stati::Decadimento)
+                {
+                    // Converto l'intervallo di variazione dell'inviluppo nella fase di decadimento (che corrisponde a
+                    // [1, LivelloSostentamento]) nell'intervallo [1, 0].
+                    const double i = (inviluppo - LivelloSostentamento) / (1 - LivelloSostentamento);
+                    assert(i >= 0 && i <= 1);
+                    // Converto l'intervallo [1, 0] in [1 + IncrementoAmpiezze, 1]
+                    const double scala = 1.0 + IncrementoAmpiezze * i;
+                    assert(scala >= 1 && scala <= 1 + IncrementoAmpiezze);
+
+                    AggiornaArmonica(nota.ampiezze, scala);
+                }
+
                 // Calcolo la serie armonica della nota
-                double valoreNota = ampiezze[0] * note[i][0].Campione();
-                for (size_t j = 1; j < LunghezzaSerieArmonica; ++j)
-                    valoreNota += ampiezze[j] * note[i][j].Campione();
+                double valoreNota = 0.0;
+                for (size_t j = 0; j < NumeroArmoniche; ++j)
+                    valoreNota += nota.ampiezze[j] * nota.armoniche[j].Campione();
+
+                assert(valoreNota >= -1 && valoreNota <= 1);
 
                 // Applico l'inviluppo e la velocit‡
-                valore += valoreNota * valoreInviluppo * Costanti::Velocit‡Default;
+                valore += valoreNota * inviluppo * Costanti::Velocit‡Default;
             }
 
             return valore;
+        }
+
+      private:
+        /// @brief Aggiorna le ampiezze delle armoniche di una nota.
+        ///
+        /// Amplifica o riduce il volume delle armoniche con frequenza pi˘ alta.
+        /// @param ampiezze Lista delle ampiezze attuali delle armoniche.
+        /// @param scala Fattore di scala applicato alle ampiezze delle armoniche.
+        void AggiornaArmonica(Ampiezze &ampiezze, const double scala)
+        {
+            ampiezze[0] = AmpiezzeArmoniche[0];
+            ampiezze[1] = AmpiezzeArmoniche[1] * Costanti::Velocit‡Default;
+            ampiezze[2] = AmpiezzeArmoniche[2] * Costanti::Velocit‡Default;
+            ampiezze[3] = AmpiezzeArmoniche[3] * Costanti::Velocit‡Default;
+            ampiezze[4] = AmpiezzeArmoniche[4] * Costanti::Velocit‡Default * scala;
+            ampiezze[5] = AmpiezzeArmoniche[5] * Costanti::Velocit‡Default * scala;
+            ampiezze[6] = AmpiezzeArmoniche[6] * Costanti::Velocit‡Default * scala;
+            ampiezze[7] = AmpiezzeArmoniche[7] * Costanti::Velocit‡Default * scala;
+
+            // Normalizzo le ampiezze in modo che la loro somma sia pari ad uno, mantenendo invariate le proporzioni tra
+            // di loro.
+            volatile double n = std::accumulate(ampiezze.cbegin(), ampiezze.cend(), 0.0);
+            for (double &ampiezza : ampiezze)
+                ampiezza /= n;
         }
     };
 }
