@@ -4,6 +4,7 @@ using OxyPlot.Legends;
 using OxyPlot.Series;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 
 namespace Grafici
 {
@@ -105,13 +106,17 @@ namespace Grafici
             }
         }
 
+        private static readonly string AppDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        private static readonly string RecDirectory = Path.Combine(AppDirectory, "..\\..\\..\\Audio C++\\");
+
         public MainWindowViewModel()
         {
-            FileRegistrazioni = Directory.GetFiles(".", "*.dat");
+            FileRegistrazioni = Directory.GetFiles(RecDirectory, "*.dat");
             for (int i = 0; i < FileRegistrazioni.Length; ++i)
                 FileRegistrazioni[i] = Path.GetFileName(FileRegistrazioni[i]);
 
-            fileSelezionato = FileRegistrazioni[0];
+            if (FileRegistrazioni.Length != 0)
+                fileSelezionato = FileRegistrazioni[0];
 
             PlotModel.Axes.Add(new LinearAxis()
             {
@@ -207,7 +212,7 @@ namespace Grafici
 
         private void CaricaRegistrazione(string percorsoFile)
         {
-            byte[] dati = File.ReadAllBytes(percorsoFile);
+            byte[] dati = File.ReadAllBytes(Path.Combine(RecDirectory, percorsoFile));
 
             int numeroSerie = dati[0];
             int numCampioni = (dati.Length - 1) / DIMENSIONE_CAMPIONE / numeroSerie;
