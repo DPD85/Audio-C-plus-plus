@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CostantiEdAltro.h"
+
 namespace WAVE
 {
 #pragma pack(push, 1)
@@ -68,4 +70,9 @@ namespace WAVE
 
     void CreaFileSemplice();
     void CreaFileStereo();
+
+    /// @brief Salva i campioni dentro un file WAVE mono a 8 bit.
+    /// @param percorso Percorso e nome del file WAVE.
+    /// @param campioni Vettore con i campioni audio da salvare.
+    void SalvaFile(const std::string &percorso, const dvector &campioni);
 }

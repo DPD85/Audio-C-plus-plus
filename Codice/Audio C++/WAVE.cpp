@@ -1,7 +1,6 @@
 #include "WAVE.h"
 
 #include "CodaEliminazione.h"
-#include "CostantiEdAltro.h"
 #include "Oscillatori.h"
 
 namespace WAVE
@@ -238,5 +237,36 @@ namespace WAVE
                 file << ConvertiA8Bits(v);
             }
         }
+    }
+
+    void SalvaFile(const std::string &percorso, const dvector &campioni)
+    {
+        DataFormatChunk dt(1, static_cast<unsigned int>(Costanti::FrequenzaCampionamento), 8);
+
+        SampledDataChunk dc;
+        dc.dimensione = static_cast<unsigned int>(campioni.size() * sizeof(unsigned char));
+
+        MasterRIFFChunk mc;
+        mc.SetFileSize(dc.dimensione);
+
+        CodaEliminazione eliminatori;
+
+        std::ofstream file(percorso, std::ios_base::binary | std::ios_base::trunc);
+        if (!file.is_open())
+        {
+            return;
+        }
+        eliminatori.Aggiungi(
+            [&file]()
+            {
+                file.close();
+            });
+
+        file.write(reinterpret_cast<const char *>(&mc), sizeof(MasterRIFFChunk));
+        file.write(reinterpret_cast<const char *>(&dt), sizeof(DataFormatChunk));
+        file.write(reinterpret_cast<const char *>(&dc), sizeof(SampledDataChunk));
+
+        for (const double &campione : campioni)
+            file << ConvertiA8Bits(campione);
     }
 }
