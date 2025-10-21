@@ -163,7 +163,7 @@ namespace StrumentiMusicali
             CreaListaNormalizzata(0.3982, 0.2863, 0.1141, 0.0963, 0.0437, 0.0305, 0.0194, 0.0116);
 
         // Massimo incremento delle ampiezze delle armoniche di una nota durante la fase di attacco dell'inviluppo.
-        static const constexpr double IncrementoAmpiezze = 8.0;
+        static const constexpr double IncrementoAmpiezze = 3.0;
 
         struct Nota
         {
@@ -198,8 +198,10 @@ namespace StrumentiMusicali
             // clang-format on
         };
 
+        Riverbero riverbero;
+
       public:
-        Pianoforte()
+        Pianoforte(): riverbero(0.85, 0.3, 5000.0)
         {
             // Calcolo le frequenze dei segnali che formano le serie armoniche delle note
 
@@ -259,11 +261,11 @@ namespace StrumentiMusicali
                 for (size_t j = 0; j < NumeroArmoniche; ++j)
                     valoreNota += nota.ampiezze[j] * nota.armoniche[j].Campione();
 
-                assert(valoreNota >= -1 && valoreNota <= 1);
-
                 // Applico l'inviluppo e la velocità
                 valore += valoreNota * inviluppo * Costanti::VelocitàDefault;
             }
+
+            valore = riverbero.Computa(valore);
 
             return valore;
         }
