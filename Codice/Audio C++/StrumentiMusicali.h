@@ -148,10 +148,16 @@ namespace StrumentiMusicali
     /// l'aumentare dell'acutezza della nota.
     class Pianoforte: public StrumentoMusicale
     {
-        /* Gli 88 tasti del piano forte vanno dalla nota A0 alla C8, i corrispettivi numeri MIDI vanno da 21 a 108
+        /* Gli 88 tasti del piano forte vanno dalla nota A0 alla C8, i corrispettivi numeri MIDI vanno da 21 a 109
          */
 
       private:
+        // Numero MIDI della nota del primo tasto a sinistra del pianoforte
+        static const constexpr size_t PrimaNotaMIDI = 21;
+        // Numero MIDI della nota dell'ultimo tasto a destra del pianoforte
+        static const constexpr size_t UltimaNotaMIDI = 109;
+        // Numero note del pianoforte
+        static const constexpr size_t NumeroNote = UltimaNotaMIDI - PrimaNotaMIDI;
         // Numero di segnali che compongono la serie armonica di una nota
         static const constexpr size_t NumeroArmoniche = 8;
 
@@ -171,7 +177,7 @@ namespace StrumentiMusicali
             Ampiezze ampiezze;
         };
 
-        std::array<Nota, Note::NumeroNote> note;
+        std::array<Nota, NumeroNote> note;
 
         // Contributo della velocità tra 0% ed il 20%, [1.0, 1.2]
         static const constexpr double ContributoVel20 = 1.0 + 0.2 * Costanti::VelocitàDefault;
@@ -180,23 +186,7 @@ namespace StrumentiMusicali
         // Livello di sostentamento delle note
         static const constexpr double LivelloSostentamento = 0.2 * Costanti::VelocitàDefault;
 
-        // La durata della fase di rilascio e di decadimento diminuisce con l'aumentare della frequenza della nota
-        std::array<InviluppoADSR, Note::NumeroNote> inviluppi = {
-            // clang-format off
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 60) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 60) * 0.005 * ContributoVel20), // do   MIDI #60
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 61) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 61) * 0.005 * ContributoVel20), // do#  MIDI #61
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 62) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 62) * 0.005 * ContributoVel20), // re   MIDI #62
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 63) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 63) * 0.005 * ContributoVel20), // re#  MIDI #63
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 64) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 64) * 0.005 * ContributoVel20), // mi   MIDI #64
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 65) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 65) * 0.005 * ContributoVel20), // fa   MIDI #65
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 66) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 66) * 0.005 * ContributoVel20), // fa#  MIDI #66
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 67) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 67) * 0.005 * ContributoVel20), // sol  MIDI #67
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 68) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 68) * 0.005 * ContributoVel20), // sol# MIDI #68
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 69) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 69) * 0.005 * ContributoVel20), // la   MIDI #69
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 70) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 70) * 0.005 * ContributoVel20), // la#  MIDI #70
-            InviluppoADSR(0.005 * ContributoVel20, 0.1 + (108 - 71) * 0.002 * ContributoVel10, LivelloSostentamento, 0.2 + (108 - 71) * 0.005 * ContributoVel20), // si   MIDI #71
-            // clang-format on
-        };
+        std::array<InviluppoADSR, NumeroNote> inviluppi;
 
         Riverbero riverbero;
 
@@ -207,26 +197,36 @@ namespace StrumentiMusicali
 
             for (size_t i = 0; i < note.size(); ++i)
                 for (size_t j = 0; j < NumeroArmoniche; ++j)
-                    note[i].armoniche[j].Frequenza((j + 1) * Costanti::FrequenzeNote[i]);
+                    note[i].armoniche[j].Frequenza((j + 1) * CalcolaFrequenzaNota(PrimaNotaMIDI + i));
+
+            // Inizializzo gli inviluppi delle note
+            // La durata della fase di rilascio e di decadimento diminuisce con l'aumentare della frequenza della nota
+
+            for (size_t i = 0; i < inviluppi.size(); ++i)
+                inviluppi[i] = InviluppoADSR(
+                    0.005 * ContributoVel20,                               // Attacco
+                    0.1 + (UltimaNotaMIDI - i) * 0.002 * ContributoVel10,  // Decadimento
+                    LivelloSostentamento,                                  // Sostentamento
+                    0.2 + (UltimaNotaMIDI - i) * 0.005 * ContributoVel20); // Rilascio
         }
 
         virtual void InizioNota(Note nota)
         {
-            inviluppi[nota].InizioNota();
+            inviluppi[nota + 60].InizioNota();
         }
 
         virtual void FineNota(Note nota)
         {
-            inviluppi[nota].FineNota();
+            inviluppi[nota + 60].FineNota();
         }
 
         virtual double Campione()
         {
-            double valore = 0;
+            volatile double valore = 0;
 
-            for (size_t i = 0; i < Note::NumeroNote; ++i)
+            for (size_t i = 0; i < note.size(); ++i)
             {
-                const double inviluppo = inviluppi[i].Computa();
+                const volatile double inviluppo = inviluppi[i].Computa();
 
                 // Se la nota è muta la salto
                 if (!inviluppi[i].StaSuonando()) continue;
@@ -238,8 +238,7 @@ namespace StrumentiMusicali
                 {
                     // Converto l'intervallo di variazione dell'inviluppo nella fase di attacco ([0, 1]) nell'intervallo
                     // [1, 1 + IncrementoAmpiezze].
-                    const double scala = 1.0 + IncrementoAmpiezze * inviluppo;
-                    assert(scala >= 1 && scala <= 1 + IncrementoAmpiezze);
+                    const volatile double scala = 1.0 + IncrementoAmpiezze * inviluppo;
 
                     AggiornaArmonica(nota.ampiezze, scala);
                 }
@@ -247,17 +246,15 @@ namespace StrumentiMusicali
                 {
                     // Converto l'intervallo di variazione dell'inviluppo nella fase di decadimento (che corrisponde a
                     // [1, LivelloSostentamento]) nell'intervallo [1, 0].
-                    const double i = (inviluppo - LivelloSostentamento) / (1 - LivelloSostentamento);
-                    assert(i >= 0 && i <= 1);
+                    const volatile double i = (inviluppo - LivelloSostentamento) / (1 - LivelloSostentamento);
                     // Converto l'intervallo [1, 0] in [1 + IncrementoAmpiezze, 1]
-                    const double scala = 1.0 + IncrementoAmpiezze * i;
-                    assert(scala >= 1 && scala <= 1 + IncrementoAmpiezze);
+                    const volatile double scala = 1.0 + IncrementoAmpiezze * i;
 
                     AggiornaArmonica(nota.ampiezze, scala);
                 }
 
                 // Calcolo la serie armonica della nota
-                double valoreNota = 0.0;
+                volatile double valoreNota = 0.0;
                 for (size_t j = 0; j < NumeroArmoniche; ++j)
                     valoreNota += nota.ampiezze[j] * nota.armoniche[j].Campione();
 
