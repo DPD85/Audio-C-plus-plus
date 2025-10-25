@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CostantiEdAltro.h"
 
@@ -50,7 +50,7 @@ namespace Oscillatori
 
             // Calcolo il campione successivo dell'onda
             fase *= deltaFase;
-            // Normalizzo così da mantenere i numeri nell'intervallo [-1, 1] ed usufruire della massima precisione in
+            // Normalizzo cosÃ¬ da mantenere i numeri nell'intervallo [-1, 1] ed usufruire della massima precisione in
             // virgola mobile oltre ad ottenere un risultato compreso nell'intervallo [0, 1]
             // Nota: siccome la fase inizialmente a modulo uno
             fase *= invModuloDeltaFase;
@@ -66,7 +66,7 @@ namespace Oscillatori
             daAggiornare.store(true);
         }
 
-        // ATTENZIONE: non è sincronizzata con il thread audio
+        // ATTENZIONE: non Ã¨ sincronizzata con il thread audio
         virtual void Reset()
         {
             fase._Val[0] = 1.0;
@@ -117,7 +117,7 @@ namespace Oscillatori
             sin.Frequenza(frequenza);
         }
 
-        // ATTENZIONE: non è sincronizzata con il thread audio
+        // ATTENZIONE: non Ã¨ sincronizzata con il thread audio
         virtual void Reset()
         {
             sin.Reset();

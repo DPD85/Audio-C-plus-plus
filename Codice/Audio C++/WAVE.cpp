@@ -1,4 +1,4 @@
-#include "WAVE.h"
+ï»¿#include "WAVE.h"
 
 #include "CodaEliminazione.h"
 #include "Oscillatori.h"
@@ -156,7 +156,7 @@ namespace WAVE
 
         const size_t numeroCampioni = DaSecondiACampioni(timeLen);
 
-        // Solo 1° canale (sinistro)
+        // Solo 1Â° canale (sinistro)
         {
             CodaEliminazione eliminatori;
 
@@ -180,7 +180,7 @@ namespace WAVE
 
             for (size_t i = 0; i < numeroCampioni; ++i)
             {
-                // 1° canale
+                // 1Â° canale
                 double v = 0;
 
                 v += 0.8 * sin480.Campione();
@@ -192,12 +192,12 @@ namespace WAVE
 
                 file << ConvertiA8Bits(v);
 
-                // 2° canale - silenzio
+                // 2Â° canale - silenzio
                 file << Costanti::Silenzio8Bit;
             }
         }
 
-        // Solo 2° canale (destro)
+        // Solo 2Â° canale (destro)
         {
             CodaEliminazione eliminatori;
 
@@ -221,10 +221,10 @@ namespace WAVE
 
             for (size_t i = 0; i < numeroCampioni; ++i)
             {
-                // 1° canale - silenzio
+                // 1Â° canale - silenzio
                 file << Costanti::Silenzio8Bit;
 
-                // 2° canale
+                // 2Â° canale
                 double v = 0;
 
                 v += 0.8 * sin480.Campione();

@@ -1,4 +1,4 @@
-#pragma once
+Ôªø#pragma once
 
 #include "CostantiEdAltro.h"
 
@@ -38,7 +38,7 @@ class InviluppoADSR
     }
 
     /// @brief Calcola il valore dell'inviluppo un campione alla volta
-    /// @return Il valore attuale dell'inviluppo; il valore Ë sempre compreso nell'intervallo [0, 1]
+    /// @return Il valore attuale dell'inviluppo; il valore √® sempre compreso nell'intervallo [0, 1]
     double Computa() noexcept
     {
         // ----- Cambio di stato
@@ -90,7 +90,7 @@ class InviluppoADSR
                     (1.0 - tempo / static_cast<double>(decadimento)) * (1 - sostentamento) + sostentamento;
                 break;
             case Stati::Sostentamento:
-                // Intenzionale. Il tempo non avanza, in questo modo il tempo di inizio del rilascio sar‡ indipendente
+                // Intenzionale. Il tempo non avanza, in questo modo il tempo di inizio del rilascio sar√† indipendente
                 // dalla durata del sostentamento.
                 return sostentamento;
             case Stati::Rilascio:
@@ -107,10 +107,10 @@ class InviluppoADSR
         return valore;
     }
 
-    /// @brief Indica se la nota corrispondente a questo inviluppo sta suonando oppure se Ë muta
+    /// @brief Indica se la nota corrispondente a questo inviluppo sta suonando oppure se √® muta
     /// @retval True La nota sta suonando
-    /// @retval False La nota Ë muta
-    /// @warning Il metodo non Ë sincronizzato con il thread audio
+    /// @retval False La nota √® muta
+    /// @warning Il metodo non √® sincronizzato con il thread audio
     bool StaSuonando() const
     {
         return stato != Stati::Silenzio;

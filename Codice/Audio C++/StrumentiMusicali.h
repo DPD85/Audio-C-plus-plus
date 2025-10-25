@@ -1,4 +1,4 @@
-#pragma once
+Ôªø#pragma once
 
 #include "CostantiEdAltro.h"
 #include "Inviluppo.h"
@@ -12,7 +12,7 @@ class StrumentoMusicale
     virtual void InizioNota(Note nota) = 0;
     virtual void FineNota(Note nota)   = 0;
 
-    /// @brief Restituisce il campione audio successivo dello strumento musicale. Il campione Ë sempre compreso
+    /// @brief Restituisce il campione audio successivo dello strumento musicale. Il campione √® sempre compreso
     /// nell'intervallo [-1, 1]
     virtual double Campione() = 0;
 };
@@ -73,7 +73,7 @@ namespace StrumentiMusicali
             {
                 const double valoreInviluppo = inviluppi[i].Computa();
 
-                // Se la nota Ë muta la salto
+                // Se la nota √® muta la salto
                 if (!inviluppi[i].StaSuonando()) continue;
 
                 valore += valoreInviluppo * note[i].Campione();
@@ -131,7 +131,7 @@ namespace StrumentiMusicali
             {
                 const double valoreInviluppo = inviluppi[i].Computa();
 
-                // Se la nota Ë muta la salto
+                // Se la nota √® muta la salto
                 if (!inviluppi[i].StaSuonando()) continue;
 
                 valore += valoreInviluppo * note[i].Campione();
@@ -143,8 +143,8 @@ namespace StrumentiMusicali
 
     /// @brief Pianoforte a 88 tasti.
     ///
-    /// La serie armonica di tutte le note Ë composta da otto armoniche.
-    /// L'inviluppo delle note Ë lineare ed ha un tempo di decadimento e di rilascio progressivamente pi˘ corto con
+    /// La serie armonica di tutte le note √® composta da otto armoniche.
+    /// L'inviluppo delle note √® lineare ed ha un tempo di decadimento e di rilascio progressivamente pi√π corto con
     /// l'aumentare dell'acutezza della nota.
     class Pianoforte: public StrumentoMusicale
     {
@@ -173,12 +173,12 @@ namespace StrumentiMusicali
 
         std::array<Nota, Note::NumeroNote> note;
 
-        // Contributo della velocit‡ tra 0% ed il 20%, [1.0, 1.2]
-        static const constexpr double ContributoVel20 = 1.0 + 0.2 * Costanti::Velocit‡Default;
-        // Contributo della velocit‡ tra 0% ed il 10%, [1.0, 1.1]
-        static const constexpr double ContributoVel10 = 1.0 + 0.1 * Costanti::Velocit‡Default;
+        // Contributo della velocit√† tra 0% ed il 20%, [1.0, 1.2]
+        static const constexpr double ContributoVel20 = 1.0 + 0.2 * Costanti::Velocit√†Default;
+        // Contributo della velocit√† tra 0% ed il 10%, [1.0, 1.1]
+        static const constexpr double ContributoVel10 = 1.0 + 0.1 * Costanti::Velocit√†Default;
         // Livello di sostentamento delle note
-        static const constexpr double LivelloSostentamento = 0.2 * Costanti::Velocit‡Default;
+        static const constexpr double LivelloSostentamento = 0.2 * Costanti::Velocit√†Default;
 
         // La durata della fase di rilascio e di decadimento diminuisce con l'aumentare della frequenza della nota
         std::array<InviluppoADSR, Note::NumeroNote> inviluppi = {
@@ -228,7 +228,7 @@ namespace StrumentiMusicali
             {
                 const double inviluppo = inviluppi[i].Computa();
 
-                // Se la nota Ë muta la salto
+                // Se la nota √® muta la salto
                 if (!inviluppi[i].StaSuonando()) continue;
 
                 Nota &nota = note[i];
@@ -261,8 +261,8 @@ namespace StrumentiMusicali
                 for (size_t j = 0; j < NumeroArmoniche; ++j)
                     valoreNota += nota.ampiezze[j] * nota.armoniche[j].Campione();
 
-                // Applico l'inviluppo e la velocit‡
-                valore += valoreNota * inviluppo * Costanti::Velocit‡Default;
+                // Applico l'inviluppo e la velocit√†
+                valore += valoreNota * inviluppo * Costanti::Velocit√†Default;
             }
 
             valore = riverbero.Computa(valore);
@@ -273,19 +273,19 @@ namespace StrumentiMusicali
       private:
         /// @brief Aggiorna le ampiezze delle armoniche di una nota.
         ///
-        /// Amplifica o riduce il volume delle armoniche con frequenza pi˘ alta.
+        /// Amplifica o riduce il volume delle armoniche con frequenza pi√π alta.
         /// @param ampiezze Lista delle ampiezze attuali delle armoniche.
         /// @param scala Fattore di scala applicato alle ampiezze delle armoniche.
         void AggiornaArmonica(Ampiezze &ampiezze, const double scala)
         {
             ampiezze[0] = AmpiezzeArmoniche[0];
-            ampiezze[1] = AmpiezzeArmoniche[1] * Costanti::Velocit‡Default;
-            ampiezze[2] = AmpiezzeArmoniche[2] * Costanti::Velocit‡Default;
-            ampiezze[3] = AmpiezzeArmoniche[3] * Costanti::Velocit‡Default;
-            ampiezze[4] = AmpiezzeArmoniche[4] * Costanti::Velocit‡Default * scala;
-            ampiezze[5] = AmpiezzeArmoniche[5] * Costanti::Velocit‡Default * scala;
-            ampiezze[6] = AmpiezzeArmoniche[6] * Costanti::Velocit‡Default * scala;
-            ampiezze[7] = AmpiezzeArmoniche[7] * Costanti::Velocit‡Default * scala;
+            ampiezze[1] = AmpiezzeArmoniche[1] * Costanti::Velocit√†Default;
+            ampiezze[2] = AmpiezzeArmoniche[2] * Costanti::Velocit√†Default;
+            ampiezze[3] = AmpiezzeArmoniche[3] * Costanti::Velocit√†Default;
+            ampiezze[4] = AmpiezzeArmoniche[4] * Costanti::Velocit√†Default * scala;
+            ampiezze[5] = AmpiezzeArmoniche[5] * Costanti::Velocit√†Default * scala;
+            ampiezze[6] = AmpiezzeArmoniche[6] * Costanti::Velocit√†Default * scala;
+            ampiezze[7] = AmpiezzeArmoniche[7] * Costanti::Velocit√†Default * scala;
 
             // Normalizzo le ampiezze in modo che la loro somma sia pari ad uno, mantenendo invariate le proporzioni tra
             // di loro.

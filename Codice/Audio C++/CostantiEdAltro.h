@@ -1,4 +1,4 @@
-#pragma once
+Ôªø#pragma once
 
 enum Note
 {
@@ -38,13 +38,13 @@ namespace Costanti
     // Indice canale destro nel caso di audio stereo
     const constexpr unsigned int CanaleDestro = 1;
 
-    // Velocit‡ di default delle note consigliata nelle specifiche MIDI per uno strumento che non supporta velocit‡
+    // Velocit√† di default delle note consigliata nelle specifiche MIDI per uno strumento che non supporta velocit√†
     // dinamiche.
-    // Nota: una velocit‡ pari a zero corrisponde ad una nota muta
-    static const constexpr size_t Velocit‡DefaultMIDI = 60; // [0, 127]
-    // Velocit‡ di default delle note scalata tra 0 ed 1.
-    // Nota: una velocit‡ pari a zero corrisponde ad una nota muta
-    static const constexpr double Velocit‡Default = Costanti::Velocit‡DefaultMIDI / 127.0; // [0, 1]
+    // Nota: una velocit√† pari a zero corrisponde ad una nota muta
+    static const constexpr size_t Velocit√†DefaultMIDI = 60; // [0, 127]
+    // Velocit√† di default delle note scalata tra 0 ed 1.
+    // Nota: una velocit√† pari a zero corrisponde ad una nota muta
+    static const constexpr double Velocit√†Default = Costanti::Velocit√†DefaultMIDI / 127.0; // [0, 1]
 
     // Rapporti tra le note di una ottava secondo l'intonazione naturale usando il Do come nota di riferimento
     const constexpr double RapportoDo  = 1.0;
@@ -124,13 +124,13 @@ inline constexpr double Clamp(double value, double min, double max)
 
 inline constexpr unsigned char ConvertiA8Bits(double valore)
 {
-    // Nota: l'intervallo dei valori risultante Ë simmetrico [1, 255] con valore centrale pari a 128
+    // Nota: l'intervallo dei valori risultante √® simmetrico [1, 255] con valore centrale pari a 128
     return static_cast<unsigned char>(Clamp(std::round(valore * 127 + 128), 1, 255));
 }
 
 inline constexpr short ConvertiA16Bits(double valore)
 {
-    // Nota: l'intervallo dei valori risultante Ë simmetrico [-32767, +32767] con valore centrale pari a 0
+    // Nota: l'intervallo dei valori risultante √® simmetrico [-32767, +32767] con valore centrale pari a 0
     return static_cast<short>(Clamp(std::round(valore * 32'767), -32'767, +32'767));
 }
 
@@ -160,7 +160,7 @@ inline constexpr double DaSmussamentoAGuadagno(double valore)
     else return -std::expm1(-1.0 / Costanti::FrequenzaCampionamento / valore);
 }
 
-// Normalizza i numeri della lista in modo che la loro somma sia pari ad uno, mantenendo perÚ invariate le proporzioni
+// Normalizza i numeri della lista in modo che la loro somma sia pari ad uno, mantenendo per√≤ invariate le proporzioni
 // tra di loro.
 template<typename... Args> constexpr std::array<double, sizeof...(Args)> CreaListaNormalizzata(Args... args)
 {

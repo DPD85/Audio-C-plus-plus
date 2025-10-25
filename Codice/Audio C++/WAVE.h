@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CostantiEdAltro.h"
 
@@ -22,7 +22,7 @@ namespace WAVE
         // Frequenza di campionamento
         unsigned int frequenza;
         unsigned int bytePerSecondo;
-        // Un blocco � un insieme contente i campioni per ogni canale corrispondenti ad un istante temporale
+        // Un blocco è un insieme contente i campioni per ogni canale corrispondenti ad un istante temporale
         unsigned short bytePerBlocco;
         unsigned short bitsPerCampione;
 
