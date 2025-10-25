@@ -2,13 +2,14 @@
 
 #include "CostantiEdAltro.h"
 
+/// @brief %Clock utile per eseguire operazioni periodiche.
 class Clock
 {
     using hrc = std::chrono::high_resolution_clock;
 
   public:
-    /// @brief Inizializza un clock col periodo specificato
-    /// @param periodo_ periodo del clock espresso in secondi
+    /// @brief Inizializza il clock col periodo specificato.
+    /// @param periodo_ Il periodo del clock. [s]
     Clock(double periodo_)
     {
         periodo = periodo_ * 1000.0;
@@ -26,6 +27,7 @@ class Clock
         timeEndPeriod(static_cast<unsigned int>(sogliaSleep));
     }
 
+    /// @brief Avvia il clock, il quale comincerà a contare il tempo a partire da questo istante.
     void Avvia()
     {
         tStart = hrc::now();
@@ -33,8 +35,8 @@ class Clock
 
     /// @brief Aspetta fino al ticchettio successivo del clock tenendo in considerazione il tempo trascorso dalla
     /// chiamata precedete.
-    /// @return Il tempo corrispondente alla durata del ticchettio appena passato espresso in secondi. Se il tempo è
-    /// negativo significa che la durata del ticchettio è stata superiore al periodo del clock.
+    /// @return Il tempo corrispondente alla durata del ticchettio appena passato [s]. Se il tempo è negativo significa
+    /// che la durata del ticchettio è stata superiore al periodo del clock.
     double AspettaTicchettioSuccessivo()
     {
         hrc::time_point tStop = hrc::now();
@@ -57,15 +59,15 @@ class Clock
         return attesa * 1000.0;
     }
 
-    /// @brief Restituisce il periodo del clock espresso in secondi
+    /// @brief Restituisce il periodo del clock. [s]
     double Periodo() const
     {
         return periodo * 1000.0;
     }
 
-    /// @brief Imposta il periodo del clock
-    /// @param periodo_ Il nuovo periodo del clock espresso in secondi
-    /// @warning Questo metodo non è sincronizzato con il metodo @ref AspettaTicchettioSuccessivo()
+    /// @brief Imposta il periodo del clock.
+    /// @param periodo_ Il nuovo periodo del clock. [s]
+    /// @warning Questo metodo non è sincronizzato con il metodo AspettaTicchettioSuccessivo()
     void Periodo(double periodo_)
     {
         periodo = periodo_ * 1000.0;

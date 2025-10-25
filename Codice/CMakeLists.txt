@@ -69,6 +69,7 @@ add_custom_target(SolutionItems SOURCES
     CMakePresets.json
     conanfile.py
     Directory.Build.props.in
+    Readme.md
 )
 
 make_source_group(TARGET SolutionItems)

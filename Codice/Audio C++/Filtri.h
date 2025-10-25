@@ -2,6 +2,7 @@
 
 #include "CostantiEdAltro.h"
 
+/// @brief Interfaccia comune dei vari filtri.
 class Filtro
 {
   public:
@@ -9,7 +10,7 @@ class Filtro
 
     /// @brief Applica il filtro al segnale in ingresso.
     /// @param campione Il campione attuale del segnale in ingresso.
-    /// @return Il campione attuale del segnale filtrato.
+    /// @return Il campione successivo del segnale filtrato.
     /// @remark Consultare la documentazione dei filtri per informazioni specifiche relative ai vari filtri.
     virtual double Computa(double campione) noexcept = 0;
 
@@ -18,9 +19,11 @@ class Filtro
 
 namespace Filtri
 {
+    /// @brief Smussa, con andamento esponenziale, un segnale.
     class SmussamentoEsponenziale: public Filtro
     {
       public:
+        /// @brief Inizializza il filtro con fattore di smussamento e valore iniziale specificati.
         /// @param fattore_ Il fattore di smussamento: più è grande, maggiore è lo smussamento. [0, +∞]
         /// @param valoreIniziale Il valore smussato iniziale.
         SmussamentoEsponenziale(double fattore_, double valoreIniziale = 0): fattore(DaSmussamentoAGuadagno(fattore_))
@@ -34,29 +37,36 @@ namespace Filtri
             return valoreSmussato;
         }
 
-        /// @brief Computa il valore in ingresso.
-        /// @param valore Il valore da smussare.
-        /// @return Il valore smussato.
+        /// @brief Smussa il segnale in ingresso.
+        /// @param valore Il campione attuale del segnale in ingresso.
+        /// @return Il campione successivo del segnale smussato.
         double Computa(double valore) noexcept override
         {
-            const double t  = valoreSmussato;
-            valoreSmussato += (valore - valoreSmussato) * fattore;
+            const double t = valoreSmussato.load();
+            valoreSmussato.store(t + (valore - valoreSmussato) * fattore);
             return t;
         }
 
+        /// @brief Imposta il valore smussato iniziale a zero.
+        /// @remark Il valore viene impostato in modo netto ed immediato per tanto cambierà istantaneamente.
+        /// @remark Il metodo è sincronizzato col calcolo dell'audio, ovvero col metodo Computa().
         void Reset() override
         {
-            valoreSmussato = 0.0;
+            valoreSmussato.store(0.0);
         }
 
+        /// @brief Imposta il valore smussato iniziale.
+        /// @param valore Il valore smussato iniziale.
+        /// @remark Il valore viene impostato in modo netto ed immediato per tanto cambierà istantaneamente.
+        /// @remark Il metodo è sincronizzato col calcolo dell'audio, ovvero col metodo Computa().
         void Reset(double valore)
         {
-            valoreSmussato = valore;
+            valoreSmussato.store(valore);
         }
 
       private:
         const double fattore;
-        double valoreSmussato{ 0 };
+        std::atomic<double> valoreSmussato;
     };
 
     /// @brief Calcola l'inviluppo del valore assoluto di un segnale.
@@ -66,6 +76,7 @@ namespace Filtri
     class RilevatoreInviluppo: public Filtro
     {
       public:
+        /// @brief Inizializza il rilevatore d'inviluppo con i parametri specificati.
         /// @param attacco_ Il fattore di smussamento della fase di attacco: più è grande, maggiore è lo smussamento.
         ///                 [0, +∞]
         /// @param rilascio_ Il fattore di smussamento della fase di rilascio: più è grande, maggiore è lo smussamento.
@@ -82,7 +93,7 @@ namespace Filtri
         }
 
         /// @brief Computa il campione successivo dell'inviluppo del segnale.
-        /// @param campione Il campione successivo del segnale.
+        /// @param campione Il campione attuale del segnale.
         /// @return Il campione successivo dell'inviluppo.
         double Computa(const double campione) noexcept override
         {
@@ -94,6 +105,7 @@ namespace Filtri
             return inviluppo;
         }
 
+        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
         void Reset() override
         {
             inviluppo = 0;
@@ -109,6 +121,7 @@ namespace Filtri
     class InseguitorePicchi: public RilevatoreInviluppo
     {
       public:
+        /// @brief Inizializza l'inseguitore di picchi con i parametri specificati.
         /// @param rilascio_ Il fattore di smussamento della fase di rilascio: più è grande, maggiore è lo smussamento.
         ///                  [0, +∞]
         InseguitorePicchi(double rilascio_): RilevatoreInviluppo(0.0, rilascio_) {}
@@ -118,12 +131,13 @@ namespace Filtri
     class Ritardo: public Filtro
     {
       public:
+        /// @brief Inizializza il filtro con il ritardo specificato.
         /// @param ritardo La dimensione del ritardo applicato al segnale, espresso in secondi. (0, +∞]
         Ritardo(double ritardo): buffer(DaSecondiACampioni(ritardo), 0.0) {}
 
-        /// @brief Ritarda il segnale in ingresso
+        /// @brief Ritarda il segnale in ingresso.
         /// @param campione Il campione attuale del segnale d'ingresso.
-        /// @return Il campione attuale del segnale ritardato.
+        /// @return Il campione successivo del segnale ritardato.
         double Computa(double campione) noexcept override
         {
             const double valore = buffer.back();
@@ -131,6 +145,7 @@ namespace Filtri
             return valore;
         }
 
+        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
         void Reset() override
         {
             std::fill(buffer.begin(), buffer.end(), 0.0);
@@ -142,14 +157,15 @@ namespace Filtri
 
     namespace Interno
     {
-        /// @brief Implementazione interna utilizzata per implementare altri filtri, non è fatta per essere usata
-        /// direttamente
+        /// @brief Riduce l'aumento di volume di un segnale quando questo supera una certa soglia.
+        /// @remark Implementazione interna utilizzata per implementare altri filtri, non è fatta per essere usata
+        /// direttamente.
         class Compressore: public Filtro
         {
           public:
+            /// @brief Inizializza il filtro con i parametri specificati.
             /// @param rilascio Il fattore di smussamento della fase di rilascio: più è grande, maggiore è lo
-            /// smussamento.
-            ///                 [0, +∞]
+            ///                 smussamento. [0, +∞]
             /// @param sogliaVolume La soglia, superata la quale, il compressore entra in funzione. [0, 1]
             /// @param CS Il coefficiente di riduzione del volume, se pari ad uno diventa un limitatore. [0, 1]
             /// @param ritardo Il ritardo, sul segnale d'ingresso, col quale il compressore agisce, espresso in secondi.
@@ -161,9 +177,9 @@ namespace Filtri
                 , ritardo(ritardo)
             {}
 
-            /// @brief Comprime il segnale in ingresso.
-            /// @param campione Il campione corrente del segnale d'ingresso.
-            /// @return Il campione corrente del segnale compresso.
+            /// @brief Riduce l'aumento di volume del segnale d'ingresso.
+            /// @param campione Il campione corrente del segnale.
+            /// @return Il campione attuale del segnale compresso.
             double Computa(double campione) noexcept override
             {
                 const double inviluppo = rilevatoreInviluppo.Computa(campione);
@@ -177,6 +193,7 @@ namespace Filtri
                 return valore * guadagno;
             }
 
+            /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
             void Reset() override
             {
                 rilevatoreInviluppo.Reset();
@@ -195,6 +212,7 @@ namespace Filtri
     class Limitatore: public Interno::Compressore
     {
       public:
+        /// @brief Inizializza il limitatore con i parametri specificati.
         /// @param rilascio Il fattore di smussamento della fase di rilascio: più è grande, maggiore è lo smussamento.
         ///                 [0, +∞]
         /// @param sogliaVolume La soglia, superata la quale, il limitatore entra in funzione. [0, 1]
@@ -213,14 +231,14 @@ namespace Filtri
         ///                 [0, +∞]
         /// @param sogliaVolume La soglia, superata la quale, il compressore entra in funzione. [0, 1]
         /// @param proporzione La proporzione di riduzione del volume. (0, +∞]
-        /// @param ritardo Il ritardo, sul segnale d'ingresso, col quale il compressore agisce, espresso in secondi. (0,
-        /// +∞]
+        /// @param ritardo Il ritardo, sul segnale d'ingresso, col quale il compressore agisce, espresso in secondi.
+        ///                (0, +∞]
         Compressore(double rilascio, double sogliaVolume, double proporzione, double ritardo)
             : Interno::Compressore(rilascio, sogliaVolume, 1.0 - 1.0 / proporzione, ritardo)
         {}
     };
 
-    /// @brief Aggiunge l'èco ad un segnale regolando il volume massimo dell'èco.
+    /// @brief Aggiunge l'èco ad un segnale con regolazione del volume massimo dell'èco.
     class EchoWetDry: public Filtro
     {
       public:
@@ -244,6 +262,7 @@ namespace Filtri
             return (1 - volumeMassimo) * campione + volumeMassimo * valore;
         }
 
+        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
         void Reset() override
         {
             std::fill(buffer.begin(), buffer.end(), 0.0);
@@ -255,7 +274,7 @@ namespace Filtri
         const double volumeMassimo;
     };
 
-    /// @brief Aggiunge l'èco ad un segnale
+    /// @brief Aggiunge l'èco ad un segnale.
     class Echo: public EchoWetDry
     {
       public:
@@ -267,28 +286,33 @@ namespace Filtri
 
     namespace Interno
     {
-        /// @brief Implementazione interna utilizzata per implementare altri filtri, non è fatta per essere usata
-        /// direttamente.
+        /// @brief Implementa lo schema corrispondente alla topologia BiQuad.
         ///
-        /// Implementa l'equazione (corrispondente allo schema con topologia BiQuad):
+        /// Implementa l'equazione:
         ///     \f[y(n) = a_0*x(n) + a_1*x(n-1) + a_2*x(n-1) - b_1*y(n-1) - b_2*y(n-1)\f]
         /// dove
         ///     * \f$x(n)\f$ è l'input;
         ///     * \f$y(n)\f$ è l'output;
         ///     * \f$a_0\f$, \f$a_1\f$, \f$a_2\f$, \f$b_1\f$ e \f$b_2\f$ sono dei coefficienti.
+        ///
+        /// @remark Implementazione interna utilizzata per implementare altri filtri, non è fatta per essere usata
+        /// direttamente.
         class BiQuad: public Filtro
         {
           public:
+            /// @brief Inizializza il filtro con tutti i guadagni a zero. In queste condizioni il filtro produrrà
+            /// solamente silenzio.
             BiQuad(): a0(0.0), a1(0.0), a2(0.0), b1(0.0), b2(0.0) {}
 
+            /// @brief Inizializza il filtro con i guadagni specificati.
             BiQuad(double a0, double a1, double a2, double b1, double b2)
             {
-                Coefficenti(a0, a1, a2, b1, b2);
+                Coefficienti(a0, a1, a2, b1, b2);
             }
 
             /// @brief Applica il filtro al segnale in ingresso.
             /// @param campione Il campione attuale del segnale d'ingresso.
-            /// @return Il campione attuale dell'output del filtro.
+            /// @return Il campione successivo dell'output del filtro.
             double Computa(double campione) noexcept override
             {
                 const double output = a0 * campione                                 //
@@ -304,6 +328,7 @@ namespace Filtri
                 return output;
             }
 
+            /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
             void Reset() override
             {
                 inputPrecedente1 = 0.0;
@@ -314,27 +339,9 @@ namespace Filtri
             }
 
           protected:
-            double CoefficenteA0() const
-            {
-                return a0;
-            }
-
-            double CoefficenteA1() const
-            {
-                return a0;
-            }
-
-            double CoefficenteB1() const
-            {
-                return b1;
-            }
-
-            double CoefficenteB2() const
-            {
-                return b1;
-            }
-
-            void Coefficenti(double a0_, double a1_, double a2_, double b1_, double b2_)
+            /// @brief Imposta nuovi valori per i coefficienti del filtro.
+            /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+            void Coefficienti(double a0_, double a1_, double a2_, double b1_, double b2_)
             {
                 a0 = a0_;
                 a1 = a1_;
@@ -353,22 +360,25 @@ namespace Filtri
         };
     }
 
-    /// @brief Filtro passa basso del primo ordine.
+    /// @brief %Filtro passa basso del primo ordine.
     /// @warning
-    ///     Se la frequenza di taglio è uguale alla frequenza di Nyquist alla il filtro lascerà passare tutte
+    ///     Se la frequenza di taglio è uguale alla frequenza di Nyquist allora il filtro lascerà passare tutte
     ///     le frequenze dal segnale, di fatto l'output sarà identico al segnale d'input.
     class FiltroPassaBasso: public Interno::BiQuad
     {
       public:
+        /// @brief Inizializza il filtro con frequenza di taglio pari a zero. In queste condizioni il filtro produrrà
+        /// solamente silenzio.
         FiltroPassaBasso(): frequenzaTaglio(0.0) {}
 
+        /// @brief Inizializza il filtro con frequenza di taglio specificata.
         /// @param frequenzaTaglio La frequenza di taglio del filtro espressa in Hz. [0, Nyquist]
         FiltroPassaBasso(double frequenzaTaglio)
         {
             FrequenzaTaglio(frequenzaTaglio);
         }
 
-        /// Restituisce la frequenza di taglio del filtro espressa in Hz.
+        /// @brief Restituisce la frequenza di taglio del filtro. [Hz]
         double FrequenzaTaglio() const
         {
             return frequenzaTaglio;
@@ -376,6 +386,7 @@ namespace Filtri
 
         /// @brief Imposta la frequenza di taglio del filtro.
         /// @param frequenzaTaglio_ La frequenza di taglio del filtro espressa in Hz. [0, Nyquist]
+        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
         void FrequenzaTaglio(double frequenzaTaglio_)
         {
             // Limito la frequenza di taglio alla frequenza di Nyquist
@@ -389,27 +400,28 @@ namespace Filtri
             const double b1    = -gamma;
             const double b2    = 0.0;
 
-            BiQuad::Coefficenti(a0, a1, a2, b1, b2);
+            BiQuad::Coefficienti(a0, a1, a2, b1, b2);
         }
 
       private:
         double frequenzaTaglio; // [Hz]
     };
 
-    /// @brief Filtro passa alto del primo ordine.
+    /// @brief %Filtro passa alto del primo ordine.
     /// @warning
-    ///     Se la frequenza di taglio è uguale alla frequenza di Nyquist alla il filtro eliminerà totalmente tutte
+    ///     Se la frequenza di taglio è uguale alla frequenza di Nyquist allora il filtro eliminerà totalmente tutte
     ///     le frequenze dal segnale, di fatto l'output sarà silenzio.
     class FiltroPassaAlto: public Interno::BiQuad
     {
       public:
-        /// @param frequenzaTaglio La frequenza di taglio del filtro espressa in Hz. [0, Nyquist]
+        /// @brief Inizializza il filtro con la frequenza di taglio specificata.
+        /// @param frequenzaTaglio La frequenza di taglio espressa in Hz. [0, Nyquist]
         FiltroPassaAlto(double frequenzaTaglio)
         {
             FrequenzaTaglio(frequenzaTaglio);
         }
 
-        /// Restituisce la frequenza di taglio del filtro espressa in Hz.
+        /// @brief Restituisce la frequenza di taglio del filtro. [Hz]
         double FrequenzaTaglio() const
         {
             return frequenzaTaglio;
@@ -417,6 +429,7 @@ namespace Filtri
 
         /// @brief Imposta la frequenza di taglio del filtro.
         /// @param frequenzaTaglio_ La frequenza di taglio del filtro espressa in Hz. [0, Nyquist]
+        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
         void FrequenzaTaglio(double frequenzaTaglio_)
         {
             // Limito la frequenza di taglio alla frequenza di Nyquist
@@ -430,14 +443,14 @@ namespace Filtri
             const double b1    = -gamma;
             const double b2    = 0.0;
 
-            BiQuad::Coefficenti(a0, a1, a2, b1, b2);
+            BiQuad::Coefficienti(a0, a1, a2, b1, b2);
         }
 
       private:
         double frequenzaTaglio; // [Hz]
     };
 
-    /// @brief Filtro passa tutto ritardante (Delaying All-Pass filter).
+    /// @brief %Filtro passa tutto ritardante (Delaying All-Pass filter).
     ///
     /// Il filtro crea una serie di èco lasciando inalterata l'ampiezza delle frequenze ma modificandone la fase.
     /// La fase delle varie frequenze varia tra 0° per la frequenza zero e 180° per la frequenza di Nyquist, in
@@ -451,11 +464,16 @@ namespace Filtri
     class FiltroPassaTutto: public Filtro
     {
       public:
+        /// @brief Inizializzo il filtro con guadagno e ritardo zero. In queste condizioni il filtro produrrà solamente
+        /// silenzio.
         FiltroPassaTutto(): guadagno(0.0) {}
 
+        /// @brief Inizializzo il filtro con guadagno zero e ritardo specificato. In queste condizioni il filtro
+        /// produrrà solamente silenzio.
         /// @param ritardo La durata del ritardo. [s]
         FiltroPassaTutto(double ritardo): buffer(DaSecondiACampioni(ritardo), 0.0), guadagno(0.0) {}
 
+        /// @brief Inizializzo il filtro con guadagno e ritardo specificati.
         /// @param ritardo La durata del ritardo. [s]
         /// @param guadagno Controlla la frequenza di rottura, quella alla quale la fase è modificata di -90°. [0, 1]
         FiltroPassaTutto(double ritardo, double guadagno): buffer(DaSecondiACampioni(ritardo), 0.0), guadagno(guadagno)
@@ -463,7 +481,7 @@ namespace Filtri
 
         /// @brief Applica il filtro al segnale in ingresso.
         /// @param campione Il campione attuale del segnale d'ingresso.
-        /// @return Il campione attuale dell'output del filtro.
+        /// @return Il campione successivo dell'output del filtro.
         double Computa(double campione) noexcept override
         {
             const double valore = buffer.back();
@@ -473,12 +491,14 @@ namespace Filtri
             return campione * (-guadagno) + valore;
         }
 
+        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
         void Reset() override
         {
             std::fill(buffer.begin(), buffer.end(), 0.0);
         }
 
-        /// @brief Restituisce il guadagno attualmente usato dal filtro.
+        /// @brief Restituisce il guadagno attualmente usato dal filtro. [0, 1]
+        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
         double Guadagno() const
         {
             return guadagno;
@@ -486,6 +506,7 @@ namespace Filtri
 
         /// @brief Imposta il guadagno del filtro.
         /// @param guadagno_ Il nuovo guadagno. [0, 1]
+        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
         void Guagano(double guadagno_)
         {
             guadagno = guadagno_;
@@ -496,7 +517,7 @@ namespace Filtri
         double guadagno; // [0, 1]
     };
 
-    /// @brief Filtro pettine con filtro passa basso (Low-Pass Comb Filter).
+    /// @brief %Filtro pettine con filtro passa basso (Low-Pass Comb Filter).
     ///
     /// Il filtro somma al segnale in ingresso se stesso ritardo di un certo tempo, il filtro va così a creare una serie
     /// di èco. <br /> La risposta all'impulso è un serie di picchi equidistanti progressivamente attenuati. <br /> Le
@@ -514,6 +535,7 @@ namespace Filtri
         /// @param ritardo Il ritardo del segnale sommato all'input rispetto all'input. [s]
         FiltroPettine(double ritardo): buffer(DaSecondiACampioni(ritardo), 0.0), attenuazione(0.0) {}
 
+        /// @brief Inizializza il filtro con il ritardo, la massima attenuazione e frequenza di taglio specificati.
         /// @param ritardo Il ritardo del segnale sommato all'input rispetto all'input. [s]
         /// @param attenuazione L'attenuazione dei picchi introdotti dal filtro, 0 = nessun picco, 1 = senza
         ///                     attenuazione. [0, 1]
@@ -526,7 +548,7 @@ namespace Filtri
 
         /// @brief Applica il filtro al segnale in ingresso.
         /// @param campione Il campione attuale del segnale d'ingresso.
-        /// @return Il campione attuale dell'output del filtro.
+        /// @return Il campione successivo dell'output del filtro.
         double Computa(double campione) noexcept override
         {
             double valore = buffer.back();
@@ -538,12 +560,14 @@ namespace Filtri
             return valore;
         }
 
+        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
         void Reset() override
         {
             std::fill(buffer.begin(), buffer.end(), 0.0);
         }
 
         /// @brief Restituisce il ritardo attuale del segnale sommato all'input rispetto all'input. [s]
+        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
         double Ritardo() const
         {
             return DaCampioniASecondi(buffer.size());
@@ -551,12 +575,14 @@ namespace Filtri
 
         /// @brief Imposta il ritardo del segnale sommato all'input rispetto all'input.
         /// @param ritardo Il ritardo. [s]
+        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
         void Ritardo(double ritardo)
         {
             buffer.resize(DaSecondiACampioni(ritardo), 0.0);
         }
 
         /// @brief Restituisce l'attenuazione dei picchi creati dal filtro. [0, 1]
+        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
         double Attenuazione() const
         {
             return attenuazione;
@@ -564,6 +590,7 @@ namespace Filtri
 
         /// @brief Imposta l'attenuazione dei picchi creati dal filtro.
         /// @param attenuazione_ L'attenuazione dei picchi, 0 = nessun picco, 1 = nessuna attenuazione. [0, 1]
+        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
         void Attenuazione(double attenuazione_)
         {
             attenuazione = attenuazione_;
@@ -577,6 +604,7 @@ namespace Filtri
 
         /// @brief Imposta la frequenza di taglio del filtro passa basso.
         /// @param frequenzaTaglio La frequenza di taglio. [Hz]
+        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
         void FrequenzaTaglio(double frequenzaTaglio)
         {
             passaBasso.FrequenzaTaglio(frequenzaTaglio);
@@ -589,7 +617,7 @@ namespace Filtri
     };
 
     /// @brief %Riverbero di Schroeder con l'aggiunta di filtri passa passo (Low-Pass Filter–Comb Reverberator) composto
-    /// da quattro filtri pettine e due filtri passa tutto.
+    /// da quattro filtri pettine con filtro passa basso e due filtri passa tutto.
     ///
     /// I quattro filtri pettine utilizzati hanno le seguenti caratteristiche:
     ///     - il 1° a ritardo di 1116 campioni corrispondenti a 23.25 ms. con campionamento a 48 KHz;
@@ -605,6 +633,7 @@ namespace Filtri
     class Riverbero: public Filtro
     {
       public:
+        /// @brief Inizializza il filtro con dimensione della stanza, riverbero e frequenza di taglio specificati.
         /// @param dimensioneStanza La dimensione della stanza simulata, 0 = stanza minuscola, 1 = stanza enorme. [0, 1]
         /// @param riverbero La quantità di riverbero presente nell'output, 0 = nessun riverbero, 1 = solo riverbero.
         ///                  [0, 1]
@@ -622,7 +651,7 @@ namespace Filtri
 
         /// @brief Applica il riverbero al segnale in ingresso.
         /// @param campione Il campione attuale del segnale d'ingresso.
-        /// @return Il campione attuale del segnale con riverbero.
+        /// @return Il campione successivo del segnale con riverbero.
         double Computa(double campione) noexcept override
         {
             double output = 0.0;
@@ -636,6 +665,7 @@ namespace Filtri
             return campione * (1.0 - riverbero) + output * riverbero;
         }
 
+        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
         void Reset() override
         {
             for (FiltroPettine &filtro : filtriPettine)

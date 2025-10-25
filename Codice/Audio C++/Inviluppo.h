@@ -8,11 +8,11 @@ class InviluppoADSR
   public:
     enum class Stati
     {
-        Silenzio, // fuori dall'inviluppo
-        Attacco,
-        Decadimento,
-        Sostentamento,
-        Rilascio,
+        Silenzio,      ///< Fuori dall'inviluppo
+        Attacco,       ///< Fase di attacco dell'inviluppo
+        Decadimento,   ///< Fase di decadimento dell'inviluppo
+        Sostentamento, ///< Fase di sostentamento dell'inviluppo
+        Rilascio,      ///< Fase di rilascio dell'inviluppo
     };
 
     /// @brief Inizializza un inviluppo lineare di tipo ADSR con durata delle fasi e livello di sostentamento pari a
@@ -20,10 +20,10 @@ class InviluppoADSR
     InviluppoADSR(): attacco(0), decadimento(0), rilascio(0), sostentamento(0.0) {}
 
     /// @brief Inizializza un inviluppo lineare di tipo ADSR.
-    /// @param attacco_ Durata della fase di attacco dell'inviluppo espressa in secondi
-    /// @param decadimento_ Durata della fase di decadimento dell'inviluppo espressa in secondi
-    /// @param sostentamento_ Ampiezza (volume) della fase di sostentamento [0, 1]
-    /// @param rilascio_ Durata della fase di rilascio dell'inviluppo espressa in secondi
+    /// @param attacco_ La durata della fase di attacco dell'inviluppo. [s]
+    /// @param decadimento_ La durata della fase di decadimento dell'inviluppo. [s]
+    /// @param sostentamento_ L'ampiezza della fase di sostentamento. [0, 1]
+    /// @param rilascio_ La durata della fase di rilascio dell'inviluppo. [s]
     InviluppoADSR(double attacco_, double decadimento_, double sostentamento_, double rilascio_)
     {
         attacco       = DaSecondiACampioni(attacco_);
@@ -32,18 +32,22 @@ class InviluppoADSR
         sostentamento = sostentamento_;
     }
 
+    /// @brief Indica l'istante in cui il musicista da inizio ad una nota. Per esempio la pressione di un tasto sul
+    /// pianoforte.
     void InizioNota()
     {
         notaAttiva.store(true);
     }
 
+    /// @brief Indica l'istante in cui il musicista termina una nota. Per esempio un tasto del pianoforte viene
+    /// rilasciato.
     void FineNota()
     {
         notaAttiva.store(false);
     }
 
-    /// @brief Calcola il valore dell'inviluppo un campione alla volta
-    /// @return Il valore attuale dell'inviluppo; il valore è sempre compreso nell'intervallo [0, 1]
+    /// @brief Calcola il valore successivo dell'inviluppo.
+    /// @return Il valore attuale dell'inviluppo. [0, 1]
     double Computa() noexcept
     {
         // ----- Cambio di stato
@@ -111,16 +115,17 @@ class InviluppoADSR
         return valore;
     }
 
-    /// @brief Indica se la nota corrispondente a questo inviluppo sta suonando oppure se è muta
-    /// @retval True La nota sta suonando
-    /// @retval False La nota è muta
-    /// @warning Il metodo non è sincronizzato con il thread audio
+    /// @brief Indica se la nota corrispondente a questo inviluppo sta suonando oppure se è muta.
+    /// @retval True La nota sta suonando.
+    /// @retval False La nota è muta.
+    /// @warning Il metodo non è sincronizzato con il calcolo dell'audio, ovvero col metodo Computa().
     bool StaSuonando() const
     {
         return stato != Stati::Silenzio;
     }
 
-    /// @brief Restituisce lo stato attuale dell'inviluppo
+    /// @brief Restituisce lo stato attuale dell'inviluppo.
+    /// @warning Il metodo non è sincronizzato con il calcolo dell'audio, ovvero col metodo Computa().
     Stati Stato() const
     {
         return stato;
@@ -138,7 +143,7 @@ class InviluppoADSR
     double sostentamento; // Ampiezza [0, 1]
 
     // ----- Implementazione copia e movimento dell'oggetto -----
-
+    /// @cond CTOR_OP_COPY_MOVE
   public:
     InviluppoADSR(const InviluppoADSR &&altro)
     {
@@ -187,4 +192,5 @@ class InviluppoADSR
 
         return *this;
     }
+    /// @endcond
 };

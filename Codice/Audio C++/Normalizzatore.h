@@ -2,6 +2,7 @@
 
 #include "Volume.h"
 
+/// @remark L'implementazione è parziale e non terminata, non è pronto per essere usato.
 class Normalizzatore
 {
   public:
@@ -30,6 +31,7 @@ class Normalizzatore
     double scala;
 };
 
+/// @remark L'implementazione è parziale e non terminata, non è pronto per essere usato.
 class NormalizzatoreSmussato
 {
   public:

@@ -21,7 +21,7 @@ static int AudioCallback(
     const PaStreamCallbackTimeInfo *timeInfo,
     PaStreamCallbackFlags statusFlags,
     void *userData);
-static void TastieraECUI();
+static void TastieraEIUC();
 static void RegistraPerGrafico();
 
 static StrumentiMusicali::Puro strumentoPuro;
@@ -194,7 +194,7 @@ int main()
 
     // ----- Input tastiera e interfaccia grafica in AsciiArt
 
-    TastieraECUI();
+    TastieraEIUC();
 
     // ----- -----
 
@@ -236,7 +236,7 @@ static int AudioCallback(
     return paContinue;
 }
 
-static void TastieraECUI()
+static void TastieraEIUC()
 {
     std::wcout << L'\n';
 

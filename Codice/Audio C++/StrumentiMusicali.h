@@ -4,16 +4,25 @@
 #include "Inviluppo.h"
 #include "Oscillatori.h"
 
+/// @brief Interfaccia comune ai vari strumenti musicali.
 class StrumentoMusicale
 {
   public:
     virtual ~StrumentoMusicale() = default;
 
+    /// @brief Indica l'istante in cui il musicista da inizio ad una nota. Per esempio la pressione di un tasto sul
+    /// pianoforte.
+    /// @param nota La nota che ha inizio.
     virtual void InizioNota(Note nota) = 0;
-    virtual void FineNota(Note nota)   = 0;
 
-    /// @brief Restituisce il campione audio successivo dello strumento musicale. Il campione è sempre compreso
-    /// nell'intervallo [-1, 1]
+    /// @brief Indica l'istante in cui il musicista termina una nota. Per esempio un tasto del pianoforte viene
+    /// rilasciato.
+    /// @param nota La nota che ha termine.
+    virtual void FineNota(Note nota) = 0;
+
+    /// @brief Restituisce il campione audio successivo dello strumento musicale. Il campione è spesso compreso
+    /// nell'intervallo [-1, 1].
+    /// @remark Consultare la documentazione degli specifici strumenti musicali per maggiori dettagli.
     virtual double Campione() = 0;
 };
 
@@ -39,7 +48,6 @@ namespace StrumentiMusicali
             Oscillatori::OndaSinusoidale(Costanti::FrequenzaSi),
         };
 
-        // La durata della fase di rilascio diminuisce con l'aumentare della frequenza della nota
         std::array<InviluppoADSR, Note::NumeroNote> inviluppi = {
             InviluppoADSR(0.02, 0.01, 0.8, 0.5), // do
             InviluppoADSR(0.02, 0.01, 0.8, 0.5), // do#
@@ -55,6 +63,7 @@ namespace StrumentiMusicali
             InviluppoADSR(0.02, 0.01, 0.8, 0.5), // si
         };
 
+      public:
         void InizioNota(Note nota) override
         {
             inviluppi[nota].InizioNota();
@@ -65,6 +74,8 @@ namespace StrumentiMusicali
             inviluppi[nota].FineNota();
         }
 
+        /// @brief Restituisce il campione audio successivo dello strumento musicale. Il valore del campione è sempre
+        /// compreso nell'intervallo [-1, 1].
         double Campione() override
         {
             double valore = 0;
@@ -97,7 +108,6 @@ namespace StrumentiMusicali
             Oscillatori::OndaQuadra(Costanti::FrequenzaLaDiesis),  Oscillatori::OndaQuadra(Costanti::FrequenzaSi),
         };
 
-        // La durata della fase di rilascio diminuisce con l'aumentare della frequenza della nota
         std::array<InviluppoADSR, Note::NumeroNote> inviluppi = {
             InviluppoADSR(0.02, 0.01, 0.8, 0.5), // do
             InviluppoADSR(0.02, 0.01, 0.8, 0.5), // do#
@@ -113,6 +123,7 @@ namespace StrumentiMusicali
             InviluppoADSR(0.02, 0.01, 0.8, 0.5), // si
         };
 
+      public:
         void InizioNota(Note nota) override
         {
             inviluppi[nota].InizioNota();
@@ -123,6 +134,8 @@ namespace StrumentiMusicali
             inviluppi[nota].FineNota();
         }
 
+        /// @brief Restituisce il campione audio successivo dello strumento musicale. Il valore del campione è sempre
+        /// compreso nell'intervallo [-1, 1].
         double Campione() override
         {
             double valore = 0;
@@ -141,15 +154,14 @@ namespace StrumentiMusicali
         }
     };
 
-    /// @brief Pianoforte a 88 tasti.
+    /// @brief %Pianoforte a 88 tasti.
     ///
-    /// La serie armonica di tutte le note è composta da otto armoniche.
-    /// L'inviluppo delle note è lineare ed ha un tempo di decadimento e di rilascio progressivamente più corto con
-    /// l'aumentare dell'acutezza della nota.
+    /// La serie armonica delle note è composta da otto armoniche, mentre l'inviluppo è lineare ed ha un tempo di
+    /// decadimento e di rilascio progressivamente più corto con l'aumentare dell'acutezza della nota.
     class Pianoforte: public StrumentoMusicale
     {
-        /* Gli 88 tasti del piano forte vanno dalla nota A0 alla C8, i corrispettivi numeri MIDI vanno da 21 a 109
-         */
+        // Gli 88 tasti del piano forte vanno dalla nota La0 (A0) alla Do8 (C8), i corrispettivi numeri MIDI vanno da 21
+        // a 109.
 
       private:
         // Numero MIDI della nota del primo tasto a sinistra del pianoforte
@@ -220,6 +232,8 @@ namespace StrumentiMusicali
             inviluppi[nota + 60].FineNota();
         }
 
+        /// @brief Restituisce il campione audio successivo dello strumento musicale.
+        /// @note Non è garantito che il valore del campione restituito sia sempre compreso nell'intervallo [-1, 1].
         double Campione() override
         {
             volatile double valore = 0;
