@@ -15,6 +15,8 @@ target_sources(Audio-C-plus-plus
         CodaEliminazione.h
         CostantiEdAltro.h
         Filtri.h
+        MIDI.cpp
+        MIDI.h
         IntestazionePrecompilata.h
         Inviluppo.h
         Normalizzatore.h
