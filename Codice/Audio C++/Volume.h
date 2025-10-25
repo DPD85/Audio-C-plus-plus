@@ -8,9 +8,9 @@ class Volume
 {
   public:
     /// @brief Inizializza il controllo del volume
-    /// @param _fattore Fattore di smussamento: più è grande, maggiore è lo smussamento [0, +∞]
+    /// @param fattore_ Fattore di smussamento: più è grande, maggiore è lo smussamento [0, +∞]
     /// @param valoreIniziale Volume iniziale [0, 1]
-    Volume(double _fattore, double valoreIniziale = 0): smussatore(_fattore, valoreIniziale)
+    Volume(double fattore_, double valoreIniziale = 0): smussatore(fattore_, valoreIniziale)
     {
         nuovoValore.store(valoreIniziale);
     }
@@ -20,24 +20,24 @@ class Volume
         return smussatore.Valore();
     }
 
-    void Valore(double _valore)
+    void Valore(double valore_)
     {
-        nuovoValore.store(_valore);
+        nuovoValore.store(valore_);
     }
 
     double Smussa() noexcept
     {
-        double _nuovoValore = nuovoValore.load();
-        return smussatore.Smussa(_nuovoValore);
+        double nuovoValore_ = nuovoValore.load();
+        return smussatore.Computa(nuovoValore_);
     }
 
-    void Reset(double _nuovoValore = 0)
+    void Reset(double nuovoValore_ = 0)
     {
-        smussatore.Reset(_nuovoValore);
-        nuovoValore.store(_nuovoValore);
+        smussatore.Reset(nuovoValore_);
+        nuovoValore.store(nuovoValore_);
     }
 
   private:
     std::atomic<double> nuovoValore{ 0 };
-    SmussamentoEsponenziale smussatore;
+    Filtri::SmussamentoEsponenziale smussatore;
 };

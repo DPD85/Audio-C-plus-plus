@@ -2,6 +2,7 @@
 
 #include "CostantiEdAltro.h"
 
+/// @brief Inviluppo lineare di tipo ADSR.
 class InviluppoADSR
 {
   public:
@@ -13,6 +14,10 @@ class InviluppoADSR
         Sostentamento,
         Rilascio,
     };
+
+    /// @brief Inizializza un inviluppo lineare di tipo ADSR con durata delle fasi e livello di sostentamento pari a
+    /// zero.
+    InviluppoADSR(): attacco(0), decadimento(0), rilascio(0), sostentamento(0.0) {}
 
     /// @brief Inizializza un inviluppo lineare di tipo ADSR.
     /// @param attacco_ Durata della fase di attacco dell'inviluppo espressa in secondi
@@ -56,14 +61,14 @@ class InviluppoADSR
                 if (tempo >= attacco)
                 {
                     tempo -= attacco;
-                    stato = Stati::Decadimento;
+                    stato  = Stati::Decadimento;
                 }
                 break;
             case Stati::Decadimento:
                 if (tempo >= decadimento)
                 {
                     tempo -= decadimento;
-                    stato = Stati::Sostentamento;
+                    stato  = Stati::Sostentamento;
                 }
                 break;
             case Stati::Sostentamento:
@@ -86,8 +91,7 @@ class InviluppoADSR
                 valore = tempo / static_cast<double>(attacco);
                 break;
             case Stati::Decadimento:
-                valore =
-                    (1.0 - tempo / static_cast<double>(decadimento)) * (1 - sostentamento) + sostentamento;
+                valore = (1.0 - tempo / static_cast<double>(decadimento)) * (1 - sostentamento) + sostentamento;
                 break;
             case Stati::Sostentamento:
                 // Intenzionale. Il tempo non avanza, in questo modo il tempo di inizio del rilascio sarà indipendente
@@ -132,4 +136,55 @@ class InviluppoADSR
     size_t decadimento;   // [# campioni]
     size_t rilascio;      // [# campioni]
     double sostentamento; // Ampiezza [0, 1]
+
+    // ----- Implementazione copia e movimento dell'oggetto -----
+
+  public:
+    InviluppoADSR(const InviluppoADSR &&altro)
+    {
+        notaAttiva.store(altro.notaAttiva.load());
+
+        stato         = altro.stato;
+        attacco       = altro.attacco;
+        decadimento   = altro.decadimento;
+        rilascio      = altro.rilascio;
+        sostentamento = altro.sostentamento;
+    }
+
+    InviluppoADSR &operator=(const InviluppoADSR &&altro)
+    {
+        notaAttiva.store(altro.notaAttiva.load());
+
+        stato         = altro.stato;
+        attacco       = altro.attacco;
+        decadimento   = altro.decadimento;
+        rilascio      = altro.rilascio;
+        sostentamento = altro.sostentamento;
+
+        return *this;
+    }
+
+    InviluppoADSR(const InviluppoADSR &altro)
+    {
+        notaAttiva.store(altro.notaAttiva.load());
+
+        stato         = altro.stato;
+        attacco       = altro.attacco;
+        decadimento   = altro.decadimento;
+        rilascio      = altro.rilascio;
+        sostentamento = altro.sostentamento;
+    }
+
+    InviluppoADSR &operator=(const InviluppoADSR &altro)
+    {
+        notaAttiva.store(altro.notaAttiva.load());
+
+        stato         = altro.stato;
+        attacco       = altro.attacco;
+        decadimento   = altro.decadimento;
+        rilascio      = altro.rilascio;
+        sostentamento = altro.sostentamento;
+
+        return *this;
+    }
 };

@@ -2,643 +2,669 @@
 
 #include "CostantiEdAltro.h"
 
-class SmussamentoEsponenziale
+class Filtro
 {
   public:
-    /// @param _fattore Il fattore di smussamento: più è grande, maggiore è lo smussamento [0, +∞]
-    /// @param valoreIniziale Il valore smussato iniziale
-    SmussamentoEsponenziale(double _fattore, double valoreIniziale = 0): fattore(DaSmussamentoAGuadagno(_fattore))
-    {
-        Reset(valoreIniziale);
-    }
+    virtual ~Filtro() = default;
 
-    /// @brief Restituisce il valore smussato corrente
-    double Valore() const
-    {
-        return valoreSmussato;
-    }
+    /// @brief Applica il filtro al segnale in ingresso.
+    /// @param campione Il campione attuale del segnale in ingresso.
+    /// @return Il campione attuale del segnale filtrato.
+    /// @remark Consultare la documentazione dei filtri per informazioni specifiche relative ai vari filtri.
+    virtual double Computa(double campione) noexcept = 0;
 
-    /// @brief Smussa il valore in ingresso
-    /// @param valore Il valore da smussare
-    /// @return Restituisce il valore smussato
-    double Smussa(double valore) noexcept
-    {
-        const double t  = valoreSmussato;
-        valoreSmussato += (valore - valoreSmussato) * fattore;
-        return t;
-    }
-
-    void Reset(double valore = 0)
-    {
-        valoreSmussato = valore;
-    }
-
-  private:
-    const double fattore;
-    double valoreSmussato{ 0 };
+    virtual void Reset() = 0;
 };
 
-/// @brief Calcola l'inviluppo del valore assoluto di un segnale.
-///
-/// Si tratta di uno smorzatore esponenziale che utilizza due fattori di smorzamento diversi per la fase di attacco e di
-/// rilascio nel calcolo dell'inviluppo.
-class RilevatoreInviluppo
+namespace Filtri
 {
-  public:
-    /// @param _attacco Il fattore di smussamento della fase di attacco: più è grande, maggiore è lo smussamento.
-    ///                 [0, +∞]
-    /// @param _rilascio Il fattore di smussamento della fase di rilascio: più è grande, maggiore è lo smussamento.
-    ///                 [0, +∞]
-    RilevatoreInviluppo(double _attacco, double _rilascio)
-        : attacco(DaSmussamentoAGuadagno(_attacco))
-        , rilascio(DaSmussamentoAGuadagno(_rilascio))
-    {}
-
-    /// @brief Restituisce il campione corrente dell'inviluppo
-    double Inviluppo() const
+    class SmussamentoEsponenziale: public Filtro
     {
-        return inviluppo;
+      public:
+        /// @param fattore_ Il fattore di smussamento: più è grande, maggiore è lo smussamento. [0, +∞]
+        /// @param valoreIniziale Il valore smussato iniziale.
+        SmussamentoEsponenziale(double fattore_, double valoreIniziale = 0): fattore(DaSmussamentoAGuadagno(fattore_))
+        {
+            Reset(valoreIniziale);
+        }
+
+        /// @brief Restituisce il valore smussato corrente.
+        double Valore() const
+        {
+            return valoreSmussato;
+        }
+
+        /// @brief Computa il valore in ingresso.
+        /// @param valore Il valore da smussare.
+        /// @return Il valore smussato.
+        double Computa(double valore) noexcept override
+        {
+            const double t  = valoreSmussato;
+            valoreSmussato += (valore - valoreSmussato) * fattore;
+            return t;
+        }
+
+        void Reset() override
+        {
+            valoreSmussato = 0.0;
+        }
+
+        void Reset(double valore)
+        {
+            valoreSmussato = valore;
+        }
+
+      private:
+        const double fattore;
+        double valoreSmussato{ 0 };
+    };
+
+    /// @brief Calcola l'inviluppo del valore assoluto di un segnale.
+    ///
+    /// Si tratta di uno smorzatore esponenziale che utilizza due fattori di smorzamento diversi per la fase di attacco
+    /// e di rilascio nel calcolo dell'inviluppo.
+    class RilevatoreInviluppo: public Filtro
+    {
+      public:
+        /// @param attacco_ Il fattore di smussamento della fase di attacco: più è grande, maggiore è lo smussamento.
+        ///                 [0, +∞]
+        /// @param rilascio_ Il fattore di smussamento della fase di rilascio: più è grande, maggiore è lo smussamento.
+        ///                 [0, +∞]
+        RilevatoreInviluppo(double attacco_, double rilascio_)
+            : attacco(DaSmussamentoAGuadagno(attacco_))
+            , rilascio(DaSmussamentoAGuadagno(rilascio_))
+        {}
+
+        /// @brief Restituisce il campione corrente dell'inviluppo
+        double Inviluppo() const
+        {
+            return inviluppo;
+        }
+
+        /// @brief Computa il campione successivo dell'inviluppo del segnale.
+        /// @param campione Il campione successivo del segnale.
+        /// @return Il campione successivo dell'inviluppo.
+        double Computa(const double campione) noexcept override
+        {
+            const double valore   = std::fabs(campione);
+            const double guadagno = (valore > inviluppo) ? attacco : rilascio;
+
+            inviluppo += (valore - inviluppo) * guadagno;
+
+            return inviluppo;
+        }
+
+        void Reset() override
+        {
+            inviluppo = 0;
+        }
+
+      private:
+        const double attacco;
+        const double rilascio;
+        double inviluppo{ 0 }; // Ampiezza
+    };
+
+    /// @brief Calcola l'inviluppo del valore assoluto di un segnale seguendo i picchi di quest'ultimo.
+    class InseguitorePicchi: public RilevatoreInviluppo
+    {
+      public:
+        /// @param rilascio_ Il fattore di smussamento della fase di rilascio: più è grande, maggiore è lo smussamento.
+        ///                  [0, +∞]
+        InseguitorePicchi(double rilascio_): RilevatoreInviluppo(0.0, rilascio_) {}
+    };
+
+    /// @brief Applica un ritardo ad un segnale
+    class Ritardo: public Filtro
+    {
+      public:
+        /// @param ritardo La dimensione del ritardo applicato al segnale, espresso in secondi. (0, +∞]
+        Ritardo(double ritardo): buffer(DaSecondiACampioni(ritardo), 0.0) {}
+
+        /// @brief Ritarda il segnale in ingresso
+        /// @param campione Il campione attuale del segnale d'ingresso.
+        /// @return Il campione attuale del segnale ritardato.
+        double Computa(double campione) noexcept override
+        {
+            const double valore = buffer.back();
+            buffer.push_front(campione);
+            return valore;
+        }
+
+        void Reset() override
+        {
+            std::fill(buffer.begin(), buffer.end(), 0.0);
+        }
+
+      private:
+        boost::circular_buffer<double> buffer;
+    };
+
+    namespace Interno
+    {
+        /// @brief Implementazione interna utilizzata per implementare altri filtri, non è fatta per essere usata
+        /// direttamente
+        class Compressore: public Filtro
+        {
+          public:
+            /// @param rilascio Il fattore di smussamento della fase di rilascio: più è grande, maggiore è lo
+            /// smussamento.
+            ///                 [0, +∞]
+            /// @param sogliaVolume La soglia, superata la quale, il compressore entra in funzione. [0, 1]
+            /// @param CS Il coefficiente di riduzione del volume, se pari ad uno diventa un limitatore. [0, 1]
+            /// @param ritardo Il ritardo, sul segnale d'ingresso, col quale il compressore agisce, espresso in secondi.
+            ///                (0, +∞]
+            Compressore(double rilascio, double sogliaVolume, double CS, double ritardo)
+                : sogliaVolumeLn(std::log(sogliaVolume))
+                , CS(CS)
+                , rilevatoreInviluppo(rilascio)
+                , ritardo(ritardo)
+            {}
+
+            /// @brief Comprime il segnale in ingresso.
+            /// @param campione Il campione corrente del segnale d'ingresso.
+            /// @return Il campione corrente del segnale compresso.
+            double Computa(double campione) noexcept override
+            {
+                const double inviluppo = rilevatoreInviluppo.Computa(campione);
+
+                const double valore = ritardo.Computa(campione);
+
+                const double inviluppoLn = std::log(inviluppo); // [Np]
+                const double guadagnoLn  = CS * std::min(0.0, sogliaVolumeLn - inviluppoLn);
+                const double guadagno    = std::exp(guadagnoLn);
+
+                return valore * guadagno;
+            }
+
+            void Reset() override
+            {
+                rilevatoreInviluppo.Reset();
+                ritardo.Reset();
+            }
+
+          private:
+            const double sogliaVolumeLn; // [Np] (Neper = identico al Bel ma calcolato con il logaritmo naturale)
+            const double CS;
+            InseguitorePicchi rilevatoreInviluppo;
+            Ritardo ritardo;
+        };
     }
 
-    /// @brief Computa il campione successivo dell'inviluppo del segnale
-    /// @param campione Il campione successivo del segnale
-    /// @return Restituisce il campione successivo dell'inviluppo
-    double Computa(const double campione) noexcept
+    /// @brief Limita il volume di un segnale ad un valore massimo (look-ahead limiter).
+    class Limitatore: public Interno::Compressore
     {
-        const double valore   = std::fabs(campione);
-        const double guadagno = (valore > inviluppo) ? attacco : rilascio;
+      public:
+        /// @param rilascio Il fattore di smussamento della fase di rilascio: più è grande, maggiore è lo smussamento.
+        ///                 [0, +∞]
+        /// @param sogliaVolume La soglia, superata la quale, il limitatore entra in funzione. [0, 1]
+        /// @param ritardo Il ritardo, sul segnale d'ingresso, col quale il limitatore agisce, espresso in secondi. (0,
+        /// +∞]
+        Limitatore(double rilascio, double sogliaVolume, double ritardo)
+            : Interno::Compressore(rilascio, sogliaVolume, 1.0, ritardo)
+        {}
+    };
 
-        inviluppo += (valore - inviluppo) * guadagno;
-
-        return inviluppo;
-    }
-
-    void Reset()
-    {
-        inviluppo = 0;
-    }
-
-  private:
-    const double attacco;
-    const double rilascio;
-    double inviluppo{ 0 }; // Ampiezza
-};
-
-/// @brief Calcola l'inviluppo del valore assoluto di un segnale seguendo i picchi di quest'ultimo.
-class InseguitorePicchi: public RilevatoreInviluppo
-{
-  public:
-    /// @param _rilascio Il fattore di smussamento della fase di rilascio: più è grande, maggiore è lo smussamento.
-    ///                  [0, +∞]
-    InseguitorePicchi(double _rilascio): RilevatoreInviluppo(0.0, _rilascio) {}
-};
-
-/// @brief Applica un ritardo ad un segnale
-class Ritardo
-{
-  public:
-    /// @param ritardo La dimensione del ritardo applicato al segnale, espresso in secondi. (0, +∞]
-    Ritardo(double ritardo): buffer(DaSecondiACampioni(ritardo), 0.0) {}
-
-    /// @brief Ritarda il segnale in ingresso
-    /// @param campione Il campione attuale del segnale d'ingresso.
-    /// @return Il campione attuale del segnale ritardato.
-    double Computa(double campione) noexcept
-    {
-        const double valore = buffer.back();
-        buffer.push_front(campione);
-        return valore;
-    }
-
-    void Reset()
-    {
-        std::fill(buffer.begin(), buffer.end(), 0.0);
-    }
-
-  private:
-    boost::circular_buffer<double> buffer;
-};
-
-namespace Interno
-{
-    /// @brief Implementazione interna utilizzata per implementare altri filtri, non è fatta per essere usata
-    /// direttamente
-    class Compressore
+    /// @brief Riduce l'aumento di volume del segnale quando questo supera una certa soglia (look-ahead compressor).
+    class Compressore: public Interno::Compressore
     {
       public:
         /// @param rilascio Il fattore di smussamento della fase di rilascio: più è grande, maggiore è lo smussamento.
         ///                 [0, +∞]
         /// @param sogliaVolume La soglia, superata la quale, il compressore entra in funzione. [0, 1]
-        /// @param CS Il coefficiente di riduzione del volume, se pari ad uno diventa un limitatore. [0, 1]
-        /// @param ritardo Il ritardo, sul segnale d'ingresso, col quale il compressore agisce, espresso in secondi.
-        ///                (0, +∞]
-        Compressore(double rilascio, double sogliaVolume, double CS, double ritardo)
-            : sogliaVolumeLn(std::log(sogliaVolume))
-            , CS(CS)
-            , rilevatoreInviluppo(rilascio)
-            , ritardo(ritardo)
+        /// @param proporzione La proporzione di riduzione del volume. (0, +∞]
+        /// @param ritardo Il ritardo, sul segnale d'ingresso, col quale il compressore agisce, espresso in secondi. (0,
+        /// +∞]
+        Compressore(double rilascio, double sogliaVolume, double proporzione, double ritardo)
+            : Interno::Compressore(rilascio, sogliaVolume, 1.0 - 1.0 / proporzione, ritardo)
+        {}
+    };
+
+    /// @brief Aggiunge l'èco ad un segnale regolando il volume massimo dell'èco.
+    class EchoWetDry: public Filtro
+    {
+      public:
+        /// @param ritardo Il ritardo dell'èco, espresso in secondi. (0, +∞]
+        /// @param velocità La velocità con cui diminuisce il volume dell'èco, numero più grande significa minore
+        ///                 velocità; un valore negativo inverte la fase del segnale. (-1, 1)
+        /// @param volumeMassimo Il volume massimo dell'èco; un valore negativo inverte la fase del segnale. [-1, 1]
+        EchoWetDry(double ritardo, double velocità, double volumeMassimo)
+            : buffer(DaSecondiACampioni(ritardo), 0.0)
+            , velocità(velocità)
+            , volumeMassimo(volumeMassimo)
         {}
 
-        /// @brief Comprime il segnale in ingresso.
-        /// @param campione Il campione corrente del segnale d'ingresso.
-        /// @return Il campione corrente del segnale compresso.
-        double Computa(double campione) noexcept
+        /// @brief Applica l'èco del segnale in ingresso.
+        /// @param campione Il campione attuale del segnale d'ingresso.
+        /// @return Il campione attuale del segnale con èco.
+        double Computa(double campione) noexcept override
         {
-            const double inviluppo = rilevatoreInviluppo.Computa(campione);
-
-            const double valore = ritardo.Computa(campione);
-
-            const double inviluppoLn = std::log(inviluppo); // [Np]
-            const double guadagnoLn  = CS * std::min(0.0, sogliaVolumeLn - inviluppoLn);
-            const double guadagno    = std::exp(guadagnoLn);
-
-            return valore * guadagno;
+            double valore = buffer.back();
+            buffer.push_front(campione + velocità * valore);
+            return (1 - volumeMassimo) * campione + volumeMassimo * valore;
         }
 
-        void Reset()
+        void Reset() override
         {
-            rilevatoreInviluppo.Reset();
-            ritardo.Reset();
+            std::fill(buffer.begin(), buffer.end(), 0.0);
         }
 
       private:
-        const double sogliaVolumeLn; // [Np] (Neper = identico al Bel ma calcolato con il logaritmo naturale)
-        const double CS;
-        InseguitorePicchi rilevatoreInviluppo;
-        Ritardo ritardo;
+        boost::circular_buffer<double> buffer;
+        const double velocità;
+        const double volumeMassimo;
     };
-}
 
-/// @brief Limita il volume di un segnale ad un valore massimo (look-ahead limiter).
-class Limitatore: public Interno::Compressore
-{
-  public:
-    /// @param rilascio Il fattore di smussamento della fase di rilascio: più è grande, maggiore è lo smussamento.
-    ///                 [0, +∞]
-    /// @param sogliaVolume La soglia, superata la quale, il limitatore entra in funzione. [0, 1]
-    /// @param ritardo Il ritardo, sul segnale d'ingresso, col quale il limitatore agisce, espresso in secondi. (0, +∞]
-    Limitatore(double rilascio, double sogliaVolume, double ritardo)
-        : Interno::Compressore(rilascio, sogliaVolume, 1.0, ritardo)
-    {}
-};
-
-/// @brief Riduce l'aumento di volume del segnale quando questo supera una certa soglia (look-ahead compressor).
-class Compressore: public Interno::Compressore
-{
-  public:
-    /// @param rilascio Il fattore di smussamento della fase di rilascio: più è grande, maggiore è lo smussamento.
-    ///                 [0, +∞]
-    /// @param sogliaVolume La soglia, superata la quale, il compressore entra in funzione. [0, 1]
-    /// @param proporzione La proporzione di riduzione del volume. (0, +∞]
-    /// @param ritardo Il ritardo, sul segnale d'ingresso, col quale il compressore agisce, espresso in secondi. (0, +∞]
-    Compressore(double rilascio, double sogliaVolume, double proporzione, double ritardo)
-        : Interno::Compressore(rilascio, sogliaVolume, 1.0 - 1.0 / proporzione, ritardo)
-    {}
-};
-
-/// @brief Aggiunge l'èco ad un segnale regolando il volume massimo dell'èco.
-class EchoWetDry
-{
-  public:
-    /// @param ritardo Il ritardo dell'èco, espresso in secondi. (0, +∞]
-    /// @param velocità La velocità con cui diminuisce il volume dell'èco, numero più grande significa minore
-    ///                 velocità; un valore negativo inverte la fase del segnale. (-1, 1)
-    /// @param volumeMassimo Il volume massimo dell'èco; un valore negativo inverte la fase del segnale. [-1, 1]
-    EchoWetDry(double ritardo, double velocità, double volumeMassimo)
-        : buffer(DaSecondiACampioni(ritardo), 0.0)
-        , velocità(velocità)
-        , volumeMassimo(volumeMassimo)
-    {}
-
-    /// @brief Applica l'èco del segnale in ingresso.
-    /// @param campione Il campione attuale del segnale d'ingresso.
-    /// @return Il campione attuale del segnale con èco.
-    double Computa(double campione) noexcept
-    {
-        double valore = buffer.back();
-        buffer.push_front(campione + velocità * valore);
-        return (1 - volumeMassimo) * campione + volumeMassimo * valore;
-    }
-
-    void Reset()
-    {
-        std::fill(buffer.begin(), buffer.end(), 0.0);
-    }
-
-  private:
-    boost::circular_buffer<double> buffer;
-    const double velocità;
-    const double volumeMassimo;
-};
-
-/// @brief Aggiunge l'èco ad un segnale
-class Echo: public EchoWetDry
-{
-  public:
-    /// @param ritardo Il ritardo dell'èco, espresso in secondi. (0, +∞]
-    /// @param velocità La velocità con cui diminuisce il volume dell'èco, numero più grande significa minore
-    ///                 velocità; un valore negativo inverte la fase del segnale. (-1, 1)
-    Echo(double ritardo, double velocità): EchoWetDry(ritardo, velocità, 1.0) {}
-};
-
-namespace Interno
-{
-    /// @brief Implementazione interna utilizzata per implementare altri filtri, non è fatta per essere usata
-    /// direttamente.
-    ///
-    /// Implementa l'equazione (corrispondente allo schema con topologia BiQuad):
-    ///     \f[y(n) = a_0*x(n) + a_1*x(n-1) + a_2*x(n-1) - b_1*y(n-1) - b_2*y(n-1)\f]
-    /// dove
-    ///     * \f$x(n)\f$ è l'input;
-    ///     * \f$y(n)\f$ è l'output;
-    ///     * \f$a_0\f$, \f$a_1\f$, \f$a_2\f$, \f$b_1\f$ e \f$b_2\f$ sono dei coefficienti.
-    class BiQuad
+    /// @brief Aggiunge l'èco ad un segnale
+    class Echo: public EchoWetDry
     {
       public:
-        BiQuad(): a0(0.0), a1(0.0), a2(0.0), b1(0.0), b2(0.0) {}
+        /// @param ritardo Il ritardo dell'èco, espresso in secondi. (0, +∞]
+        /// @param velocità La velocità con cui diminuisce il volume dell'èco, numero più grande significa minore
+        ///                 velocità; un valore negativo inverte la fase del segnale. (-1, 1)
+        Echo(double ritardo, double velocità): EchoWetDry(ritardo, velocità, 1.0) {}
+    };
 
-        BiQuad(double a0, double a1, double a2, double b1, double b2)
+    namespace Interno
+    {
+        /// @brief Implementazione interna utilizzata per implementare altri filtri, non è fatta per essere usata
+        /// direttamente.
+        ///
+        /// Implementa l'equazione (corrispondente allo schema con topologia BiQuad):
+        ///     \f[y(n) = a_0*x(n) + a_1*x(n-1) + a_2*x(n-1) - b_1*y(n-1) - b_2*y(n-1)\f]
+        /// dove
+        ///     * \f$x(n)\f$ è l'input;
+        ///     * \f$y(n)\f$ è l'output;
+        ///     * \f$a_0\f$, \f$a_1\f$, \f$a_2\f$, \f$b_1\f$ e \f$b_2\f$ sono dei coefficienti.
+        class BiQuad: public Filtro
         {
-            Coefficenti(a0, a1, a2, b1, b2);
+          public:
+            BiQuad(): a0(0.0), a1(0.0), a2(0.0), b1(0.0), b2(0.0) {}
+
+            BiQuad(double a0, double a1, double a2, double b1, double b2)
+            {
+                Coefficenti(a0, a1, a2, b1, b2);
+            }
+
+            /// @brief Applica il filtro al segnale in ingresso.
+            /// @param campione Il campione attuale del segnale d'ingresso.
+            /// @return Il campione attuale dell'output del filtro.
+            double Computa(double campione) noexcept override
+            {
+                const double output = a0 * campione                                 //
+                                    + a1 * inputPrecedente1 + a2 * inputPrecedente2 //
+                                    - b1 * outputPrecedente1 - b2 * outputPrecedente2;
+
+                inputPrecedente2 = inputPrecedente1;
+                inputPrecedente1 = campione;
+
+                outputPrecedente2 = outputPrecedente1;
+                outputPrecedente1 = output;
+
+                return output;
+            }
+
+            void Reset() override
+            {
+                inputPrecedente1 = 0.0;
+                inputPrecedente2 = 0.0;
+
+                outputPrecedente1 = 0.0;
+                outputPrecedente2 = 0.0;
+            }
+
+          protected:
+            double CoefficenteA0() const
+            {
+                return a0;
+            }
+
+            double CoefficenteA1() const
+            {
+                return a0;
+            }
+
+            double CoefficenteB1() const
+            {
+                return b1;
+            }
+
+            double CoefficenteB2() const
+            {
+                return b1;
+            }
+
+            void Coefficenti(double a0_, double a1_, double a2_, double b1_, double b2_)
+            {
+                a0 = a0_;
+                a1 = a1_;
+                a2 = a2_;
+                b1 = b1_;
+                b2 = b2_;
+            }
+
+          private:
+            double inputPrecedente1{ 0 };  // [Ampiezza]
+            double inputPrecedente2{ 0 };  // [Ampiezza]
+            double outputPrecedente1{ 0 }; // [Ampiezza]
+            double outputPrecedente2{ 0 }; // [Ampiezza]
+            double a0, a1, a2;
+            double b1, b2;
+        };
+    }
+
+    /// @brief Filtro passa basso del primo ordine.
+    /// @warning
+    ///     Se la frequenza di taglio è uguale alla frequenza di Nyquist alla il filtro lascerà passare tutte
+    ///     le frequenze dal segnale, di fatto l'output sarà identico al segnale d'input.
+    class FiltroPassaBasso: public Interno::BiQuad
+    {
+      public:
+        FiltroPassaBasso(): frequenzaTaglio(0.0) {}
+
+        /// @param frequenzaTaglio La frequenza di taglio del filtro espressa in Hz. [0, Nyquist]
+        FiltroPassaBasso(double frequenzaTaglio)
+        {
+            FrequenzaTaglio(frequenzaTaglio);
         }
+
+        /// Restituisce la frequenza di taglio del filtro espressa in Hz.
+        double FrequenzaTaglio() const
+        {
+            return frequenzaTaglio;
+        }
+
+        /// @brief Imposta la frequenza di taglio del filtro.
+        /// @param frequenzaTaglio_ La frequenza di taglio del filtro espressa in Hz. [0, Nyquist]
+        void FrequenzaTaglio(double frequenzaTaglio_)
+        {
+            // Limito la frequenza di taglio alla frequenza di Nyquist
+            frequenzaTaglio = std::min(frequenzaTaglio_, Costanti::FrequenzaCampionamento / 2.0);
+
+            const double theta = 2.0 * std::numbers::pi * frequenzaTaglio / Costanti::FrequenzaCampionamento;
+            const double gamma = cos(theta) / (1.0 + sin(theta));
+            const double a0    = (1.0 - gamma) / 2.0;
+            const double a1    = (1.0 - gamma) / 2.0;
+            const double a2    = 0.0;
+            const double b1    = -gamma;
+            const double b2    = 0.0;
+
+            BiQuad::Coefficenti(a0, a1, a2, b1, b2);
+        }
+
+      private:
+        double frequenzaTaglio; // [Hz]
+    };
+
+    /// @brief Filtro passa alto del primo ordine.
+    /// @warning
+    ///     Se la frequenza di taglio è uguale alla frequenza di Nyquist alla il filtro eliminerà totalmente tutte
+    ///     le frequenze dal segnale, di fatto l'output sarà silenzio.
+    class FiltroPassaAlto: public Interno::BiQuad
+    {
+      public:
+        /// @param frequenzaTaglio La frequenza di taglio del filtro espressa in Hz. [0, Nyquist]
+        FiltroPassaAlto(double frequenzaTaglio)
+        {
+            FrequenzaTaglio(frequenzaTaglio);
+        }
+
+        /// Restituisce la frequenza di taglio del filtro espressa in Hz.
+        double FrequenzaTaglio() const
+        {
+            return frequenzaTaglio;
+        }
+
+        /// @brief Imposta la frequenza di taglio del filtro.
+        /// @param frequenzaTaglio_ La frequenza di taglio del filtro espressa in Hz. [0, Nyquist]
+        void FrequenzaTaglio(double frequenzaTaglio_)
+        {
+            // Limito la frequenza di taglio alla frequenza di Nyquist
+            frequenzaTaglio = std::min(frequenzaTaglio_, Costanti::FrequenzaCampionamento / 2.0);
+
+            const double theta = 2.0 * std::numbers::pi * frequenzaTaglio / Costanti::FrequenzaCampionamento;
+            const double gamma = cos(theta) / (1.0 + sin(theta));
+            const double a0    = (1.0 + gamma) / 2.0;
+            const double a1    = -(1.0 + gamma) / 2.0;
+            const double a2    = 0.0;
+            const double b1    = -gamma;
+            const double b2    = 0.0;
+
+            BiQuad::Coefficenti(a0, a1, a2, b1, b2);
+        }
+
+      private:
+        double frequenzaTaglio; // [Hz]
+    };
+
+    /// @brief Filtro passa tutto ritardante (Delaying All-Pass filter).
+    ///
+    /// Il filtro crea una serie di èco lasciando inalterata l'ampiezza delle frequenze ma modificandone la fase.
+    /// La fase delle varie frequenze varia tra 0° per la frequenza zero e 180° per la frequenza di Nyquist, in
+    /// corrispondenza della frequenza di rottura la fase è sempre -90°.
+    ///
+    /// Il guadagno necessario per ottenere un filtro con specifica frequenza di rottura si calcola come segue:
+    ///     \f[guadagno = \frac{tan(\pi * f_r / f_c) - 1}{tan(\pi * f_r / f_c) + 1}\f]
+    /// dove
+    ///     * \f$f_c\f$ è la frequenza di campionamento;
+    ///     * \f$f_r\f$ è la frequenza di rottura.
+    class FiltroPassaTutto: public Filtro
+    {
+      public:
+        FiltroPassaTutto(): guadagno(0.0) {}
+
+        /// @param ritardo La durata del ritardo. [s]
+        FiltroPassaTutto(double ritardo): buffer(DaSecondiACampioni(ritardo), 0.0), guadagno(0.0) {}
+
+        /// @param ritardo La durata del ritardo. [s]
+        /// @param guadagno Controlla la frequenza di rottura, quella alla quale la fase è modificata di -90°. [0, 1]
+        FiltroPassaTutto(double ritardo, double guadagno): buffer(DaSecondiACampioni(ritardo), 0.0), guadagno(guadagno)
+        {}
 
         /// @brief Applica il filtro al segnale in ingresso.
         /// @param campione Il campione attuale del segnale d'ingresso.
         /// @return Il campione attuale dell'output del filtro.
-        double Computa(double campione) noexcept
+        double Computa(double campione) noexcept override
         {
-            const double output = a0 * campione                                 //
-                                + a1 * inputPrecedente1 + a2 * inputPrecedente2 //
-                                - b1 * outputPrecedente1 - b2 * outputPrecedente2;
+            const double valore = buffer.back();
 
-            inputPrecedente2 = inputPrecedente1;
-            inputPrecedente1 = campione;
+            buffer.push_front(valore * guadagno + campione);
 
-            outputPrecedente2 = outputPrecedente1;
-            outputPrecedente1 = output;
-
-            return output;
+            return campione * (-guadagno) + valore;
         }
 
-        void Reset()
+        void Reset() override
         {
-            inputPrecedente1 = 0.0;
-            inputPrecedente2 = 0.0;
-
-            outputPrecedente1 = 0.0;
-            outputPrecedente2 = 0.0;
+            std::fill(buffer.begin(), buffer.end(), 0.0);
         }
 
-      protected:
-        double CoefficenteA0() const
+        /// @brief Restituisce il guadagno attualmente usato dal filtro.
+        double Guadagno() const
         {
-            return a0;
+            return guadagno;
         }
 
-        double CoefficenteA1() const
+        /// @brief Imposta il guadagno del filtro.
+        /// @param guadagno_ Il nuovo guadagno. [0, 1]
+        void Guagano(double guadagno_)
         {
-            return a0;
-        }
-
-        double CoefficenteB1() const
-        {
-            return b1;
-        }
-
-        double CoefficenteB2() const
-        {
-            return b1;
-        }
-
-        void Coefficenti(double _a0, double _a1, double _a2, double _b1, double _b2)
-        {
-            a0 = _a0;
-            a1 = _a1;
-            a2 = _a2;
-            b1 = _b1;
-            b2 = _b2;
+            guadagno = guadagno_;
         }
 
       private:
-        double inputPrecedente1{ 0 };  // [Ampiezza]
-        double inputPrecedente2{ 0 };  // [Ampiezza]
-        double outputPrecedente1{ 0 }; // [Ampiezza]
-        double outputPrecedente2{ 0 }; // [Ampiezza]
-        double a0, a1, a2;
-        double b1, b2;
+        boost::circular_buffer<double> buffer;
+        double guadagno; // [0, 1]
+    };
+
+    /// @brief Filtro pettine con filtro passa basso (Low-Pass Comb Filter).
+    ///
+    /// Il filtro somma al segnale in ingresso se stesso ritardo di un certo tempo, il filtro va così a creare una serie
+    /// di èco. <br /> La risposta all'impulso è un serie di picchi equidistanti progressivamente attenuati. <br /> Le
+    /// frequenze più alte del segnale in ingresso vengono attenuate molto più delle basse riducendo così di molto il
+    /// loro contributo.
+    class FiltroPettine: public Filtro
+    {
+      public:
+        /// @brief Inizializza il filtro senza ritardo, la massima attenuazione e frequenza di taglio di 0 Hz.
+        /// In queste condizioni il filtro produrrà solamente silenzio.
+        FiltroPettine(): attenuazione(0.0) {}
+
+        /// @brief Inizializza il filtro con il ritardo specificato, la massima attenuazione e frequenza di taglio di 0
+        /// Hz. In queste condizioni il filtro produrrà solamente silenzio.
+        /// @param ritardo Il ritardo del segnale sommato all'input rispetto all'input. [s]
+        FiltroPettine(double ritardo): buffer(DaSecondiACampioni(ritardo), 0.0), attenuazione(0.0) {}
+
+        /// @param ritardo Il ritardo del segnale sommato all'input rispetto all'input. [s]
+        /// @param attenuazione L'attenuazione dei picchi introdotti dal filtro, 0 = nessun picco, 1 = senza
+        ///                     attenuazione. [0, 1]
+        /// @param frequenzaTaglio La frequenza di taglio del filtro passa basso. [Hz]
+        FiltroPettine(double ritardo, double attenuazione, double frequenzaTaglio)
+            : buffer(DaSecondiACampioni(ritardo), 0.0)
+            , attenuazione(attenuazione)
+            , passaBasso(frequenzaTaglio)
+        {}
+
+        /// @brief Applica il filtro al segnale in ingresso.
+        /// @param campione Il campione attuale del segnale d'ingresso.
+        /// @return Il campione attuale dell'output del filtro.
+        double Computa(double campione) noexcept override
+        {
+            double valore = buffer.back();
+
+            valore = passaBasso.Computa(valore);
+
+            buffer.push_front(campione + valore * attenuazione);
+
+            return valore;
+        }
+
+        void Reset() override
+        {
+            std::fill(buffer.begin(), buffer.end(), 0.0);
+        }
+
+        /// @brief Restituisce il ritardo attuale del segnale sommato all'input rispetto all'input. [s]
+        double Ritardo() const
+        {
+            return DaCampioniASecondi(buffer.size());
+        }
+
+        /// @brief Imposta il ritardo del segnale sommato all'input rispetto all'input.
+        /// @param ritardo Il ritardo. [s]
+        void Ritardo(double ritardo)
+        {
+            buffer.resize(DaSecondiACampioni(ritardo), 0.0);
+        }
+
+        /// @brief Restituisce l'attenuazione dei picchi creati dal filtro. [0, 1]
+        double Attenuazione() const
+        {
+            return attenuazione;
+        }
+
+        /// @brief Imposta l'attenuazione dei picchi creati dal filtro.
+        /// @param attenuazione_ L'attenuazione dei picchi, 0 = nessun picco, 1 = nessuna attenuazione. [0, 1]
+        void Attenuazione(double attenuazione_)
+        {
+            attenuazione = attenuazione_;
+        }
+
+        /// @brief Restituisce la frequenza di taglio del filtro passa basso. [Hz]
+        double FrequenzaTaglio() const
+        {
+            return passaBasso.FrequenzaTaglio();
+        }
+
+        /// @brief Imposta la frequenza di taglio del filtro passa basso.
+        /// @param frequenzaTaglio La frequenza di taglio. [Hz]
+        void FrequenzaTaglio(double frequenzaTaglio)
+        {
+            passaBasso.FrequenzaTaglio(frequenzaTaglio);
+        }
+
+      private:
+        boost::circular_buffer<double> buffer;
+        double attenuazione; // [0, 1]
+        FiltroPassaBasso passaBasso;
+    };
+
+    /// @brief %Riverbero di Schroeder con l'aggiunta di filtri passa passo (Low-Pass Filter–Comb Reverberator) composto
+    /// da quattro filtri pettine e due filtri passa tutto.
+    ///
+    /// I quattro filtri pettine utilizzati hanno le seguenti caratteristiche:
+    ///     - il 1° a ritardo di 1116 campioni corrispondenti a 23.25 ms. con campionamento a 48 KHz;
+    ///     - il 2° a ritardo di 1188 campioni corrispondenti a 24.75 ms. con campionamento a 48 KHz;
+    ///     - il 3° a ritardo di 1277 campioni corrispondenti a ~26.6 ms. con campionamento a 48 KHz;
+    ///     - il 4° a ritardo di 1356 campioni corrispondenti a 28.25 ms. con campionamento a 48 KHz;
+    ///     - tutti hanno la stessa attenuazione e la stessa frequenza di taglio per il filtro passa basso.
+    ///
+    /// I due filtri passa tutto hanno le seguenti caratteristiche:
+    ///     - il 1° a ritardo di 225 campioni corrispondenti a 4.6875 ms. con campionamento a 48 KHz;
+    ///     - il 2° a ritardo di 556 campioni corrispondenti a ~11.586 ms. con campionamento a 48 KHz;
+    ///     - entrambi hanno un guadagno di 0.5 corrispondente ad una frequenza di rottura di ~19084 Hz.
+    class Riverbero: public Filtro
+    {
+      public:
+        /// @param dimensioneStanza La dimensione della stanza simulata, 0 = stanza minuscola, 1 = stanza enorme. [0, 1]
+        /// @param riverbero La quantità di riverbero presente nell'output, 0 = nessun riverbero, 1 = solo riverbero.
+        ///                  [0, 1]
+        /// @param frequenzaTaglio La frequenza di taglio del filtro passa basso [Hz]; il riverbero prodotto dalle
+        ///                        frequenze attenuate dal filtro svanirà molto più velocemente rispetto a quello
+        ///                        prodotto dalle altre frequenze.
+        Riverbero(double dimensioneStanza, double riverbero, double frequenzaTaglio): riverbero(riverbero)
+        {
+            for (FiltroPettine &filtro : filtriPettine)
+            {
+                filtro.Attenuazione(dimensioneStanza);
+                filtro.FrequenzaTaglio(frequenzaTaglio);
+            }
+        }
+
+        /// @brief Applica il riverbero al segnale in ingresso.
+        /// @param campione Il campione attuale del segnale d'ingresso.
+        /// @return Il campione attuale del segnale con riverbero.
+        double Computa(double campione) noexcept override
+        {
+            double output = 0.0;
+
+            for (FiltroPettine &filtro : filtriPettine)
+                output += filtro.Computa(campione);
+
+            for (FiltroPassaTutto &filtro : filtriPassaTutto)
+                output = filtro.Computa(output);
+
+            return campione * (1.0 - riverbero) + output * riverbero;
+        }
+
+        void Reset() override
+        {
+            for (FiltroPettine &filtro : filtriPettine)
+                filtro.Reset();
+            for (FiltroPassaTutto &filtro : filtriPassaTutto)
+                filtro.Reset();
+        }
+
+      private:
+        // Nota: le durate dei ritardi (espresse in numero di campioni) non devono essere correlate tra loro, ovvero non
+        // deve esserci nessuna correlazione matematica semplice tra loro.
+        // Per esempio:
+        //  - non devono essere multipli o sottomultipli tra loro;
+        //  - non devono avere fattori comuni;
+        //  - ecc...
+        // La proporzione tra il ritardo più piccolo ed il più grande è consigliabile che sia di circa 1:1.5
+        std::array<FiltroPettine, 4> filtriPettine = {
+            FiltroPettine(DaCampioniASecondi(1'116)), // 23.25 ms.
+            FiltroPettine(DaCampioniASecondi(1'188)), // 24.75 ms.
+            FiltroPettine(DaCampioniASecondi(1'277)), // ~26.6 ms.
+            FiltroPettine(DaCampioniASecondi(1'356))  // 28.25 ms.
+        };
+        // Nota: durata del ritardo molto più corta di quella dei FiltriPettine, attenuazione identica per tutti e
+        // compresa tra 0.5 e 0.707
+        std::array<FiltroPassaTutto, 2> filtriPassaTutto = {
+            FiltroPassaTutto(DaCampioniASecondi(225), 0.5), // 4.6875 ms.; 0.5 = frequenza di rottura ~19084 Hz
+            FiltroPassaTutto(DaCampioniASecondi(556), 0.5)  // ~11.584 ms.
+        };
+
+        double riverbero; // [0, 1]
     };
 }
-
-/// @brief Filtro passa basso del primo ordine.
-/// @warning
-///     Se la frequenza di taglio è uguale alla frequenza di Nyquist alla il filtro lascerà passare tutte
-///     le frequenze dal segnale, di fatto l'output sarà identico al segnale d'input.
-class FiltroPassaBasso: public Interno::BiQuad
-{
-  public:
-    FiltroPassaBasso() {}
-
-    /// @param frequenzaTaglio La frequenza di taglio del filtro espressa in Hz. [0, Nyquist]
-    FiltroPassaBasso(double frequenzaTaglio)
-    {
-        FrequenzaTaglio(frequenzaTaglio);
-    }
-
-    /// Restituisce la frequenza di taglio del filtro espressa in Hz.
-    double FrequenzaTaglio() const
-    {
-        return frequenzaTaglio;
-    }
-
-    /// @brief Imposta la frequenza di taglio del filtro.
-    /// @param _frequenzaTaglio La frequenza di taglio del filtro espressa in Hz. [0, Nyquist]
-    void FrequenzaTaglio(double _frequenzaTaglio)
-    {
-        // Limito la frequenza di taglio alla frequenza di Nyquist
-        frequenzaTaglio = std::min(_frequenzaTaglio, Costanti::FrequenzaCampionamento / 2.0);
-
-        const double theta = 2.0 * std::numbers::pi * frequenzaTaglio / Costanti::FrequenzaCampionamento;
-        const double gamma = cos(theta) / (1.0 + sin(theta));
-        const double a0    = (1.0 - gamma) / 2.0;
-        const double a1    = (1.0 - gamma) / 2.0;
-        const double a2    = 0.0;
-        const double b1    = -gamma;
-        const double b2    = 0.0;
-
-        BiQuad::Coefficenti(a0, a1, a2, b1, b2);
-    }
-
-  private:
-    double frequenzaTaglio; // [Hz]
-};
-
-/// @brief Filtro passa alto del primo ordine.
-/// @warning
-///     Se la frequenza di taglio è uguale alla frequenza di Nyquist alla il filtro eliminerà totalmente tutte
-///     le frequenze dal segnale, di fatto l'output sarà silenzio.
-class FiltroPassaAlto: public Interno::BiQuad
-{
-  public:
-    /// @param frequenzaTaglio La frequenza di taglio del filtro espressa in Hz. [0, Nyquist]
-    FiltroPassaAlto(double frequenzaTaglio)
-    {
-        FrequenzaTaglio(frequenzaTaglio);
-    }
-
-    /// Restituisce la frequenza di taglio del filtro espressa in Hz.
-    double FrequenzaTaglio() const
-    {
-        return frequenzaTaglio;
-    }
-
-    /// @brief Imposta la frequenza di taglio del filtro.
-    /// @param _frequenzaTaglio La frequenza di taglio del filtro espressa in Hz. [0, Nyquist]
-    void FrequenzaTaglio(double _frequenzaTaglio)
-    {
-        // Limito la frequenza di taglio alla frequenza di Nyquist
-        frequenzaTaglio = std::min(_frequenzaTaglio, Costanti::FrequenzaCampionamento / 2.0);
-
-        const double theta = 2.0 * std::numbers::pi * frequenzaTaglio / Costanti::FrequenzaCampionamento;
-        const double gamma = cos(theta) / (1.0 + sin(theta));
-        const double a0    = (1.0 + gamma) / 2.0;
-        const double a1    = -(1.0 + gamma) / 2.0;
-        const double a2    = 0.0;
-        const double b1    = -gamma;
-        const double b2    = 0.0;
-
-        BiQuad::Coefficenti(a0, a1, a2, b1, b2);
-    }
-
-  private:
-    double frequenzaTaglio; // [Hz]
-};
-
-/// @brief Filtro passa tutto ritardante (Delaying All-Pass filter).
-///
-/// Il filtro crea una serie di èco lasciando inalterata l'ampiezza delle frequenze ma modificandone la fase.
-/// La fase delle varie frequenze varia tra 0° per la frequenza zero e 180° per la frequenza di Nyquist, in
-/// corrispondenza della frequenza di rottura la fase è sempre -90°.
-///
-/// Il guadagno necessario per ottenere un filtro con specifica frequenza di rottura si calcola come segue:
-///     \f[guadagno = \frac{tan(\pi * f_r / f_c) - 1}{tan(\pi * f_r / f_c) + 1}\f]
-/// dove
-///     * \f$f_c\f$ è la frequenza di campionamento;
-///     * \f$f_r\f$ è la frequenza di rottura.
-class FiltroPassaTutto
-{
-  public:
-    FiltroPassaTutto(): guadagno(0.0) {}
-
-    /// @param ritardo La durata del ritardo. [s]
-    FiltroPassaTutto(double ritardo): buffer(DaSecondiACampioni(ritardo), 0.0), guadagno(0.0) {}
-
-    /// @param ritardo La durata del ritardo. [s]
-    /// @param guadagno Controlla la frequenza di rottura, quella alla quale la fase è modificata di -90°. [0, 1]
-    FiltroPassaTutto(double ritardo, double guadagno): buffer(DaSecondiACampioni(ritardo), 0.0), guadagno(guadagno) {}
-
-    /// @brief Applica il filtro al segnale in ingresso.
-    /// @param campione Il campione attuale del segnale d'ingresso.
-    /// @return Il campione attuale dell'output del filtro.
-    double Computa(double campione) noexcept
-    {
-        const double valore = buffer.back();
-
-        buffer.push_front(valore * guadagno + campione);
-
-        return campione * (-guadagno) + valore;
-    }
-
-    void Reset()
-    {
-        std::fill(buffer.begin(), buffer.end(), 0.0);
-    }
-
-    /// @brief Restituisce il guadagno attualmente usato dal filtro.
-    double Guadagno() const
-    {
-        return guadagno;
-    }
-
-    /// @brief Imposta il guadagno del filtro.
-    /// @param _guadagno Il nuovo guadagno. [0, 1]
-    void Guagano(double _guadagno)
-    {
-        guadagno = _guadagno;
-    }
-
-  private:
-    boost::circular_buffer<double> buffer;
-    double guadagno; // [0, 1]
-};
-
-/// @brief Filtro pettine con filtro passa basso (Low-Pass Comb Filter).
-///
-/// Il filtro somma al segnale in ingresso se stesso ritardo di un certo tempo, il filtro va così a creare una serie di
-/// èco. <br />
-/// La risposta all'impulso è un serie di picchi equidistanti progressivamente attenuati. <br />
-/// Le frequenze più alte del segnale in ingresso vengono attenuate molto più delle basse riducendo così di molto il
-/// loro contributo.
-class FiltroPettine
-{
-  public:
-    /// @brief Inizializza il filtro senza ritardo, la massima attenuazione e frequenza di taglio di 0 Hz.
-    /// In queste condizioni il filtro produrrà solamente silenzio.
-    FiltroPettine(): attenuazione(0.0) {}
-
-    /// @brief Inizializza il filtro con il ritardo specificato, la massima attenuazione e frequenza di taglio di 0 Hz.
-    /// In queste condizioni il filtro produrrà solamente silenzio.
-    /// @param ritardo Il ritardo del segnale sommato all'input rispetto all'input. [s]
-    FiltroPettine(double ritardo): buffer(DaSecondiACampioni(ritardo), 0.0), attenuazione(0.0) {}
-
-    /// @param ritardo Il ritardo del segnale sommato all'input rispetto all'input. [s]
-    /// @param attenuazione L'attenuazione dei picchi introdotti dal filtro, 0 = nessun picco, 1 = senza attenuazione.
-    ///                     [0, 1]
-    /// @param frequenzaTaglio La frequenza di taglio del filtro passa basso. [Hz]
-    FiltroPettine(double ritardo, double attenuazione, double frequenzaTaglio)
-        : buffer(DaSecondiACampioni(ritardo), 0.0)
-        , attenuazione(attenuazione)
-        , passaBasso(frequenzaTaglio)
-    {}
-
-    /// @brief Applica il filtro al segnale in ingresso.
-    /// @param campione Il campione attuale del segnale d'ingresso.
-    /// @return Il campione attuale dell'output del filtro.
-    double Computa(double campione) noexcept
-    {
-        double valore = buffer.back();
-
-        valore = passaBasso.Computa(valore);
-
-        buffer.push_front(campione + valore * attenuazione);
-
-        return valore;
-    }
-
-    void Reset()
-    {
-        std::fill(buffer.begin(), buffer.end(), 0.0);
-    }
-
-    /// @brief Restituisce il ritardo attuale del segnale sommato all'input rispetto all'input. [s]
-    double Ritardo() const
-    {
-        return DaCampioniASecondi(buffer.size());
-    }
-
-    /// @brief Imposta il ritardo del segnale sommato all'input rispetto all'input.
-    /// @param ritardo Il ritardo. [s]
-    void Ritardo(double ritardo)
-    {
-        buffer.resize(DaSecondiACampioni(ritardo), 0.0);
-    }
-
-    /// @brief Restituisce l'attenuazione dei picchi creati dal filtro. [0, 1]
-    double Attenuazione() const
-    {
-        return attenuazione;
-    }
-
-    /// @brief Imposta l'attenuazione dei picchi creati dal filtro.
-    /// @param _attenuazione L'attenuazione dei picchi, 0 = nessun picco, 1 = nessuna attenuazione. [0, 1]
-    void Attenuazione(double _attenuazione)
-    {
-        attenuazione = _attenuazione;
-    }
-
-    /// @brief Restituisce la frequenza di taglio del filtro passa basso. [Hz]
-    double FrequenzaTaglio() const
-    {
-        return passaBasso.FrequenzaTaglio();
-    }
-
-    /// @brief Imposta la frequenza di taglio del filtro passa basso.
-    /// @param frequenzaTaglio La frequenza di taglio. [Hz]
-    void FrequenzaTaglio(double frequenzaTaglio)
-    {
-        passaBasso.FrequenzaTaglio(frequenzaTaglio);
-    }
-
-  private:
-    boost::circular_buffer<double> buffer;
-    double attenuazione; // [0, 1]
-    FiltroPassaBasso passaBasso;
-};
-
-/// @brief %Riverbero di Schroeder con l'aggiunta di filtri passa passo (Low-Pass Filter–Comb Reverberator) composto da
-/// quattro filtri pettine e due filtri passa tutto.
-///
-/// I quattro filtri pettine utilizzati hanno le seguenti caratteristiche:
-///     - il 1° a ritardo di 1116 campioni corrispondenti a 23.25 ms. con campionamento a 48 KHz;
-///     - il 2° a ritardo di 1188 campioni corrispondenti a 24.75 ms. con campionamento a 48 KHz;
-///     - il 3° a ritardo di 1277 campioni corrispondenti a ~26.6 ms. con campionamento a 48 KHz;
-///     - il 4° a ritardo di 1356 campioni corrispondenti a 28.25 ms. con campionamento a 48 KHz;
-///     - tutti hanno la stessa attenuazione e la stessa frequenza di taglio per il filtro passa basso.
-///
-/// I due filtri passa tutto hanno le seguenti caratteristiche:
-///     - il 1° a ritardo di 225 campioni corrispondenti a 4.6875 ms. con campionamento a 48 KHz;
-///     - il 2° a ritardo di 556 campioni corrispondenti a ~11.586 ms. con campionamento a 48 KHz;
-///     - entrambi hanno un guadagno di 0.5 corrispondente ad una frequenza di rottura di ~19084 Hz.
-class Riverbero
-{
-  public:
-    /// @param dimensioneStanza La dimensione della stanza simulata, 0 = stanza minuscola, 1 = stanza enorme. [0, 1]
-    /// @param riverbero La quantità di riverbero presente nell'output, 0 = nessun riverbero, 1 = solo riverbero. [0, 1]
-    /// @param frequenzaTaglio La frequenza di taglio del filtro passa basso [Hz]; il riverbero prodotto dalle frequenze
-    ///                        attenuate dal filtro svanirà molto più velocemente rispetto a quello prodotto dalle
-    ///                        altre frequenze.
-    Riverbero(double dimensioneStanza, double riverbero, double frequenzaTaglio): riverbero(riverbero)
-    {
-        for (FiltroPettine &filtro : filtriPettine)
-        {
-            filtro.Attenuazione(dimensioneStanza);
-            filtro.FrequenzaTaglio(frequenzaTaglio);
-        }
-    }
-
-    /// @brief Applica il riverbero al segnale in ingresso.
-    /// @param campione Il campione attuale del segnale d'ingresso.
-    /// @return Il campione attuale del segnale con riverbero.
-    double Computa(double campione) noexcept
-    {
-        double output = 0.0;
-
-        for (FiltroPettine &filtro : filtriPettine)
-            output += filtro.Computa(campione);
-
-        for (FiltroPassaTutto &filtro : filtriPassaTutto)
-            output = filtro.Computa(output);
-
-        return campione * (1.0 - riverbero) + output * riverbero;
-    }
-
-    void Reset()
-    {
-        for (FiltroPettine &filtro : filtriPettine)
-            filtro.Reset();
-        for (FiltroPassaTutto &filtro : filtriPassaTutto)
-            filtro.Reset();
-    }
-
-  private:
-    // Nota: le durate dei ritardi (espresse in numero di campioni) non devono essere correlate tra loro, ovvero non
-    // deve esserci nessuna correlazione matematica semplice tra loro.
-    // Per esempio:
-    //  - non devono essere multipli o sottomultipli tra loro;
-    //  - non devono avere fattori comuni;
-    //  - ecc...
-    // La proporzione tra il ritardo più piccolo ed il più grande è consigliabile che sia di circa 1:1.5
-    std::array<FiltroPettine, 4> filtriPettine = {
-        FiltroPettine(DaCampioniASecondi(1'116)), // 23.25 ms.
-        FiltroPettine(DaCampioniASecondi(1'188)), // 24.75 ms.
-        FiltroPettine(DaCampioniASecondi(1'277)), // ~26.6 ms.
-        FiltroPettine(DaCampioniASecondi(1'356))  // 28.25 ms.
-    };
-    // Nota: durata del ritardo molto più corta di quella dei FiltriPettine, attenuazione identica per tutti e compresa
-    // tra 0.5 e 0.707
-    std::array<FiltroPassaTutto, 2> filtriPassaTutto = {
-        FiltroPassaTutto(DaCampioniASecondi(225), 0.5), // 4.6875 ms.; 0.5 = frequenza di rottura ~19084 Hz
-        FiltroPassaTutto(DaCampioniASecondi(556), 0.5)  // ~11.584 ms.
-    };
-
-    double riverbero; // [0, 1]
-};

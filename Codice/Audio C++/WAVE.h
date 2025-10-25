@@ -29,15 +29,15 @@ namespace WAVE
         DataFormatChunk();
 
         DataFormatChunk(
-            unsigned short _numberoCanali,
-            unsigned int _frequenza,
-            unsigned short _bitPerCampione,
+            unsigned short numberoCanali_,
+            unsigned int frequenza_,
+            unsigned short bitPerCampione_,
             TipoCampioni tipoCampioni = TipoCampioni::Interi);
 
         void Set(
-            unsigned short _numberoCanali,
-            unsigned int _frequenza,
-            unsigned short _bitPerCampione,
+            unsigned short numberoCanali_,
+            unsigned int frequenza_,
+            unsigned short bitPerCampione_,
             TipoCampioni tipoCampioni = TipoCampioni::Interi);
 
         operator WAVEFORMATEX();
@@ -71,8 +71,8 @@ namespace WAVE
     void CreaFileSemplice();
     void CreaFileStereo();
 
-    /// @brief Salva i campioni dentro un file WAVE mono a 8 bit.
-    /// @param percorso Percorso e nome del file WAVE.
-    /// @param campioni Vettore con i campioni audio da salvare.
+    /// @brief Salva i campioni audio dentro un file WAVE mono a 8 bit.
+    /// @param percorso Il percorso ed il nome del file WAVE.
+    /// @param campioni Il vettore con i campioni audio da salvare.
     void SalvaFile(const std::string &percorso, const dvector &campioni);
 }

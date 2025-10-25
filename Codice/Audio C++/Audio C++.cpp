@@ -28,9 +28,9 @@ static StrumentiMusicali::Puro strumentoPuro;
 static StrumentiMusicali::Pianoforte pianoforte;
 static std::atomic<StrumentoMusicale *> strumentoMusicale = &pianoforte;
 
-static EchoWetDry èco(0.020, 0.9, 0.6);
+static Filtri::EchoWetDry èco(0.020, 0.9, 0.6);
 // TODO: Non necessario su Windows, su Linux?
-// static Limitatore limitatore(1.0, 1.0, 0.00042);
+// static Filtri::Limitatore limitatore(1.0, 1.0, 0.00042);
 
 static PaStream *flusso;
 static const PaStreamInfo *infoFlusso;
@@ -971,7 +971,7 @@ static void RegistraPerGrafico()
         const double rilascio = 1.0;
 
         {
-            RilevatoreInviluppo rilevatore(attacco, rilascio);
+            Filtri::RilevatoreInviluppo rilevatore(attacco, rilascio);
             for (size_t i = 0; i < numeroCampioni * 2; ++i)
             {
                 double inviluppo = rilevatore.Computa(buffer[i]);
@@ -982,7 +982,7 @@ static void RegistraPerGrafico()
         }
 
         {
-            InseguitorePicchi rilevatore(rilascio);
+            Filtri::InseguitorePicchi rilevatore(rilascio);
             for (size_t i = 0; i < numeroCampioni * 2; ++i)
             {
                 double inviluppo = rilevatore.Computa(buffer[i]);
@@ -993,7 +993,7 @@ static void RegistraPerGrafico()
         }
 
         {
-            Limitatore limitatore(rilascio, 1.0, 0.00042);
+            Filtri::Limitatore limitatore(rilascio, 1.0, 0.00042);
             for (size_t i = 0; i < numeroCampioni * 2; ++i)
             {
                 double inviluppo = limitatore.Computa(buffer[i]);
@@ -1025,7 +1025,7 @@ static void RegistraPerGrafico()
 
         file.write(reinterpret_cast<char *>(buffer.data()), buffer.size() * sizeof(dvector::value_type));
 
-        FiltroPassaAlto filtro(10000.0);
+        Filtri::FiltroPassaAlto filtro(10000.0);
 
         for (double &campione : buffer)
         {

@@ -46,7 +46,7 @@ namespace Oscillatori
                 daAggiornare.store(false);
             }
 
-            double _campione = fase.imag();
+            double campione_ = fase.imag();
 
             // Calcolo il campione successivo dell'onda
             fase *= deltaFase;
@@ -55,7 +55,7 @@ namespace Oscillatori
             // Nota: siccome la fase inizialmente a modulo uno
             fase *= invModuloDeltaFase;
 
-            return _campione;
+            return campione_;
         }
 
         /// @brief Cambia la frequenza dell'onda sinusoidale

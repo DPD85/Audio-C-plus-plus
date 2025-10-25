@@ -55,17 +55,17 @@ namespace StrumentiMusicali
             InviluppoADSR(0.02, 0.01, 0.8, 0.5), // si
         };
 
-        virtual void InizioNota(Note nota)
+        void InizioNota(Note nota) override
         {
             inviluppi[nota].InizioNota();
         }
 
-        virtual void FineNota(Note nota)
+        void FineNota(Note nota) override
         {
             inviluppi[nota].FineNota();
         }
 
-        virtual double Campione()
+        double Campione() override
         {
             double valore = 0;
 
@@ -113,17 +113,17 @@ namespace StrumentiMusicali
             InviluppoADSR(0.02, 0.01, 0.8, 0.5), // si
         };
 
-        virtual void InizioNota(Note nota)
+        void InizioNota(Note nota) override
         {
             inviluppi[nota].InizioNota();
         }
 
-        virtual void FineNota(Note nota)
+        void FineNota(Note nota) override
         {
             inviluppi[nota].FineNota();
         }
 
-        virtual double Campione()
+        double Campione() override
         {
             double valore = 0;
 
@@ -188,7 +188,7 @@ namespace StrumentiMusicali
 
         std::array<InviluppoADSR, NumeroNote> inviluppi;
 
-        Riverbero riverbero;
+        Filtri::Riverbero riverbero;
 
       public:
         Pianoforte(): riverbero(0.85, 0.3, 5000.0)
@@ -210,17 +210,17 @@ namespace StrumentiMusicali
                     0.2 + (UltimaNotaMIDI - i) * 0.005 * ContributoVel20); // Rilascio
         }
 
-        virtual void InizioNota(Note nota)
+        void InizioNota(Note nota) override
         {
             inviluppi[nota + 60].InizioNota();
         }
 
-        virtual void FineNota(Note nota)
+        void FineNota(Note nota) override
         {
             inviluppi[nota + 60].FineNota();
         }
 
-        virtual double Campione()
+        double Campione() override
         {
             volatile double valore = 0;
 
