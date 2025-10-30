@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+/// @brief %Note di una ottava
 enum Note
 {
     DO,
@@ -15,76 +16,97 @@ enum Note
     LA_DIESIS,
     SI,
 
-    NumeroNote,
+    NumeroNote, ///< Numero di note all'interno di una ottava
 };
 
 namespace Costanti
 {
-    // Frequenza di campionamento dell'audio prodotto
-    const constexpr double FrequenzaCampionamento = 48'000; // [Hz]
-    // Numero di audio prodotti
+    /// @brief Frequenza di campionamento dell'audio prodotto. [Hz]
+    const constexpr double FrequenzaCampionamento = 48'000;
+    /// @brief Numero di canali audio prodotti.
     const constexpr unsigned int NumeroCanali = 2;
 
-    // Campione ad 8 bit corrispondente al silenzio
+    /// @brief Campione ad 8 bit corrispondente al silenzio.
     const constexpr unsigned char Silenzio8Bit = 128;
-    // Campione ad 16 bit corrispondente al silenzio
+    /// @brief Campione ad 16 bit corrispondente al silenzio.
     const constexpr short Silenzio16Bit = 0;
 
-    // Campione corrispondente al silenzio
+    /// @brief Campione corrispondente al silenzio.
     const constexpr double Silenzio = 0.0;
-    // Indice canale sinistro nel caso di audio stereo
+    /// @brief Indice canale sinistro nel caso di audio stereo.
     const constexpr unsigned int CanaleSinistro = 0;
-    // Indice canale destro nel caso di audio stereo
+    /// @brief Indice canale destro nel caso di audio stereo.
     const constexpr unsigned int CanaleDestro = 1;
 
-    // Velocità di default delle note consigliata nelle specifiche MIDI per uno strumento che non supporta velocità
-    // dinamiche.
-    // Nota: una velocità pari a zero corrisponde ad una nota muta
-    static const constexpr size_t VelocitàDefaultMIDI = 60; // [0, 127]
-    // Velocità di default delle note scalata tra 0 ed 1.
-    // Nota: una velocità pari a zero corrisponde ad una nota muta
-    static const constexpr double VelocitàDefault = VelocitàDefaultMIDI / 127.0; // [0, 1]
-    // Impostazione tempo di default nelle specifiche MIDI: 120 battiti per minuto
-    static const constexpr double TempoDefaultMIDI = 120.0 / 60.0 * 1'000.0; // [ms/qn] qn = quarto di nota
+    /// @brief Velocità di default delle note consigliata nelle specifiche %MIDI per uno strumento che non supporta
+    /// velocità dinamiche. [0, 127]
+    /// @note Una velocità pari a zero corrisponde ad una nota muta.
+    const constexpr size_t VelocitàDefaultMIDI = 60;
+    /// @brief Velocità di default delle note scalata tra 0 ed 1. [0, 1]
+    /// @note Una velocità pari a zero corrisponde ad una nota muta.
+    const constexpr double VelocitàDefault = VelocitàDefaultMIDI / 127.0;
+    /// @brief Impostazione tempo di default nelle specifiche %MIDI: 120 battiti per minuto. [ms]
+    const constexpr double TempoDefaultMIDI = 120.0 / 60.0 * 1'000.0; // [ms/qn] qn = quarto di nota
 
-    // Rapporti tra le note di una ottava secondo l'intonazione naturale usando il Do come nota di riferimento
-    const constexpr double RapportoDo  = 1.0;
-    const constexpr double RapportoRe  = 9.0 / 8.0;
-    const constexpr double RapportoMi  = 5.0 / 4.0;
-    const constexpr double RapportoFa  = 4.0 / 3.0;
+    // Rapporti tra le note di una ottava secondo l'intonazione naturale usando il Do come nota di riferimento.
+
+    /// @brief Rapporto del Do in una ottava secondo l'intonazione naturale.
+    const constexpr double RapportoDo = 1.0;
+    /// @brief Rapporto del Re in una ottava secondo l'intonazione naturale.
+    const constexpr double RapportoRe = 9.0 / 8.0;
+    /// @brief Rapporto del Mi in una ottava secondo l'intonazione naturale.
+    const constexpr double RapportoMi = 5.0 / 4.0;
+    /// @brief Rapporto del Fa in una ottava secondo l'intonazione naturale.
+    const constexpr double RapportoFa = 4.0 / 3.0;
+    /// @brief Rapporto del Sol in una ottava secondo l'intonazione naturale.
     const constexpr double RapportoSol = 3.0 / 2.0;
-    const constexpr double RapportoLa  = 5.0 / 3.0;
-    const constexpr double RapportoSi  = 15.0 / 8.0;
+    /// @brief Rapporto del La in una ottava secondo l'intonazione naturale.
+    const constexpr double RapportoLa = 5.0 / 3.0;
+    /// @brief Rapporto del Si in una ottava secondo l'intonazione naturale.
+    const constexpr double RapportoSi = 15.0 / 8.0;
 
-    // Rapporti dei semitoni secondo l'intonazione naturale
+    /// @brief Rapporto del semitono cromatico secondo l'intonazione naturale.
     const constexpr double RapportoSemitonoCromatico = 25.0 / 24.0;
+    /// @brief Rapporto del semitono diatonico secondo l'intonazione naturale.
     const constexpr double RapportoSemitonoDiatonico = 16.0 / 15.0;
 
-    // Corrisponde al La4 sulla tastiera di un pianoforte standard a 88 tasti
-    const constexpr double FrequenzaRiferimentoLa = 432; // [Hz]
+    /// @brief Frequenza del La all'interno dell'ottava base, utilizzata come frequenza di riferimento. [Hz]
+    ///
+    /// Corrisponde al La4, il La della 4° ottava da sinistra sulla tastiera di un pianoforte standard a 88 tasti.
+    const constexpr double FrequenzaRiferimentoLa = 432;
 
-    // Frequenza del DO calcolata rispetto al LA di riferimento
-    const constexpr double FrequenzaDo = FrequenzaRiferimentoLa / RapportoLa; // [Hz]
-    // Frequenze delle note calcolate rispetto al DO
-    const constexpr double FrequenzaRe  = FrequenzaDo * RapportoRe;  // [Hz]
-    const constexpr double FrequenzaMi  = FrequenzaDo * RapportoMi;  // [Hz]
-    const constexpr double FrequenzaFa  = FrequenzaDo * RapportoFa;  // [Hz]
-    const constexpr double FrequenzaSol = FrequenzaDo * RapportoSol; // [Hz]
-    const constexpr double FrequenzaLa  = FrequenzaDo * RapportoLa;  // [Hz]
-    const constexpr double FrequenzaSi  = FrequenzaDo * RapportoSi;  // [Hz]
-    // Frequenze semitoni
-    const constexpr double FrequenzaDoDiesis  = RapportoSemitonoCromatico * FrequenzaDo;  // [Hz]
-    const constexpr double FrequenzaReDiesis  = RapportoSemitonoCromatico * FrequenzaRe;  // [Hz]
-    const constexpr double FrequenzaFaDiesis  = RapportoSemitonoCromatico * FrequenzaFa;  // [Hz]
-    const constexpr double FrequenzaSolDiesis = RapportoSemitonoCromatico * FrequenzaSol; // [Hz]
-    const constexpr double FrequenzaLaDiesis  = RapportoSemitonoCromatico * FrequenzaLa;  // [Hz]
+    /// @brief Frequenza del Do calcolata rispetto al La di riferimento. [Hz]
+    const constexpr double FrequenzaDo = FrequenzaRiferimentoLa / RapportoLa;
+    /// @brief Frequenza del Re calcolata rispetto al Do. [Hz]
+    const constexpr double FrequenzaRe = FrequenzaDo * RapportoRe;
+    /// @brief Frequenza del Mi calcolata rispetto al Do. [Hz]
+    const constexpr double FrequenzaMi = FrequenzaDo * RapportoMi;
+    /// @brief Frequenza del Fa calcolata rispetto al Do. [Hz]
+    const constexpr double FrequenzaFa = FrequenzaDo * RapportoFa;
+    /// @brief Frequenza del Sol calcolata rispetto al Do. [Hz]
+    const constexpr double FrequenzaSol = FrequenzaDo * RapportoSol;
+    /// @brief Frequenza del La calcolata rispetto al Do. [Hz]
+    const constexpr double FrequenzaLa = FrequenzaDo * RapportoLa;
+    /// @brief Frequenza del Si calcolata rispetto al Do. [Hz]
+    const constexpr double FrequenzaSi = FrequenzaDo * RapportoSi;
+    /// @brief Frequenza del Do# calcolata rispetto al Do. [Hz]
+    const constexpr double FrequenzaDoDiesis = RapportoSemitonoCromatico * FrequenzaDo;
+    /// @brief Frequenza del Re# calcolata rispetto al Re. [Hz]
+    const constexpr double FrequenzaReDiesis = RapportoSemitonoCromatico * FrequenzaRe;
+    /// @brief Frequenza del Fa# calcolata rispetto al Fa. [Hz]
+    const constexpr double FrequenzaFaDiesis = RapportoSemitonoCromatico * FrequenzaFa;
+    /// @brief Frequenza del Sol# calcolata rispetto al Sol. [Hz]
+    const constexpr double FrequenzaSolDiesis = RapportoSemitonoCromatico * FrequenzaSol;
+    /// @brief Frequenza del La# calcolata rispetto al La. [Hz]
+    const constexpr double FrequenzaLaDiesis = RapportoSemitonoCromatico * FrequenzaLa;
 
+    /// @brief Lista delle frequenze delle note all'interno dell'ottava base.
     const std::array<double, Note::NumeroNote> FrequenzeNote = {
         FrequenzaDo,       FrequenzaDoDiesis, FrequenzaRe,        FrequenzaReDiesis, FrequenzaMi,       FrequenzaFa,
         FrequenzaFaDiesis, FrequenzaSol,      FrequenzaSolDiesis, FrequenzaLa,       FrequenzaLaDiesis, FrequenzaSi,
     };
 
-    // Qualche controllo per esser certi che le note abbiano una frequenza sensata
+    // Qualche controllo per esser certi che le note abbiano una frequenza sensata.
     static_assert(
         FrequenzaDo < FrequenzaDoDiesis && FrequenzaDoDiesis < FrequenzaRe,
         "La frequenza del Do# deve essere compresa tra la frequenza del Do ed del Re");
@@ -130,8 +152,8 @@ inline constexpr double CalcolaFrequenzaNota(Note nota, int ottava)
     return Costanti::FrequenzeNote[nota] * coefficente;
 }
 
-/// @brief Calcola la frequenza di una nota MIDI.
-/// @param numeroNota Il numero MIDI della nota da calcolare. [0, 127]
+/// @brief Calcola la frequenza di una nota %MIDI.
+/// @param numeroNota Il numero %MIDI della nota da calcolare. [0, 127]
 /// @return La frequenza della nota.
 inline constexpr double CalcolaFrequenzaNota(size_t numeroNota)
 {
@@ -140,7 +162,7 @@ inline constexpr double CalcolaFrequenzaNota(size_t numeroNota)
     // Numero del semitono corrispondete alla nota all'interno dell'ottava
     const volatile size_t nota = numeroNota % 12;
 
-    // Nota: l'ottava base corrisponde alla 5° ottava nella numerazione MIDI
+    // Nota: l'ottava base corrisponde alla 5° ottava nella numerazione %MIDI
     return CalcolaFrequenzaNota(static_cast<Note>(nota), static_cast<int>(ottava) - 5);
 }
 
