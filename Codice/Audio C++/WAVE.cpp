@@ -7,6 +7,13 @@ namespace WAVE
 {
     // ----- DataFormatChunk -----
 
+    // Formato dei campioni dentro il file WAVE (interi, float, compressi, non compressi, ecc...)
+    enum WAVEFormat
+    {
+        PCM        = 1, // I campioni sono numeri interi
+        IEEE_FLOAT = 3, // I campioni sono numeri float
+    };
+
     DataFormatChunk::DataFormatChunk() = default;
 
     DataFormatChunk::DataFormatChunk(
@@ -24,39 +31,14 @@ namespace WAVE
         unsigned short bitPerCampione_,
         TipoCampioni tipoCampioni)
     {
-        if (tipoCampioni == TipoCampioni::Interi) formatTag = WAVE_FORMAT_PCM;
-        else formatTag = WAVE_FORMAT_IEEE_FLOAT;
+        if (tipoCampioni == TipoCampioni::Interi) formatTag = WAVEFormat::PCM;
+        else formatTag = WAVEFormat::IEEE_FLOAT;
 
         numberoCanali   = numberoCanali_;
         frequenza       = frequenza_;
         bitsPerCampione = bitPerCampione_;
         bytePerBlocco   = (numberoCanali_ * bitPerCampione_) / 8u;
         bytePerSecondo  = frequenza_ * bytePerBlocco;
-    }
-
-    DataFormatChunk::operator WAVEFORMATEX()
-    {
-        return WAVEFORMATEX{ .wFormatTag      = formatTag,
-                             .nChannels       = numberoCanali,
-                             .nSamplesPerSec  = frequenza,
-                             .nAvgBytesPerSec = bytePerSecondo,
-                             .nBlockAlign     = bytePerBlocco,
-                             .wBitsPerSample  = bitsPerCampione,
-                             .cbSize          = 0 };
-    }
-
-    DataFormatChunk ToDataFormatChunk(const WAVEFORMATEX &dati)
-    {
-        DataFormatChunk df;
-
-        df.formatTag       = dati.wFormatTag;
-        df.numberoCanali   = dati.nChannels;
-        df.frequenza       = dati.nSamplesPerSec;
-        df.bytePerSecondo  = dati.nAvgBytesPerSec;
-        df.bytePerBlocco   = dati.nBlockAlign;
-        df.bitsPerCampione = dati.wBitsPerSample;
-
-        return df;
     }
 
     std::wostream &operator<<(std::wostream &stream, const DataFormatChunk &data)
@@ -67,7 +49,7 @@ namespace WAVE
              << L"  frequenza        : " << data.frequenza       << " Hz\n"
              << L"  bits per campione: " << data.bitsPerCampione << L'\n'
              << L"  tipo campione    : "
-                << (data.formatTag == WAVE_FORMAT_PCM ? L"Integer": L"Float")
+                << (data.formatTag == WAVEFormat::PCM ? L"Integer": L"Float")
                 << L'\n';
         // clang-format on
     }

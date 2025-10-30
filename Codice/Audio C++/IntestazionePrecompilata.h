@@ -37,14 +37,11 @@
 
 #define NOMINMAX
 
-#include <Audioclient.h>
-#include <ConsoleApi.h>
 #include <Windows.h>
-#include <mmdeviceapi.h>
-// Deve trovasi dopo mmdeviceapi.h
-#include <Functiondiscoverykeys_devpkey.h>
+// Deve stare dopo Windows.h
+#include <ConsoleApi.h>
 
-// Impostazioni warning specifici
+// Impostazioni avvisi specifici
 
 #pragma warning(3:4'061) // Enumerator 'identifier' in a switch of enum is not explicitly handled by a case label.
 #pragma warning(3:4'062) // Enumerator 'identifier' in a switch of enum 'enumeration' is not handled.

@@ -9,11 +9,6 @@
 #include "Volume.h"
 #include "WAVE.h"
 
-const constexpr CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
-const constexpr IID IID_IMMDeviceEnumerator    = __uuidof(IMMDeviceEnumerator);
-const constexpr IID IID_IAudioClient           = __uuidof(IAudioClient);
-const constexpr IID IID_IAudioRenderClient     = __uuidof(IAudioRenderClient);
-
 static int AudioCallback(
     const void *input,
     void *output,

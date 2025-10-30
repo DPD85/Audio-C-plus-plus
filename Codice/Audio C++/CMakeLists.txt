@@ -39,7 +39,6 @@ target_compile_definitions(Audio-C-plus-plus
 
 target_link_libraries(Audio-C-plus-plus
     PRIVATE
-        Winmm.lib
         Boost::container
         portaudio_static
 )

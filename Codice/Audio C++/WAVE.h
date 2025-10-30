@@ -39,11 +39,7 @@ namespace WAVE
             unsigned int frequenza_,
             unsigned short bitPerCampione_,
             TipoCampioni tipoCampioni = TipoCampioni::Interi);
-
-        operator WAVEFORMATEX();
     };
-
-    DataFormatChunk ToDataFormatChunk(const WAVEFORMATEX &dati);
 
     std::wostream &operator<<(std::wostream &stream, const DataFormatChunk &data);
 
