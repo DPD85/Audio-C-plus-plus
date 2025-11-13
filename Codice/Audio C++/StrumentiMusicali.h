@@ -13,12 +13,26 @@ class StrumentoMusicale
     /// @brief Indica l'istante in cui il musicista da inizio ad una nota. Per esempio la pressione di un tasto sul
     /// pianoforte.
     /// @param nota La nota che ha inizio.
+    /// @remark Consultare la documentazione degli specifici strumenti musicali per sapere se il metodo è sincronizzato
+    ///         col calcolo dell'audio, ovvero col metodo Campione().
     virtual void InizioNota(Note nota) = 0;
 
     /// @brief Indica l'istante in cui il musicista termina una nota. Per esempio un tasto del pianoforte viene
     /// rilasciato.
     /// @param nota La nota che ha termine.
+    /// @remark Consultare la documentazione degli specifici strumenti musicali per sapere se il metodo è sincronizzato
+    ///         col calcolo dell'audio, ovvero col metodo Campione().
     virtual void FineNota(Note nota) = 0;
+
+    /// @brief Indica se lo strumento musicale sta suonando oppure se è muto.
+    /// @retval True Lo strumento sta suonando.
+    /// @retval False Lo strumento è muto.
+    /// @remark Consultare la documentazione degli specifici strumenti musicali per sapere se il metodo è sincronizzato
+    ///         col calcolo dell'audio, ovvero col metodo Campione().
+    virtual bool StaSuonando() const
+    {
+        return false;
+    }
 
     /// @brief Restituisce il campione audio successivo dello strumento musicale. Il campione è spesso compreso
     /// nell'intervallo [-1, 1].
@@ -230,6 +244,39 @@ namespace StrumentiMusicali
         void FineNota(Note nota) override
         {
             inviluppi[nota + 60].FineNota();
+        }
+
+        /// @brief Indica l'istante in cui il musicista da inizio ad una nota ovvero la pressione di un tasto del
+        /// pianoforte.
+        /// @param nota La nota che ha inizio secondo la numerazione %MIDI.
+        void InizioNota(unsigned char nota)
+        {
+            nota -= PrimaNotaMIDI;
+            if (nota > NumeroNote) return;
+
+            inviluppi[nota].InizioNota();
+        }
+
+        /// @brief Indica l'istante in cui il musicista termina una nota ovvero quando un tasto del pianoforte viene
+        /// rilasciato.
+        /// @param nota La nota che ha termine secondo la numerazione %MIDI.
+        void FineNota(unsigned char nota)
+        {
+            nota -= PrimaNotaMIDI;
+            if (nota > NumeroNote) return;
+
+            inviluppi[nota].FineNota();
+        }
+
+        /// @brief Indica se lo strumento musicale sta suonando oppure se è muto.
+        /// @retval True Lo strumento sta suonando.
+        /// @retval False Lo strumento è muto.
+        bool StaSuonando() const override
+        {
+            for (const InviluppoADSR &inviluppo : inviluppi)
+                if (inviluppo.StaSuonando()) return true;
+
+            return false;
         }
 
         /// @brief Restituisce il campione audio successivo dello strumento musicale.
