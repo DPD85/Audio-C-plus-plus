@@ -39,7 +39,7 @@ class Volume
     /// @brief Resetta il volume al valore iniziale.
     /// @param nuovoValore_ Il volume iniziale. [0, 1]
     /// @remark Il volume viene impostato in modo netto ed immediato per tanto cambierà istantaneamente.
-    /// @remark Il metodo è sincronizzato col calcolo dell'audio, ovvero col metodo Smussa().
+    /// @audiosafe Smussa().
     void Reset(double nuovoValore_ = 0)
     {
         smussatore.Reset(nuovoValore_);

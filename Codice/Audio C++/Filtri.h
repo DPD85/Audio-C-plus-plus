@@ -49,7 +49,7 @@ namespace Filtri
 
         /// @brief Imposta il valore smussato iniziale a zero.
         /// @remark Il valore viene impostato in modo netto ed immediato per tanto cambierà istantaneamente.
-        /// @remark Il metodo è sincronizzato col calcolo dell'audio, ovvero col metodo Computa().
+        /// @audiosafe Computa().
         void Reset() override
         {
             valoreSmussato.store(0.0);
@@ -58,7 +58,7 @@ namespace Filtri
         /// @brief Imposta il valore smussato iniziale.
         /// @param valore Il valore smussato iniziale.
         /// @remark Il valore viene impostato in modo netto ed immediato per tanto cambierà istantaneamente.
-        /// @remark Il metodo è sincronizzato col calcolo dell'audio, ovvero col metodo Computa().
+        /// @audiosafe Computa().
         void Reset(double valore)
         {
             valoreSmussato.store(valore);
@@ -105,7 +105,7 @@ namespace Filtri
             return inviluppo;
         }
 
-        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+        /// @notaudiosafe Computa().
         void Reset() override
         {
             inviluppo = 0;
@@ -145,7 +145,7 @@ namespace Filtri
             return valore;
         }
 
-        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+        /// @notaudiosafe Computa().
         void Reset() override
         {
             std::fill(buffer.begin(), buffer.end(), 0.0);
@@ -193,7 +193,7 @@ namespace Filtri
                 return valore * guadagno;
             }
 
-            /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+            /// @notaudiosafe Computa().
             void Reset() override
             {
                 rilevatoreInviluppo.Reset();
@@ -262,7 +262,7 @@ namespace Filtri
             return (1 - volumeMassimo) * campione + volumeMassimo * valore;
         }
 
-        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+        /// @notaudiosafe Computa().
         void Reset() override
         {
             std::fill(buffer.begin(), buffer.end(), 0.0);
@@ -328,7 +328,7 @@ namespace Filtri
                 return output;
             }
 
-            /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+            /// @notaudiosafe Computa().
             void Reset() override
             {
                 inputPrecedente1 = 0.0;
@@ -340,7 +340,7 @@ namespace Filtri
 
           protected:
             /// @brief Imposta nuovi valori per i coefficienti del filtro.
-            /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+            /// @notaudiosafe Computa().
             void Coefficienti(double a0_, double a1_, double a2_, double b1_, double b2_)
             {
                 a0 = a0_;
@@ -386,7 +386,7 @@ namespace Filtri
 
         /// @brief Imposta la frequenza di taglio del filtro.
         /// @param frequenzaTaglio_ La frequenza di taglio del filtro espressa in Hz. [0, Nyquist]
-        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+        /// @notaudiosafe Computa().
         void FrequenzaTaglio(double frequenzaTaglio_)
         {
             // Limito la frequenza di taglio alla frequenza di Nyquist
@@ -429,7 +429,7 @@ namespace Filtri
 
         /// @brief Imposta la frequenza di taglio del filtro.
         /// @param frequenzaTaglio_ La frequenza di taglio del filtro espressa in Hz. [0, Nyquist]
-        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+        /// @notaudiosafe Computa().
         void FrequenzaTaglio(double frequenzaTaglio_)
         {
             // Limito la frequenza di taglio alla frequenza di Nyquist
@@ -491,14 +491,14 @@ namespace Filtri
             return campione * (-guadagno) + valore;
         }
 
-        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+        /// @notaudiosafe Computa().
         void Reset() override
         {
             std::fill(buffer.begin(), buffer.end(), 0.0);
         }
 
         /// @brief Restituisce il guadagno attualmente usato dal filtro. [0, 1]
-        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+        /// @notaudiosafe Computa().
         double Guadagno() const
         {
             return guadagno;
@@ -506,7 +506,7 @@ namespace Filtri
 
         /// @brief Imposta il guadagno del filtro.
         /// @param guadagno_ Il nuovo guadagno. [0, 1]
-        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+        /// @notaudiosafe Computa().
         void Guagano(double guadagno_)
         {
             guadagno = guadagno_;
@@ -560,14 +560,14 @@ namespace Filtri
             return valore;
         }
 
-        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+        /// @notaudiosafe Computa().
         void Reset() override
         {
             std::fill(buffer.begin(), buffer.end(), 0.0);
         }
 
         /// @brief Restituisce il ritardo attuale del segnale sommato all'input rispetto all'input. [s]
-        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+        /// @notaudiosafe Computa().
         double Ritardo() const
         {
             return DaCampioniASecondi(buffer.size());
@@ -575,14 +575,14 @@ namespace Filtri
 
         /// @brief Imposta il ritardo del segnale sommato all'input rispetto all'input.
         /// @param ritardo Il ritardo. [s]
-        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+        /// @notaudiosafe Computa().
         void Ritardo(double ritardo)
         {
             buffer.resize(DaSecondiACampioni(ritardo), 0.0);
         }
 
         /// @brief Restituisce l'attenuazione dei picchi creati dal filtro. [0, 1]
-        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+        /// @notaudiosafe Computa().
         double Attenuazione() const
         {
             return attenuazione;
@@ -590,7 +590,7 @@ namespace Filtri
 
         /// @brief Imposta l'attenuazione dei picchi creati dal filtro.
         /// @param attenuazione_ L'attenuazione dei picchi, 0 = nessun picco, 1 = nessuna attenuazione. [0, 1]
-        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+        /// @notaudiosafe Computa().
         void Attenuazione(double attenuazione_)
         {
             attenuazione = attenuazione_;
@@ -604,7 +604,7 @@ namespace Filtri
 
         /// @brief Imposta la frequenza di taglio del filtro passa basso.
         /// @param frequenzaTaglio La frequenza di taglio. [Hz]
-        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+        /// @notaudiosafe Computa().
         void FrequenzaTaglio(double frequenzaTaglio)
         {
             passaBasso.FrequenzaTaglio(frequenzaTaglio);
@@ -665,7 +665,7 @@ namespace Filtri
             return campione * (1.0 - riverbero) + output * riverbero;
         }
 
-        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Computa().
+        /// @notaudiosafe Computa().
         void Reset() override
         {
             for (FiltroPettine &filtro : filtriPettine)

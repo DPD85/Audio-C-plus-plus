@@ -34,6 +34,7 @@ class InviluppoADSR
 
     /// @brief Indica l'istante in cui il musicista da inizio ad una nota. Per esempio la pressione di un tasto sul
     /// pianoforte.
+    /// @audiosafe Computa().
     void InizioNota()
     {
         notaAttiva.store(true);
@@ -41,6 +42,7 @@ class InviluppoADSR
 
     /// @brief Indica l'istante in cui il musicista termina una nota. Per esempio un tasto del pianoforte viene
     /// rilasciato.
+    /// @audiosafe Computa().
     void FineNota()
     {
         notaAttiva.store(false);
@@ -139,14 +141,14 @@ class InviluppoADSR
     /// @brief Indica se la nota corrispondente a questo inviluppo sta suonando oppure se è muta.
     /// @retval True La nota sta suonando.
     /// @retval False La nota è muta.
-    /// @warning Il metodo non è sincronizzato con il calcolo dell'audio, ovvero col metodo Computa().
+    /// @audiosafe Computa().
     bool StaSuonando() const
     {
         return stato.load() != Stati::Silenzio;
     }
 
     /// @brief Restituisce lo stato attuale dell'inviluppo.
-    /// @warning Il metodo non è sincronizzato con il calcolo dell'audio, ovvero col metodo Computa().
+    /// @audiosafe Computa().
     Stati Stato() const
     {
         return stato.load();

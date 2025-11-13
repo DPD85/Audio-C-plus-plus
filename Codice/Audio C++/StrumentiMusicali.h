@@ -236,11 +236,19 @@ namespace StrumentiMusicali
                     0.2 + (UltimaNotaMIDI - i) * 0.005 * ContributoVel20); // Rilascio
         }
 
+        /// @brief Indica l'istante in cui il musicista da inizio ad una nota ovvero la pressione di un tasto del
+        /// pianoforte.
+        /// @param nota La nota che ha inizio.
+        /// @audiosafe Campione().
         void InizioNota(Note nota) override
         {
             inviluppi[nota + 60].InizioNota();
         }
 
+        /// @brief Indica l'istante in cui il musicista termina una nota ovvero quando un tasto del pianoforte viene
+        /// rilasciato.
+        /// @param nota La nota che ha termine.
+        /// @audiosafe Campione().
         void FineNota(Note nota) override
         {
             inviluppi[nota + 60].FineNota();
@@ -249,6 +257,7 @@ namespace StrumentiMusicali
         /// @brief Indica l'istante in cui il musicista da inizio ad una nota ovvero la pressione di un tasto del
         /// pianoforte.
         /// @param nota La nota che ha inizio secondo la numerazione %MIDI.
+        /// @audiosafe Campione().
         void InizioNota(unsigned char nota)
         {
             nota -= PrimaNotaMIDI;
@@ -260,6 +269,7 @@ namespace StrumentiMusicali
         /// @brief Indica l'istante in cui il musicista termina una nota ovvero quando un tasto del pianoforte viene
         /// rilasciato.
         /// @param nota La nota che ha termine secondo la numerazione %MIDI.
+        /// @audiosafe Campione().
         void FineNota(unsigned char nota)
         {
             nota -= PrimaNotaMIDI;
@@ -271,6 +281,7 @@ namespace StrumentiMusicali
         /// @brief Indica se lo strumento musicale sta suonando oppure se è muto.
         /// @retval True Lo strumento sta suonando.
         /// @retval False Lo strumento è muto.
+        /// @audiosafe Campione().
         bool StaSuonando() const override
         {
             for (const InviluppoADSR &inviluppo : inviluppi)

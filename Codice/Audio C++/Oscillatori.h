@@ -72,7 +72,7 @@ namespace Oscillatori
             daAggiornare.store(true);
         }
 
-        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Campione().
+        /// @notaudiosafe Campione().
         virtual void Reset() override
         {
             fase._Val[0] = 1.0;
@@ -123,7 +123,7 @@ namespace Oscillatori
             sin.Frequenza(frequenza);
         }
 
-        /// @warning Non è sincronizzato con il calcolo dell'audio, ovvero con il metodo Campione().
+        /// @notaudiosafe Campione().
         virtual void Reset() override
         {
             sin.Reset();
