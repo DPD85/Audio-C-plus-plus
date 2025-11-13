@@ -50,36 +50,38 @@ class InviluppoADSR
     /// @return Il valore attuale dell'inviluppo. [0, 1]
     double Computa() noexcept
     {
+        const volatile Stati stato_ = stato.load();
+
         // ----- Cambio di stato
 
-        switch (stato)
+        switch (stato_)
         {
             case Stati::Silenzio:
                 if (notaAttiva.load())
                 {
                     tempo = 0;
-                    stato = Stati::Attacco;
+                    stato.store(Stati::Attacco);
                 }
                 break;
             case Stati::Attacco:
                 if (tempo >= attacco)
                 {
                     tempo -= attacco;
-                    stato  = Stati::Decadimento;
+                    stato.store(Stati::Decadimento);
                 }
                 break;
             case Stati::Decadimento:
                 if (tempo >= decadimento)
                 {
                     tempo -= decadimento;
-                    stato  = Stati::Sostentamento;
+                    stato.store(Stati::Sostentamento);
                 }
                 break;
             case Stati::Sostentamento:
-                if (!notaAttiva.load()) stato = Stati::Rilascio;
+                if (!notaAttiva.load()) stato.store(Stati::Rilascio);
                 break;
             case Stati::Rilascio:
-                if (tempo >= rilascio) stato = Stati::Silenzio;
+                if (tempo >= rilascio) stato.store(Stati::Silenzio);
                 break;
         }
 
@@ -87,7 +89,7 @@ class InviluppoADSR
 
         double valore = 0;
 
-        switch (stato)
+        switch (stato_)
         {
             case Stati::Silenzio:
                 return 0;
@@ -106,6 +108,25 @@ class InviluppoADSR
                 break;
         }
 
+        // ----- Inizio nuova nota nel mezzo dell'inviluppo -----
+
+        switch (stato_)
+        {
+            case Stati::Silenzio:
+            case Stati::Attacco:
+            case Stati::Decadimento:
+            case Stati::Sostentamento:
+                // Intenzionalmente vuoto
+                break;
+            case Stati::Rilascio:
+                if (notaAttiva.load())
+                {
+                    tempo = static_cast<size_t>(valore * attacco);
+                    stato.store(Stati::Attacco);
+                }
+                break;
+        }
+
         // ----- Avanzamento tempo
 
         ++tempo;
@@ -121,20 +142,20 @@ class InviluppoADSR
     /// @warning Il metodo non è sincronizzato con il calcolo dell'audio, ovvero col metodo Computa().
     bool StaSuonando() const
     {
-        return stato != Stati::Silenzio;
+        return stato.load() != Stati::Silenzio;
     }
 
     /// @brief Restituisce lo stato attuale dell'inviluppo.
     /// @warning Il metodo non è sincronizzato con il calcolo dell'audio, ovvero col metodo Computa().
     Stati Stato() const
     {
-        return stato;
+        return stato.load();
     }
 
   private:
     std::atomic<bool> notaAttiva;
 
-    Stati stato{ Stati::Silenzio };
+    std::atomic<Stati> stato{ Stati::Silenzio };
 
     size_t tempo{ 0 };    // [# campioni]
     size_t attacco;       // [# campioni]
@@ -144,12 +165,13 @@ class InviluppoADSR
 
     // ----- Implementazione copia e movimento dell'oggetto -----
     /// @cond CTOR_OP_COPY_MOVE
+
   public:
     InviluppoADSR(const InviluppoADSR &&altro)
     {
         notaAttiva.store(altro.notaAttiva.load());
+        stato.store(altro.stato.load());
 
-        stato         = altro.stato;
         attacco       = altro.attacco;
         decadimento   = altro.decadimento;
         rilascio      = altro.rilascio;
@@ -159,8 +181,8 @@ class InviluppoADSR
     InviluppoADSR &operator=(const InviluppoADSR &&altro)
     {
         notaAttiva.store(altro.notaAttiva.load());
+        stato.store(altro.stato.load());
 
-        stato         = altro.stato;
         attacco       = altro.attacco;
         decadimento   = altro.decadimento;
         rilascio      = altro.rilascio;
@@ -172,8 +194,8 @@ class InviluppoADSR
     InviluppoADSR(const InviluppoADSR &altro)
     {
         notaAttiva.store(altro.notaAttiva.load());
+        stato.store(altro.stato.load());
 
-        stato         = altro.stato;
         attacco       = altro.attacco;
         decadimento   = altro.decadimento;
         rilascio      = altro.rilascio;
@@ -183,8 +205,8 @@ class InviluppoADSR
     InviluppoADSR &operator=(const InviluppoADSR &altro)
     {
         notaAttiva.store(altro.notaAttiva.load());
+        stato.store(altro.stato.load());
 
-        stato         = altro.stato;
         attacco       = altro.attacco;
         decadimento   = altro.decadimento;
         rilascio      = altro.rilascio;
@@ -192,5 +214,6 @@ class InviluppoADSR
 
         return *this;
     }
+
     /// @endcond
 };

@@ -587,6 +587,7 @@ static void RegistraPerGrafico()
     ApriFile(14);
     ApriFile(15);
     ApriFile(16);
+    ApriFile(17);
 
 #undef ApriFile
 
@@ -874,6 +875,8 @@ static void RegistraPerGrafico()
     // ----- Test inviluppo completo -----
 
     {
+        std::ofstream &file = file13;
+
         InviluppoADSR inviluppo(0.02, 0.01, 0.8, 0.03);
         const size_t tempoFineNota = DaSecondiACampioni(0.1);
 
@@ -886,13 +889,15 @@ static void RegistraPerGrafico()
             buffer[i] = inviluppo.Computa();
         }
 
-        file13.write(reinterpret_cast<const char *>(&numeroSerie), sizeof(numeroSerie));
-        file13.write(reinterpret_cast<char *>(buffer.data()), buffer.size() * sizeof(dvector::value_type));
+        file.write(reinterpret_cast<const char *>(&numeroSerie), sizeof(numeroSerie));
+        file.write(reinterpret_cast<char *>(buffer.data()), buffer.size() * sizeof(dvector::value_type));
     }
 
     // ----- Test inviluppo con prematura terminazione della nota (salta la fase di sostentamento) -----
 
     {
+        std::ofstream &file = file14;
+
         InviluppoADSR inviluppo(0.02, 0.01, 0.8, 0.03);
 
         size_t i;
@@ -904,13 +909,40 @@ static void RegistraPerGrafico()
             buffer[i] = inviluppo.Computa();
         }
 
-        file14.write(reinterpret_cast<const char *>(&numeroSerie), sizeof(numeroSerie));
-        file14.write(reinterpret_cast<char *>(buffer.data()), buffer.size() * sizeof(dvector::value_type));
+        file.write(reinterpret_cast<const char *>(&numeroSerie), sizeof(numeroSerie));
+        file.write(reinterpret_cast<char *>(buffer.data()), buffer.size() * sizeof(dvector::value_type));
+    }
+
+    // ----- Test inviluppo con inizio nota durante la fase di rilascio -----
+
+    {
+        std::ofstream &file = file15;
+
+        InviluppoADSR inviluppo(0.02, 0.01, 0.8, 0.03);
+        const size_t tempoFineNota1   = DaSecondiACampioni(0.05);
+        const size_t tempoInizioNota2 = DaSecondiACampioni(0.06);
+        const size_t tempoFineNota2   = DaSecondiACampioni(0.1);
+
+        size_t i;
+        for (i = 0; i < numeroCampioni; ++i)
+        {
+            if (i == 300) inviluppo.InizioNota();
+            if (i == tempoFineNota1) inviluppo.FineNota();
+            if (i == tempoInizioNota2) inviluppo.InizioNota();
+            if (i == tempoFineNota2) inviluppo.FineNota();
+
+            buffer[i] = inviluppo.Computa();
+        }
+
+        file.write(reinterpret_cast<const char *>(&numeroSerie), sizeof(numeroSerie));
+        file.write(reinterpret_cast<char *>(buffer.data()), buffer.size() * sizeof(dvector::value_type));
     }
 
     // ----- -----
 
     {
+        std::ofstream &file = file16;
+
         note[SOL].Reset();
         volumi[SOL].Reset();
         note[LA].Reset();
@@ -957,8 +989,8 @@ static void RegistraPerGrafico()
             }
 
             numeroSerie = 4;
-            file15.write(reinterpret_cast<const char *>(&numeroSerie), sizeof(numeroSerie));
-            file15.write(reinterpret_cast<char *>(buffer.data()), buffer.size() * sizeof(dvector::value_type));
+            file.write(reinterpret_cast<const char *>(&numeroSerie), sizeof(numeroSerie));
+            file.write(reinterpret_cast<char *>(buffer.data()), buffer.size() * sizeof(dvector::value_type));
         }
 
         dvector buffer2(numeroCampioni * 2);
@@ -973,7 +1005,7 @@ static void RegistraPerGrafico()
                 buffer2[i]       = inviluppo;
             }
 
-            file15.write(reinterpret_cast<char *>(buffer2.data()), buffer2.size() * sizeof(dvector::value_type));
+            file.write(reinterpret_cast<char *>(buffer2.data()), buffer2.size() * sizeof(dvector::value_type));
         }
 
         {
@@ -984,7 +1016,7 @@ static void RegistraPerGrafico()
                 buffer2[i]       = inviluppo;
             }
 
-            file15.write(reinterpret_cast<char *>(buffer2.data()), buffer2.size() * sizeof(dvector::value_type));
+            file.write(reinterpret_cast<char *>(buffer2.data()), buffer2.size() * sizeof(dvector::value_type));
         }
 
         {
@@ -995,16 +1027,16 @@ static void RegistraPerGrafico()
                 buffer2[i]       = inviluppo;
             }
 
-            file15.write(reinterpret_cast<char *>(buffer2.data()), buffer2.size() * sizeof(dvector::value_type));
+            file.write(reinterpret_cast<char *>(buffer2.data()), buffer2.size() * sizeof(dvector::value_type));
         }
 
         buffer.resize(numeroCampioni);
     }
 
-    // ----- Filtro passa basso -----
+    // ----- Filtro passa basso/alto -----
 
     {
-        std::ofstream &file = file16;
+        std::ofstream &file = file17;
 
         note[SOL].Reset();
         note[LA].Reset();
