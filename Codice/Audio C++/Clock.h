@@ -39,9 +39,9 @@ class Clock
     /// che la durata del ticchettio è stata superiore al periodo del clock.
     double AspettaTicchettioSuccessivo()
     {
-        hrc::time_point tStop = hrc::now();
+        const hrc::time_point tStop = hrc::now();
 
-        double dt = duration_cast<DurataMillisecondi>(tStop - tStart).count();
+        const double dt = duration_cast<DurataMillisecondi>(tStop - tStart).count();
 
         double attesa  = periodo - dt; // Tempo per il quale è necessario aspettare
         attesa        -= sogliaSleep;  // Tolgo la precisione della funzione Sleep
@@ -71,6 +71,29 @@ class Clock
     void Periodo(double periodo_)
     {
         periodo = periodo_ * 1000.0;
+    }
+
+    /// @brief Aspetta per un certo tempo.
+    /// @param durata Il tempo per il quale attendere. [s]
+    /// @return Il tempo corrispondente alla durata dell'attesa appena effettuata [s].
+    double Aspetta(double durata)
+    {
+        hrc::time_point tStart = hrc::now();
+
+        durata = durata * 1000.0; // [ms]
+
+        // Tolgo la precisione della funzione Sleep
+        double attesa = durata - sogliaSleep;
+
+        // Se devo aspettare per un tempo maggiore della precisione della sleep allora la uso riducendo il busy wait
+        if (attesa >= 0) std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<unsigned long>(attesa)));
+
+        // Aspetto per il tempo restante (busy wait)
+        do
+            attesa = duration_cast<DurataMillisecondi>(hrc::now() - tStart).count();
+        while (attesa <= durata);
+
+        return attesa * 1000.0;
     }
 
   private:
