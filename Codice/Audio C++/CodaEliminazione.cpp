@@ -19,3 +19,9 @@ void CodaEliminazione ::Pulisci()
         coda.pop();
     }
 }
+
+void CodaEliminazione::Svuota()
+{
+    while (!coda.empty())
+        coda.pop();
+}

@@ -12,4 +12,6 @@ class CodaEliminazione
     void Aggiungi(const Eliminatore &eliminatore);
 
     void Pulisci();
+
+    void Svuota();
 };
