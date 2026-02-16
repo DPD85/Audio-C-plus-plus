@@ -25,7 +25,7 @@ static std::atomic<StrumentoMusicale *> strumentoMusicale = &pianoforte;
 
 static Filtri::EchoWetDry èco(0.020, 0.9, 0.6);
 // TODO: Non necessario su Windows, su Linux?
-// static Filtri::Limitatore limitatore(1.0, 1.0, 0.00042);
+//static Filtri::Limitatore limitatore(1.0, 0.95, 0.00042);
 
 static PaStream *flusso;
 static const PaStreamInfo *infoFlusso;
@@ -959,7 +959,7 @@ static void RegistraPerGrafico()
                 buffer[i] = volumi[SOL].Smussa() * note[SOL].Campione() + volumi[LA].Smussa() * note[LA].Campione();
             }
 
-            volumi[LA].Valore(1.0);
+            volumi[LA].Valore(1.);
 
             for (; i < numeroCampioni; ++i)
             {
@@ -981,7 +981,7 @@ static void RegistraPerGrafico()
                 buffer[i] = volumi[SOL].Smussa() * note[SOL].Campione() + volumi[LA].Smussa() * note[LA].Campione();
             }
 
-            volumi[LA].Valore(1.0);
+            volumi[LA].Valore(1.);
 
             for (; i < numeroCampioni + n * 4; ++i)
             {
@@ -1020,11 +1020,16 @@ static void RegistraPerGrafico()
         }
 
         {
-            Filtri::Limitatore limitatore(rilascio, 1.0, 0.00042);
+            Filtri::Limitatore limitatore(rilascio, 0.95, 0.00042);
             for (size_t i = 0; i < numeroCampioni * 2; ++i)
             {
                 double inviluppo = limitatore.Computa(buffer[i]);
                 buffer2[i]       = inviluppo;
+
+                if (std::abs(inviluppo) > 1.0)
+                {
+                    std::cout << "Limitatore: eccede [-1, 1], delta " << (std::abs(inviluppo) - 1.0) << ".\n";
+                }
             }
 
             file.write(reinterpret_cast<char *>(buffer2.data()), buffer2.size() * sizeof(dvector::value_type));
