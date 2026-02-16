@@ -132,8 +132,9 @@ namespace Filtri
     {
       public:
         /// @brief Inizializza il filtro con il ritardo specificato.
-        /// @param ritardo La dimensione del ritardo applicato al segnale, espresso in secondi. (0, +∞]
-        Ritardo(double ritardo): buffer(DaSecondiACampioni(ritardo), 0.0) {}
+        /// @param ritardo La dimensione del ritardo applicato al segnale, espresso in secondi. Il ritardo minimo è pari
+        ///                ad un campione. (0, +∞]
+        Ritardo(double ritardo): buffer(std::max<size_t>(1, DaSecondiACampioni(ritardo)), 0.0) {}
 
         /// @brief Ritarda il segnale in ingresso.
         /// @param campione Il campione attuale del segnale d'ingresso.
@@ -169,7 +170,7 @@ namespace Filtri
             /// @param sogliaVolume La soglia, superata la quale, il compressore entra in funzione. [0, 1]
             /// @param CS Il coefficiente di riduzione del volume, se pari ad uno diventa un limitatore. [0, 1]
             /// @param ritardo Il ritardo, sul segnale d'ingresso, col quale il compressore agisce, espresso in secondi.
-            ///                (0, +∞]
+            ///                Il ritardo minimo è pari ad un campione. (0, +∞]
             Compressore(double rilascio, double sogliaVolume, double CS, double ritardo)
                 : sogliaVolumeLn(std::log(sogliaVolume))
                 , CS(CS)
@@ -209,15 +210,20 @@ namespace Filtri
     }
 
     /// @brief Limita il volume di un segnale ad un valore massimo (look-ahead limiter).
+    /// @remark Il limitatore non riesce a mantenere il volume strettamente sotto la soglia specificata, tal volta la
+    ///         supera di un pò (se adeguatamente configurato la supererà di poco o anche molto poco). Si consiglia
+    ///         quindi di configurare un soglia in un poco più bassa del limite che si desidera così da assicurarsi che
+    ///         resti entro il limite desiderato, nonché di verificare sempre, facendo dei test, che l'output del
+    ///         limitatore non superi mai il limite desiderato.
     class Limitatore: public Interno::Compressore
     {
       public:
         /// @brief Inizializza il limitatore con i parametri specificati.
-        /// @param rilascio Il fattore di smussamento della fase di rilascio: più è grande, maggiore è lo smussamento.
-        ///                 [0, +∞]
+        /// @param rilascio Il fattore di smussamento della fase di rilascio del rilevatore di inviluppo: più è grande,
+        ///                 più lentamente segue il segnale quando il volume di quest'ultimo diminuisce. [0, +∞]
         /// @param sogliaVolume La soglia, superata la quale, il limitatore entra in funzione. [0, 1]
-        /// @param ritardo Il ritardo, sul segnale d'ingresso, col quale il limitatore agisce, espresso in secondi. (0,
-        /// +∞]
+        /// @param ritardo Il ritardo, sul segnale d'ingresso, col quale il limitatore agisce, espresso in secondi.
+        ///                Il ritardo minimo è pari ad un campione. (0, +∞]
         Limitatore(double rilascio, double sogliaVolume, double ritardo)
             : Interno::Compressore(rilascio, sogliaVolume, 1.0, ritardo)
         {}
@@ -232,7 +238,7 @@ namespace Filtri
         /// @param sogliaVolume La soglia, superata la quale, il compressore entra in funzione. [0, 1]
         /// @param proporzione La proporzione di riduzione del volume. (0, +∞]
         /// @param ritardo Il ritardo, sul segnale d'ingresso, col quale il compressore agisce, espresso in secondi.
-        ///                (0, +∞]
+        ///                Il ritardo minimo è pari ad un campione. (0, +∞]
         Compressore(double rilascio, double sogliaVolume, double proporzione, double ritardo)
             : Interno::Compressore(rilascio, sogliaVolume, 1.0 - 1.0 / proporzione, ritardo)
         {}
