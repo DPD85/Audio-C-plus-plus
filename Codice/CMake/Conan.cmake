@@ -1,4 +1,4 @@
-# ----- Cerco Conan nel sistema -----
+﻿# ----- Cerco Conan nel sistema -----
 
 if (WIN32)
     find_program(CONAN_PATH
@@ -37,7 +37,7 @@ if (WIN32)
     endif()
 elseif(LINUX)
     string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWER)
-    set(CONAN_PROFILE_NAME      "Linux GCC 12 x64 ${CMAKE_BUILD_TYPE_LOWER}")
+    set(CONAN_PROFILE_NAME      "Linux GCC ${GCC_MAJOR_VERSION} x64 ${CMAKE_BUILD_TYPE_LOWER}")
     set(CONAN_PROFILE           "${CONAN_PROFILE_DIR}/${CONAN_PROFILE_NAME}")
     set(CONAN_PROFILE_TIMESTAMP "${CMAKE_BINARY_DIR}/${CONAN_PROFILE_NAME}.timestamp")
 

@@ -1,4 +1,4 @@
-{
+﻿{
   "version": 9,
   "cmakeMinimumRequired": {
     "major": 4,
@@ -9,8 +9,8 @@
     {
       "name": "windows-base-preset",
       "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
       "cmakeExecutable": "C:\\Program Files\\CMake\\bin\\cmake.exe",
-      "binaryDir": "${sourceParentDir}/build/${presetName}",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -44,9 +44,6 @@
       "name": "linux-base-preset",
       "hidden": true,
       "binaryDir": "${sourceParentDir}/build/${presetName}",
-      "environment": {
-        "NINJA_STATUS": "[%f/%t] (%e) "
-      },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
           "hostOS": "Linux"
@@ -64,16 +61,6 @@
         "type": "equals",
         "lhs": "${hostSystemName}",
         "rhs": "Linux"
-      }
-    },
-    {
-      "name": "linux-gcc-12",
-      "hidden": true,
-      "inherits": "linux-base-preset",
-      "generator": "Ninja",
-      "cacheVariables": {
-        "CMAKE_C_COMPILER": "gcc-12",
-        "CMAKE_CXX_COMPILER": "g++-12"
       }
     },
     {
@@ -100,19 +87,117 @@
       }
     },
     {
+      "name": "linux-ninja",
+      "hidden": true,
+      "generator": "Ninja",
+      "environment": {
+        "NINJA_STATUS": "[%f/%t] (%e) "
+      }
+    },
+    {
+      "name": "linux-makefiles",
+      "hidden": true,
+      "generator": "Unix Makefiles"
+    },
+    {
+      "name": "linux-gcc-12",
+      "hidden": true,
+      "inherits": [
+        "linux-base-preset",
+        "linux-ninja"
+      ],
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc-12",
+        "CMAKE_CXX_COMPILER": "g++-12"
+      }
+    },
+    {
+      "name": "linux-gcc-13",
+      "hidden": true,
+      "inherits": [
+        "linux-base-preset",
+        "linux-ninja"
+      ],
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc-13",
+        "CMAKE_CXX_COMPILER": "g++-13"
+      }
+    },
+    {
+      "name": "linux-gcc-14",
+      "hidden": true,
+      "inherits": [
+        "linux-base-preset",
+        "linux-makefiles"
+      ],
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc-14",
+        "CMAKE_CXX_COMPILER": "g++-14"
+      }
+    },
+    {
       "name": "linux-gcc-12-x64-debug",
       "displayName": "Linux GCC 12 x64 debug",
-      "inherits": [ "linux-gcc-12", "linux-x64", "linux-debug" ]
+      "inherits": [
+        "linux-gcc-12",
+        "linux-x64",
+        "linux-debug"
+      ]
     },
     {
       "name": "linux-gcc-12-x64-release",
       "displayName": "Linux GCC 12 x64 release",
-      "inherits": [ "linux-gcc-12", "linux-x64", "linux-release" ]
+      "inherits": [
+        "linux-gcc-12",
+        "linux-x64",
+        "linux-release"
+      ]
+    },
+    {
+      "name": "linux-gcc-13-x64-debug",
+      "displayName": "Linux GCC 13 x64 debug",
+      "inherits": [
+        "linux-gcc-13",
+        "linux-x64",
+        "linux-debug"
+      ]
+    },
+    {
+      "name": "linux-gcc-13-x64-release",
+      "displayName": "Linux GCC 13 x64 release",
+      "inherits": [
+        "linux-gcc-13",
+        "linux-x64",
+        "linux-release"
+      ]
+    },
+    {
+      "name": "linux-gcc-14-x64-debug",
+      "displayName": "Linux GCC 14 x64 debug",
+      "inherits": [
+        "linux-gcc-14",
+        "linux-x64",
+        "linux-debug"
+      ],
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "intelliSenseMode": "linux-gcc-x64"
+        }
+      }
+    },
+    {
+      "name": "linux-gcc-14-x64-release",
+      "displayName": "Linux GCC 14 x64 release",
+      "inherits": [
+        "linux-gcc-14",
+        "linux-x64",
+        "linux-release"
+      ]
     }
   ],
   "buildPresets": [
     {
-      "name": "base-build-x64-debug",
+      "name": "base-build-msvc-x64-debug",
       "hidden": true,
       "nativeToolOptions": [
         "/p:Platform=x64",
@@ -121,7 +206,7 @@
       ]
     },
     {
-      "name": "base-build-x64-release",
+      "name": "base-build-msvc-x64-release",
       "hidden": true,
       "nativeToolOptions": [
         "/p:Platform=x64",
@@ -130,16 +215,23 @@
       ]
     },
     {
+      "name": "base-build-makefiles",
+      "hidden": true,
+      "nativeToolOptions": [
+        "-j $(nproc)"
+      ]
+    },
+    {
       "name": "windows-v143-x64-debug",
       "displayName": "Windows v143 x64 debug",
       "configurePreset": "windows-v143-x64",
-      "inherits": [ "base-build-x64-debug" ]
+      "inherits": [ "base-build-msvc-x64-debug" ]
     },
     {
       "name": "windows-v143-x64-release",
       "displayName": "Windows v143 x64 release",
       "configurePreset": "windows-v143-x64",
-      "inherits": [ "base-build-x64-release" ]
+      "inherits": [ "base-build-msvc-x64-release" ]
     },
     {
       "name": "linux-gcc-12-x64-debug",
@@ -150,6 +242,28 @@
       "name": "linux-gcc-12-x64-release",
       "displayName": "Linux GCC 12 x64 release",
       "configurePreset": "linux-gcc-12-x64-release"
+    },
+    {
+      "name": "linux-gcc-13-x64-debug",
+      "displayName": "Linux GCC 13 x64 debug",
+      "configurePreset": "linux-gcc-13-x64-debug"
+    },
+    {
+      "name": "linux-gcc-13-x64-release",
+      "displayName": "Linux GCC 13 x64 release",
+      "configurePreset": "linux-gcc-13-x64-release"
+    },
+    {
+      "name": "linux-gcc-14-x64-debug",
+      "displayName": "Linux GCC 14 x64 debug",
+      "configurePreset": "linux-gcc-14-x64-debug",
+      "inherits": [ "base-build-makefiles" ]
+    },
+    {
+      "name": "linux-gcc-14-x64-release",
+      "displayName": "Linux GCC 14 x64 release",
+      "configurePreset": "linux-gcc-14-x64-release",
+      "inherits": [ "base-build-makefiles" ]
     }
   ]
 }
