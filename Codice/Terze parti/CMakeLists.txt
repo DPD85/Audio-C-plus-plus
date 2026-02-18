@@ -17,7 +17,15 @@ if(WIN32)
     set(PA_USE_WMME              OFF CACHE BOOL "" FORCE)
     set(PA_USE_DIRECTSOUNDFULLDUPLEXCREATE OFF CACHE BOOL "" FORCE)
 elseif(LINUX)
-    # Su Linux lascio disponibili tutti i back-end disponibili(ALSA e JACK)
+    # Su Linux lascio disponibili tutti i back-end disponibili (ALSA e JACK)
 endif()
 
 add_subdirectory(PortAudio)
+
+if(UNIX)
+    # I seguenti avvisi sono trattanti come avvisi e non come errori.
+    target_compile_options(portaudio_static
+        PRIVATE
+            -Wno-error=implicit-function-declaration
+    )
+endif()
