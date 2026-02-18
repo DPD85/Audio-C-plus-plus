@@ -1,3 +1,4 @@
 .vs
 /build/
+/build-cache/
 /Doxygen/html/
