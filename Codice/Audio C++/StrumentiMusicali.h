@@ -29,10 +29,7 @@ class StrumentoMusicale
     /// @retval False Lo strumento è muto.
     /// @remark Consultare la documentazione degli specifici strumenti musicali per sapere se il metodo è sincronizzato
     ///         col calcolo dell'audio, ovvero col metodo Campione().
-    virtual bool StaSuonando() const
-    {
-        return false;
-    }
+    virtual bool StaSuonando() const = 0;
 
     /// @brief Restituisce il campione audio successivo dello strumento musicale. Il campione è spesso compreso
     /// nell'intervallo [-1, 1].
@@ -77,6 +74,8 @@ namespace StrumentiMusicali
             InviluppoADSR(0.02, 0.01, 0.8, 0.5), // si
         };
 
+        std::atomic<bool> stoSuonando;
+
       public:
         void InizioNota(Note nota) override
         {
@@ -88,11 +87,17 @@ namespace StrumentiMusicali
             inviluppi[nota].FineNota();
         }
 
+        bool StaSuonando() const override
+        {
+            return stoSuonando.load();
+        }
+
         /// @brief Restituisce il campione audio successivo dello strumento musicale. Il valore del campione è sempre
         /// compreso nell'intervallo [-1, 1].
         double Campione() override
         {
-            double valore = 0;
+            volatile double valore = 0;
+            bool suonoProdotto     = false;
 
             for (size_t i = 0; i < Note::NumeroNote; ++i)
             {
@@ -101,8 +106,12 @@ namespace StrumentiMusicali
                 // Se la nota è muta la salto
                 if (!inviluppi[i].StaSuonando()) continue;
 
+                suonoProdotto = true;
+
                 valore += valoreInviluppo * note[i].Campione();
             }
+
+            stoSuonando.store(suonoProdotto);
 
             return valore;
         }
@@ -137,6 +146,8 @@ namespace StrumentiMusicali
             InviluppoADSR(0.02, 0.01, 0.8, 0.5), // si
         };
 
+        std::atomic<bool> stoSuonando;
+
       public:
         void InizioNota(Note nota) override
         {
@@ -148,11 +159,17 @@ namespace StrumentiMusicali
             inviluppi[nota].FineNota();
         }
 
+        bool StaSuonando() const override
+        {
+            return stoSuonando.load();
+        }
+
         /// @brief Restituisce il campione audio successivo dello strumento musicale. Il valore del campione è sempre
         /// compreso nell'intervallo [-1, 1].
         double Campione() override
         {
-            double valore = 0;
+            volatile double valore = 0;
+            bool suonoProdotto;
 
             for (size_t i = 0; i < Note::NumeroNote; ++i)
             {
@@ -161,8 +178,12 @@ namespace StrumentiMusicali
                 // Se la nota è muta la salto
                 if (!inviluppi[i].StaSuonando()) continue;
 
+                suonoProdotto = true;
+
                 valore += valoreInviluppo * note[i].Campione();
             }
+
+            stoSuonando.store(suonoProdotto);
 
             return valore;
         }

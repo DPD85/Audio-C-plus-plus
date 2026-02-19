@@ -194,6 +194,29 @@ int main()
 
 #ifdef WIN32
     TastieraEIUC();
+#else
+    StrumentoMusicale *strumento = strumentoMusicale.load();
+
+    int velocità = 250000;
+
+    for(size_t i=0; i<Note::NumeroNote;) {
+        strumento->InizioNota((Note)i);
+        usleep(velocità);
+        strumento->FineNota((Note)i);
+
+        if(i!=4) i+=2; else ++i;
+    }
+
+    for(int i=Note::NumeroNote-1; i>=0;) {
+        strumento->InizioNota((Note)i);
+        usleep(velocità);
+        strumento->FineNota((Note)i);
+
+        if(i!=6) i-=2; else --i;
+    }
+
+    while(strumento->StaSuonando())
+       usleep(1000);
 #endif
 
     // ----- -----

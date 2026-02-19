@@ -8,7 +8,7 @@ set(PA_BUILD_TESTS     OFF CACHE BOOL "" FORCE)
 set(PA_DISABLE_INSTALL ON  CACHE BOOL "" FORCE)
 
 # Abilita il log di debug di PortAudio
-set(PA_ENABLE_DEBUG_OUTPUT ON CACHE BOOL "" FORCE)
+#set(PA_ENABLE_DEBUG_OUTPUT ON CACHE BOOL "" FORCE)
 
 if(WIN32)
     # Su Windows voglio utilizzare solo WASAPI
