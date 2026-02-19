@@ -1,4 +1,6 @@
-﻿#include "CodaEliminazione.h"
+﻿#include "IntestazionePrecompilata.h"
+
+#include "CodaEliminazione.h"
 
 CodaEliminazione ::~CodaEliminazione()
 {

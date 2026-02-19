@@ -2,6 +2,10 @@
 
 #include "CostantiEdAltro.h"
 
+#define MAKE_SIGNATURE(a, b, c, d)                                                                                 \
+    (static_cast<unsigned long>(a)) | (static_cast<unsigned long>(b) << 8) | (static_cast<unsigned long>(c) << 16) \
+        | (static_cast<unsigned long>(d) << 24)
+
 namespace WAVE
 {
 #pragma pack(push, 1)
@@ -14,7 +18,7 @@ namespace WAVE
 
     struct DataFormatChunk
     {
-        unsigned int firma      = MAKEFOURCC('f', 'm', 't', ' ');
+        unsigned int firma      = MAKE_SIGNATURE('f', 'm', 't', ' ');
         unsigned int dimensione = sizeof(DataFormatChunk) - 8;
         // Formato dei campioni (compressi, non compressi, ecc...)
         unsigned short formatTag;
@@ -45,15 +49,15 @@ namespace WAVE
 
     struct SampledDataChunk
     {
-        unsigned int firma = MAKEFOURCC('d', 'a', 't', 'a');
+        unsigned int firma = MAKE_SIGNATURE('d', 'a', 't', 'a');
         unsigned int dimensione;
     };
 
     struct MasterRIFFChunk
     {
-        unsigned int firma = MAKEFOURCC('R', 'I', 'F', 'F');
+        unsigned int firma = MAKE_SIGNATURE('R', 'I', 'F', 'F');
         unsigned int fileSize;
-        unsigned int firmaFormato = MAKEFOURCC('W', 'A', 'V', 'E');
+        unsigned int firmaFormato = MAKE_SIGNATURE('W', 'A', 'V', 'E');
 
         MasterRIFFChunk();
 

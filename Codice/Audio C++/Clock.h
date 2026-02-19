@@ -14,17 +14,21 @@ class Clock
     {
         periodo = periodo_ * 1000.0;
 
+#ifdef WIN32
         // Cambia la risoluzione minima per i timer periodici, questo cambia la frequenza con cui il task manager del
         // S.O programma l'esecuzione del processo e dei suoi thread, per tanto influenza la precisione della funzione
         // Sleep().
         timeBeginPeriod(static_cast<unsigned int>(sogliaSleep));
+#endif
     }
 
     ~Clock()
     {
+#ifdef WIN32
         // Ripristino la risoluzione dei timer e la programmazione dell'esecuzione del processo da parte dello scheduler
         // del S.O. ai valori precedenti
         timeEndPeriod(static_cast<unsigned int>(sogliaSleep));
+#endif
     }
 
     /// @brief Avvia il clock, il quale comincerà a contare il tempo a partire da questo istante.
@@ -56,7 +60,7 @@ class Clock
 
         tStart = hrc::now();
 
-        return attesa * 1000.0;
+        return attesa / 1000.0;
     }
 
     /// @brief Restituisce il periodo del clock. [s]
@@ -76,9 +80,9 @@ class Clock
     /// @brief Aspetta per un certo tempo.
     /// @param durata Il tempo per il quale attendere. [s]
     /// @return Il tempo corrispondente alla durata dell'attesa appena effettuata [s].
-    double Aspetta(double durata)
+    static double Aspetta(double durata)
     {
-        hrc::time_point tStart = hrc::now();
+        const hrc::time_point tStart = hrc::now();
 
         durata = durata * 1000.0; // [ms]
 
@@ -93,15 +97,20 @@ class Clock
             attesa = duration_cast<DurataMillisecondi>(hrc::now() - tStart).count();
         while (attesa <= durata);
 
-        return attesa * 1000.0;
+        return attesa / 1000.0;
     }
 
   private:
-    // Se il tempo restante prima del prossimo ticchettio supera questo valore allora sarà usata la funzione Sleep()
+    // Se il tempo restante prima del prossimo ticchettio supera questo valore allora sarà usata la funzione sleep()
     // altrimenti verrà effettuato un busy wait.
+#ifdef WIN32
     // Attenzione: la soglia deve essere superiore o uguale al minimo periodo supportato per i timer dal S.O. ed alla
     // precisione configurata per questo processo.
     static const constexpr double sogliaSleep = 3.0; // [ms]
+#else
+    // Su Linux la funzione sleep() è più precisa ed il tempo massimo del busy wait può essere ridotto.
+    static const constexpr double sogliaSleep = 0.5; // [ms]
+#endif
 
     double periodo; // [ms]
     hrc::time_point tStart;

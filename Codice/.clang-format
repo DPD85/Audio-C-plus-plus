@@ -1,4 +1,4 @@
----
+﻿---
 # Per clang-format versione 21.1.2
 Language:        Cpp
 BasedOnStyle:    ''
@@ -151,7 +151,7 @@ IfMacros:
   - KJ_IF_MAYBE
 IncludeBlocks:   Regroup
 IncludeCategories:
-  - Regex:           'stdafx\.h|pcheader\.h'
+  - Regex:           'stdafx\.h|pcheader\.h|IntestazionePrecompilata\.h'
     Priority:        -1
     SortPriority:    0
     CaseSensitive:   false

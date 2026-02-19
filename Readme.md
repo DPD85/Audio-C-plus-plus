@@ -1,4 +1,4 @@
-## Produrre la documentazione con Doxygen
+﻿## Produrre la documentazione con Doxygen
 
 ### Prerequisiti
 

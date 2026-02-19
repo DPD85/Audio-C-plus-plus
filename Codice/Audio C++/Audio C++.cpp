@@ -1,4 +1,6 @@
-﻿#include "Clock.h"
+﻿#include "IntestazionePrecompilata.h"
+
+#include "Clock.h"
 #include "CodaEliminazione.h"
 #include "CostantiEdAltro.h"
 #include "Filtri.h"
@@ -16,7 +18,9 @@ static int AudioCallback(
     const PaStreamCallbackTimeInfo *timeInfo,
     PaStreamCallbackFlags statusFlags,
     void *userData);
+#ifdef WIN32
 static void TastieraEIUC();
+#endif
 static void RegistraPerGrafico();
 
 static StrumentiMusicali::Puro strumentoPuro;
@@ -43,12 +47,12 @@ int main()
 
     // -----
 
-    std::wcout << L"Formato dati audio\n";
+    std::cout << "Formato dati audio\n";
     // clang-format off
-    std::wcout << L"  numero canali    : " << Costanti::NumeroCanali << L'\n'
-               << L"  frequenza        : " << Costanti::FrequenzaCampionamento << " Hz\n"
-               << L"  bits per campione: " << 32 << L'\n'
-               << L"  tipo campione    : Float\n";
+    std::cout << "  numero canali    : " << Costanti::NumeroCanali << '\n'
+              << "  frequenza        : " << Costanti::FrequenzaCampionamento << " Hz\n"
+              << "  bits per campione: " << 32 << '\n'
+              << "  tipo campione    : Float\n";
     // clang-format on
 
 #if 0
@@ -62,7 +66,7 @@ int main()
         PaError r = Pa_Initialize();
         if (r != paNoError)
         {
-            std::wcout << L"Inizializzazione PortAudio fallita. Errore: " << Pa_GetErrorText(r) << L'\n';
+            std::cout << "Inizializzazione PortAudio fallita. Errore: " << Pa_GetErrorText(r) << '\n';
             return EXIT_FAILURE;
         }
 
@@ -82,26 +86,26 @@ int main()
         indiceHostAPI = Pa_GetDefaultHostApi();
         if (indiceHostAPI < 0)
         {
-            std::wcout << L"Impossibile recuperare la API sottostante di default usate da PortAudio. Errore: "
-                       << Pa_GetErrorText(indiceHostAPI) << L'\n';
+            std::cout << "Impossibile recuperare la API sottostante di default usate da PortAudio. Errore: "
+                      << Pa_GetErrorText(indiceHostAPI) << '\n';
             return EXIT_FAILURE;
         }
 
         infoHostAPI = Pa_GetHostApiInfo(indiceHostAPI);
         if (infoHostAPI == nullptr)
         {
-            std::wcout
-                << L"Impossibile recuperare le informazioni sulla API sottostante di default usata da PortAudio.\n";
+            std::cout
+                << "Impossibile recuperare le informazioni sulla API sottostante di default usata da PortAudio.\n";
             return EXIT_FAILURE;
         }
 
-        std::wcout << L"API sottostante usata da PortAudio: " << infoHostAPI->name << L'\n';
+        std::cout << "API sottostante usata da PortAudio: " << infoHostAPI->name << '\n';
 
 #ifdef WIN32
         // Su Windows, PortAudio dovrebbe sempre usare le WASAPI per via di come è stata configurata la libreria
         if (indiceHostAPI != Pa_HostApiTypeIdToHostApiIndex(PaHostApiTypeId::paWASAPI))
         {
-            std::wcout << L"Avviso: PortAudio non utilizza la WASAPI su Windows come atteso.";
+            std::cout << "Avviso: PortAudio non utilizza la WASAPI su Windows come atteso.";
         }
 #else
         // Riguardo a Linux sono ignorante quindi lascio che decida PortAudio
@@ -116,12 +120,12 @@ int main()
         infoDispositivo = Pa_GetDeviceInfo(infoHostAPI->defaultOutputDevice);
         if (infoDispositivo == nullptr)
         {
-            std::wcout << L"Impossibile recuperare le informazioni del dispositivo di riproduzione predefinito "
-                          L"(tramite WASAPI).\n";
+            std::cout << "Impossibile recuperare le informazioni del dispositivo di riproduzione predefinito "
+                         "(tramite WASAPI).\n";
             return EXIT_FAILURE;
         }
 
-        std::wcout << L"Dispositivo di riproduzione: " << infoDispositivo->name << L'\n';
+        std::cout << "Dispositivo di riproduzione: " << infoDispositivo->name << '\n';
     }
 
     // ----- Inizializzo il flusso per la riproduzione dell'audio
@@ -144,8 +148,8 @@ int main()
             nullptr);
         if (r != paNoError)
         {
-            std::wcout << L"Inizializzazione del flusso per la riproduzione dell'audio fallita. Errore: "
-                       << Pa_GetErrorText(r) << L'\n';
+            std::cout << "Inizializzazione del flusso per la riproduzione dell'audio fallita. Errore: "
+                      << Pa_GetErrorText(r) << '\n';
             return EXIT_FAILURE;
         }
 
@@ -162,11 +166,11 @@ int main()
         infoFlusso = Pa_GetStreamInfo(flusso);
         if (infoFlusso == nullptr)
         {
-            std::wcout << L"Impossibile recuperare le informazioni del flusso di riproduzione dell'audio.\n";
+            std::cout << "Impossibile recuperare le informazioni del flusso di riproduzione dell'audio.\n";
             return EXIT_FAILURE;
         }
 
-        std::wcout << L"Latenza ~" << (infoFlusso->outputLatency * 1000.0) << L" ms.\n";
+        std::cout << "Latenza ~" << (infoFlusso->outputLatency * 1000.0) << " ms.\n";
     }
 
     // ----- Avvio flusso di riproduzione dell'audio
@@ -175,8 +179,7 @@ int main()
         PaError r = Pa_StartStream(flusso);
         if (r != paNoError)
         {
-            std::wcout << L"Avvio del flusso di riproduzione dell'audio fallita. Errore: " << Pa_GetErrorText(r)
-                       << L'\n';
+            std::cout << "Avvio del flusso di riproduzione dell'audio fallita. Errore: " << Pa_GetErrorText(r) << '\n';
             return EXIT_FAILURE;
         }
 
@@ -189,7 +192,9 @@ int main()
 
     // ----- Input tastiera e interfaccia grafica in AsciiArt
 
+#ifdef WIN32
     TastieraEIUC();
+#endif
 
     // ----- -----
 
@@ -231,9 +236,10 @@ static int AudioCallback(
     return paContinue;
 }
 
+#ifdef WIN32
 static void TastieraEIUC()
 {
-    std::wcout << L'\n';
+    std::cout << '\n';
 
     // ----- -----
 
@@ -358,13 +364,13 @@ static void TastieraEIUC()
 
             StrumentoMusicale *s = strumentoMusicale.load();
 
-            if (s == &pianoforte) std::wcout << L"[*] ";
-            else std::wcout << L"[ ] ";
-            std::wcout << L"Tasto Q = suona col primo strumento musicale\n";
+            if (s == &pianoforte) std::cout << "[*] ";
+            else std::cout << "[ ] ";
+            std::cout << "Tasto Q = suona col primo strumento musicale\n";
 
-            if (s == &strumentoPuro) std::wcout << L"[*] ";
-            else std::wcout << L"[ ] ";
-            std::wcout << L"Tasto P = suona col secondo strumento musicale\n";
+            if (s == &strumentoPuro) std::cout << "[*] ";
+            else std::cout << "[ ] ";
+            std::cout << "Tasto P = suona col secondo strumento musicale\n";
 
             stampaListaStrumenti = false;
         }
@@ -376,11 +382,11 @@ static void TastieraEIUC()
 
             const double periodoAudio = Pa_GetStreamCpuLoad(flusso) * infoFlusso->outputLatency * 1000.0; // [ms]
 
-            std::wcout << std::fixed << std::setprecision(4);
-            std::wcout << std::setw(7) << periodoAudio << " ms. periodo audio\n";
-            std::wcout << std::setw(7) << durataProduzioneSuono.load() << " ms. durata produzione audio\n";
-            std::wcout << std::setw(7) << (dt / 1000.0) << " ms. periodo tastiera";
-            std::wcout << std::defaultfloat;
+            std::cout << std::fixed << std::setprecision(4);
+            std::cout << std::setw(7) << periodoAudio << " ms. periodo audio\n";
+            std::cout << std::setw(7) << durataProduzioneSuono.load() << " ms. durata produzione audio\n";
+            std::cout << std::setw(7) << (dt * 1000.0) << " ms. periodo tastiera";
+            std::cout << std::defaultfloat;
         }
 
         // ----- Stampo la tastiera musicale -----
@@ -392,139 +398,139 @@ static void TastieraEIUC()
             const constexpr int lunghezzaRiga = 44;
 
             // clang-format off
-            wchar_t tastieraSopra[] =
-                L"│   │███│ │███│   │   │███│ │███│ │███│   │\n"
-                L"│   │███│ │███│   │   │███│ │███│ │███│   │\n"
-                L"│   │███│ │███│   │   │███│ │███│ │███│   │\n"
-                L"│   │███│ │███│   │   │███│ │███│ │███│   │\n";
-            wchar_t tastieraSotto[] =
-                L"│   └─┬─┘ └─┬─┘   │   └─┬─┘ └─┬─┘ └─┬─┘   │\n"
-                L"│     │     │     │     │     │     │     │\n"
-                L"│  A  │  S  │  D  │  F  │  J  │  K  │  L  │\n"
-                L"└─────┴─────┴─────┴─────┴─────┴─────┴─────┘\n"
-                L"\n";
+            char tastieraSopra[] =
+                "│   │███│ │███│   │   │███│ │███│ │███│   │\n"
+                "│   │███│ │███│   │   │███│ │███│ │███│   │\n"
+                "│   │███│ │███│   │   │███│ │███│ │███│   │\n"
+                "│   │███│ │███│   │   │███│ │███│ │███│   │\n";
+            char tastieraSotto[] =
+                "│   └─┬─┘ └─┬─┘   │   └─┬─┘ └─┬─┘ └─┬─┘   │\n"
+                "│     │     │     │     │     │     │     │\n"
+                "│  A  │  S  │  D  │  F  │  J  │  K  │  L  │\n"
+                "└─────┴─────┴─────┴─────┴─────┴─────┴─────┘\n"
+                "\n";
             // clang-format on
 
             // Le variabili seguenti corrispondono alla riga della tastiera con le lettere associate ai semitoni, la
             // riga è stata spezzata in modo da poter cambiare agevolmente il colore delle lettere. Le variabili sono
             // numerate in ordine secondo il disegno da sinistra verso destra.
-            wchar_t tastieraParte01[]      = L"│   │█";
-            wchar_t tastieraParte03[]      = L"█│ │█";
-            wchar_t tastieraParte05[]      = L"█│   ";
-            wchar_t tastieraParte06[]      = L"│   │█";
-            wchar_t tastieraParte08[]      = L"█│ │█";
-            wchar_t tastieraParte10[]      = L"█│ │█";
-            wchar_t tastieraParte12[]      = L"█│   │\n";
-            const wchar_t *tastieraParte02 = L"\033[30;47mW\033[0m";
-            const wchar_t *tastieraParte04 = L"\033[30;47mE\033[0m";
-            const wchar_t *tastieraParte07 = L"\033[30;47mU\033[0m";
-            const wchar_t *tastieraParte09 = L"\033[30;47mI\033[0m";
-            const wchar_t *tastieraParte11 = L"\033[30;47mO\033[0m";
+            char tastieraParte01[]      = "│   │█";
+            char tastieraParte03[]      = "█│ │█";
+            char tastieraParte05[]      = "█│   ";
+            char tastieraParte06[]      = "│   │█";
+            char tastieraParte08[]      = "█│ │█";
+            char tastieraParte10[]      = "█│ │█";
+            char tastieraParte12[]      = "█│   │\n";
+            const char *tastieraParte02 = "\033[30;47mW\033[0m";
+            const char *tastieraParte04 = "\033[30;47mE\033[0m";
+            const char *tastieraParte07 = "\033[30;47mU\033[0m";
+            const char *tastieraParte09 = "\033[30;47mI\033[0m";
+            const char *tastieraParte11 = "\033[30;47mO\033[0m";
 
-            auto disegnaTastoA = [&tastieraSopra, &tastieraSotto](const int p, wchar_t *const tastieraParte)
+            auto disegnaTastoA = [&tastieraSopra, &tastieraSotto](const int p, char *const tastieraParte)
             {
-                tastieraSopra[p + 0 + lunghezzaRiga * 0] = L'░';
-                tastieraSopra[p + 1 + lunghezzaRiga * 0] = L'░';
-                tastieraSopra[p + 2 + lunghezzaRiga * 0] = L'░';
-                tastieraSopra[p + 0 + lunghezzaRiga * 1] = L'▒';
-                tastieraSopra[p + 1 + lunghezzaRiga * 1] = L'▒';
-                tastieraSopra[p + 2 + lunghezzaRiga * 1] = L'▒';
-                tastieraSopra[p + 0 + lunghezzaRiga * 2] = L'▒';
-                tastieraSopra[p + 1 + lunghezzaRiga * 2] = L'▒';
-                tastieraSopra[p + 2 + lunghezzaRiga * 2] = L'▒';
-                tastieraSopra[p + 0 + lunghezzaRiga * 3] = L'▒';
-                tastieraSopra[p + 1 + lunghezzaRiga * 3] = L'▒';
-                tastieraSopra[p + 2 + lunghezzaRiga * 3] = L'▒';
+                tastieraSopra[p + 0 + lunghezzaRiga * 0] = '░';
+                tastieraSopra[p + 1 + lunghezzaRiga * 0] = '░';
+                tastieraSopra[p + 2 + lunghezzaRiga * 0] = '░';
+                tastieraSopra[p + 0 + lunghezzaRiga * 1] = '▒';
+                tastieraSopra[p + 1 + lunghezzaRiga * 1] = '▒';
+                tastieraSopra[p + 2 + lunghezzaRiga * 1] = '▒';
+                tastieraSopra[p + 0 + lunghezzaRiga * 2] = '▒';
+                tastieraSopra[p + 1 + lunghezzaRiga * 2] = '▒';
+                tastieraSopra[p + 2 + lunghezzaRiga * 2] = '▒';
+                tastieraSopra[p + 0 + lunghezzaRiga * 3] = '▒';
+                tastieraSopra[p + 1 + lunghezzaRiga * 3] = '▒';
+                tastieraSopra[p + 2 + lunghezzaRiga * 3] = '▒';
 
-                tastieraParte[1] = L'▓';
-                tastieraParte[2] = L'▓';
-                tastieraParte[3] = L'▓';
+                tastieraParte[1] = '▓';
+                tastieraParte[2] = '▓';
+                tastieraParte[3] = '▓';
 
-                tastieraSotto[p + 0 + lunghezzaRiga * 0] = L'▓';
-                tastieraSotto[p + 1 + lunghezzaRiga * 0] = L'▓';
-                tastieraSotto[p + 2 + lunghezzaRiga * 0] = L'▓';
-                tastieraSotto[p + 0 + lunghezzaRiga * 1] = L'█';
-                tastieraSotto[p + 1 + lunghezzaRiga * 1] = L'█';
-                tastieraSotto[p + 2 + lunghezzaRiga * 1] = L'█';
-                tastieraSotto[p + 3 + lunghezzaRiga * 1] = L'█';
-                tastieraSotto[p + 4 + lunghezzaRiga * 1] = L'█';
-                tastieraSotto[p + 0 + lunghezzaRiga * 2] = L'█';
-                tastieraSotto[p + 1 + lunghezzaRiga * 2] = L'█';
-                tastieraSotto[p + 2 + lunghezzaRiga * 2] = L'█';
-                tastieraSotto[p + 3 + lunghezzaRiga * 2] = L'█';
-                tastieraSotto[p + 4 + lunghezzaRiga * 2] = L'█';
+                tastieraSotto[p + 0 + lunghezzaRiga * 0] = '▓';
+                tastieraSotto[p + 1 + lunghezzaRiga * 0] = '▓';
+                tastieraSotto[p + 2 + lunghezzaRiga * 0] = '▓';
+                tastieraSotto[p + 0 + lunghezzaRiga * 1] = '█';
+                tastieraSotto[p + 1 + lunghezzaRiga * 1] = '█';
+                tastieraSotto[p + 2 + lunghezzaRiga * 1] = '█';
+                tastieraSotto[p + 3 + lunghezzaRiga * 1] = '█';
+                tastieraSotto[p + 4 + lunghezzaRiga * 1] = '█';
+                tastieraSotto[p + 0 + lunghezzaRiga * 2] = '█';
+                tastieraSotto[p + 1 + lunghezzaRiga * 2] = '█';
+                tastieraSotto[p + 2 + lunghezzaRiga * 2] = '█';
+                tastieraSotto[p + 3 + lunghezzaRiga * 2] = '█';
+                tastieraSotto[p + 4 + lunghezzaRiga * 2] = '█';
             };
-            auto disegnaTastoB = [&tastieraSopra, &tastieraSotto](const int p, wchar_t *const tastieraParte)
+            auto disegnaTastoB = [&tastieraSopra, &tastieraSotto](const int p, char *const tastieraParte)
             {
-                tastieraSopra[p + 0 + lunghezzaRiga * 0] = L'░';
-                tastieraSopra[p + 0 + lunghezzaRiga * 1] = L'▒';
-                tastieraSopra[p + 0 + lunghezzaRiga * 2] = L'▒';
-                tastieraSopra[p + 0 + lunghezzaRiga * 3] = L'▒';
+                tastieraSopra[p + 0 + lunghezzaRiga * 0] = '░';
+                tastieraSopra[p + 0 + lunghezzaRiga * 1] = '▒';
+                tastieraSopra[p + 0 + lunghezzaRiga * 2] = '▒';
+                tastieraSopra[p + 0 + lunghezzaRiga * 3] = '▒';
 
-                tastieraParte[2] = L'▓';
+                tastieraParte[2] = '▓';
 
-                tastieraSotto[p + 0 + lunghezzaRiga * 0] = L'▓';
-                tastieraSotto[p - 2 + lunghezzaRiga * 1] = L'█';
-                tastieraSotto[p - 1 + lunghezzaRiga * 1] = L'█';
-                tastieraSotto[p + 0 + lunghezzaRiga * 1] = L'█';
-                tastieraSotto[p + 1 + lunghezzaRiga * 1] = L'█';
-                tastieraSotto[p + 2 + lunghezzaRiga * 1] = L'█';
-                tastieraSotto[p - 2 + lunghezzaRiga * 2] = L'█';
-                tastieraSotto[p - 1 + lunghezzaRiga * 2] = L'█';
-                tastieraSotto[p + 0 + lunghezzaRiga * 2] = L'█';
-                tastieraSotto[p + 1 + lunghezzaRiga * 2] = L'█';
-                tastieraSotto[p + 2 + lunghezzaRiga * 2] = L'█';
+                tastieraSotto[p + 0 + lunghezzaRiga * 0] = '▓';
+                tastieraSotto[p - 2 + lunghezzaRiga * 1] = '█';
+                tastieraSotto[p - 1 + lunghezzaRiga * 1] = '█';
+                tastieraSotto[p + 0 + lunghezzaRiga * 1] = '█';
+                tastieraSotto[p + 1 + lunghezzaRiga * 1] = '█';
+                tastieraSotto[p + 2 + lunghezzaRiga * 1] = '█';
+                tastieraSotto[p - 2 + lunghezzaRiga * 2] = '█';
+                tastieraSotto[p - 1 + lunghezzaRiga * 2] = '█';
+                tastieraSotto[p + 0 + lunghezzaRiga * 2] = '█';
+                tastieraSotto[p + 1 + lunghezzaRiga * 2] = '█';
+                tastieraSotto[p + 2 + lunghezzaRiga * 2] = '█';
             };
-            auto disegnaTastoC = [&tastieraSopra, &tastieraSotto](const int p, wchar_t *const tastieraParte)
+            auto disegnaTastoC = [&tastieraSopra, &tastieraSotto](const int p, char *const tastieraParte)
             {
-                tastieraSopra[p + 0 + lunghezzaRiga * 0] = L'░';
-                tastieraSopra[p + 1 + lunghezzaRiga * 0] = L'░';
-                tastieraSopra[p + 2 + lunghezzaRiga * 0] = L'░';
-                tastieraSopra[p + 0 + lunghezzaRiga * 1] = L'▒';
-                tastieraSopra[p + 1 + lunghezzaRiga * 1] = L'▒';
-                tastieraSopra[p + 2 + lunghezzaRiga * 1] = L'▒';
-                tastieraSopra[p + 0 + lunghezzaRiga * 2] = L'▒';
-                tastieraSopra[p + 1 + lunghezzaRiga * 2] = L'▒';
-                tastieraSopra[p + 2 + lunghezzaRiga * 2] = L'▒';
-                tastieraSopra[p + 0 + lunghezzaRiga * 3] = L'▒';
-                tastieraSopra[p + 1 + lunghezzaRiga * 3] = L'▒';
-                tastieraSopra[p + 2 + lunghezzaRiga * 3] = L'▒';
+                tastieraSopra[p + 0 + lunghezzaRiga * 0] = '░';
+                tastieraSopra[p + 1 + lunghezzaRiga * 0] = '░';
+                tastieraSopra[p + 2 + lunghezzaRiga * 0] = '░';
+                tastieraSopra[p + 0 + lunghezzaRiga * 1] = '▒';
+                tastieraSopra[p + 1 + lunghezzaRiga * 1] = '▒';
+                tastieraSopra[p + 2 + lunghezzaRiga * 1] = '▒';
+                tastieraSopra[p + 0 + lunghezzaRiga * 2] = '▒';
+                tastieraSopra[p + 1 + lunghezzaRiga * 2] = '▒';
+                tastieraSopra[p + 2 + lunghezzaRiga * 2] = '▒';
+                tastieraSopra[p + 0 + lunghezzaRiga * 3] = '▒';
+                tastieraSopra[p + 1 + lunghezzaRiga * 3] = '▒';
+                tastieraSopra[p + 2 + lunghezzaRiga * 3] = '▒';
 
-                tastieraParte[2] = L'▓';
-                tastieraParte[3] = L'▓';
-                tastieraParte[4] = L'▓';
+                tastieraParte[2] = '▓';
+                tastieraParte[3] = '▓';
+                tastieraParte[4] = '▓';
 
-                tastieraSotto[p + 0 + lunghezzaRiga * 0] = L'▓';
-                tastieraSotto[p + 1 + lunghezzaRiga * 0] = L'▓';
-                tastieraSotto[p + 2 + lunghezzaRiga * 0] = L'▓';
+                tastieraSotto[p + 0 + lunghezzaRiga * 0] = '▓';
+                tastieraSotto[p + 1 + lunghezzaRiga * 0] = '▓';
+                tastieraSotto[p + 2 + lunghezzaRiga * 0] = '▓';
 
-                tastieraSotto[p - 2 + lunghezzaRiga * 1] = L'█';
-                tastieraSotto[p - 1 + lunghezzaRiga * 1] = L'█';
-                tastieraSotto[p + 0 + lunghezzaRiga * 1] = L'█';
-                tastieraSotto[p + 1 + lunghezzaRiga * 1] = L'█';
-                tastieraSotto[p + 2 + lunghezzaRiga * 1] = L'█';
-                tastieraSotto[p - 2 + lunghezzaRiga * 2] = L'█';
-                tastieraSotto[p - 1 + lunghezzaRiga * 2] = L'█';
-                tastieraSotto[p + 0 + lunghezzaRiga * 2] = L'█';
-                tastieraSotto[p + 1 + lunghezzaRiga * 2] = L'█';
-                tastieraSotto[p + 2 + lunghezzaRiga * 2] = L'█';
+                tastieraSotto[p - 2 + lunghezzaRiga * 1] = '█';
+                tastieraSotto[p - 1 + lunghezzaRiga * 1] = '█';
+                tastieraSotto[p + 0 + lunghezzaRiga * 1] = '█';
+                tastieraSotto[p + 1 + lunghezzaRiga * 1] = '█';
+                tastieraSotto[p + 2 + lunghezzaRiga * 1] = '█';
+                tastieraSotto[p - 2 + lunghezzaRiga * 2] = '█';
+                tastieraSotto[p - 1 + lunghezzaRiga * 2] = '█';
+                tastieraSotto[p + 0 + lunghezzaRiga * 2] = '█';
+                tastieraSotto[p + 1 + lunghezzaRiga * 2] = '█';
+                tastieraSotto[p + 2 + lunghezzaRiga * 2] = '█';
             };
-            auto disegnaTastoS = [&tastieraSopra](const int p, const wchar_t *&tastieraParte)
+            auto disegnaTastoS = [&tastieraSopra](const int p, const char *&tastieraParte)
             {
-                tastieraSopra[p + 0 + lunghezzaRiga * 0] = L'░';
-                tastieraSopra[p + 1 + lunghezzaRiga * 0] = L'░';
-                tastieraSopra[p + 2 + lunghezzaRiga * 0] = L'░';
-                tastieraSopra[p + 0 + lunghezzaRiga * 1] = L'▒';
-                tastieraSopra[p + 1 + lunghezzaRiga * 1] = L'▒';
-                tastieraSopra[p + 2 + lunghezzaRiga * 1] = L'▒';
-                tastieraSopra[p + 0 + lunghezzaRiga * 2] = L'▒';
-                tastieraSopra[p + 1 + lunghezzaRiga * 2] = L'▒';
-                tastieraSopra[p + 2 + lunghezzaRiga * 2] = L'▒';
-                tastieraSopra[p + 0 + lunghezzaRiga * 3] = L'▓';
-                tastieraSopra[p + 1 + lunghezzaRiga * 3] = L'▓';
-                tastieraSopra[p + 2 + lunghezzaRiga * 3] = L'▓';
+                tastieraSopra[p + 0 + lunghezzaRiga * 0] = '░';
+                tastieraSopra[p + 1 + lunghezzaRiga * 0] = '░';
+                tastieraSopra[p + 2 + lunghezzaRiga * 0] = '░';
+                tastieraSopra[p + 0 + lunghezzaRiga * 1] = '▒';
+                tastieraSopra[p + 1 + lunghezzaRiga * 1] = '▒';
+                tastieraSopra[p + 2 + lunghezzaRiga * 1] = '▒';
+                tastieraSopra[p + 0 + lunghezzaRiga * 2] = '▒';
+                tastieraSopra[p + 1 + lunghezzaRiga * 2] = '▒';
+                tastieraSopra[p + 2 + lunghezzaRiga * 2] = '▒';
+                tastieraSopra[p + 0 + lunghezzaRiga * 3] = '▓';
+                tastieraSopra[p + 1 + lunghezzaRiga * 3] = '▓';
+                tastieraSopra[p + 2 + lunghezzaRiga * 3] = '▓';
 
-                tastieraParte = L"█";
+                tastieraParte = "█";
             };
 
             // Note
@@ -543,26 +549,27 @@ static void TastieraEIUC()
             if (tasti[SOL_DIESIS]) disegnaTastoS(29, tastieraParte09);
             if (tasti[LA_DIESIS]) disegnaTastoS(35, tastieraParte11);
 
-            std::wcout << tastieraSopra << tastieraParte01 << tastieraParte02 << tastieraParte03 << tastieraParte04
-                       << tastieraParte05 << tastieraParte06 << tastieraParte07 << tastieraParte08 << tastieraParte09
-                       << tastieraParte10 << tastieraParte11 << tastieraParte12 << tastieraSotto;
+            std::cout << tastieraSopra << tastieraParte01 << tastieraParte02 << tastieraParte03 << tastieraParte04
+                      << tastieraParte05 << tastieraParte06 << tastieraParte07 << tastieraParte08 << tastieraParte09
+                      << tastieraParte10 << tastieraParte11 << tastieraParte12 << tastieraSotto;
         }
 
         tastiPrec = tasti;
     }
     while (!esci);
 }
+#endif
 
 static void RegistraPerGrafico()
 {
     CodaEliminazione eliminatori;
 
 #define ApriFile(N)                                                                   \
-    std::wstring filePath##N = L"registrazione" L#N L".dat";                          \
+    std::string filePath##N = "registrazione" #N ".dat";                              \
     std::ofstream file##N(filePath##N, std::ios_base::binary | std::ios_base::trunc); \
     if (!file##N.good())                                                              \
     {                                                                                 \
-        std::wcout << L"Impossible aprire il file '" << filePath##N << L'\n';         \
+        std::cout << "Impossible aprire il file '" << filePath##N << '\n';            \
         return;                                                                       \
     }                                                                                 \
     eliminatori.Aggiungi(                                                             \

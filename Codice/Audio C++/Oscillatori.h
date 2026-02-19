@@ -75,8 +75,8 @@ namespace Oscillatori
         /// @notaudiosafe Campione().
         virtual void Reset() override
         {
-            fase._Val[0] = 1.0;
-            fase._Val[1] = 0.0;
+            fase.real(1.0);
+            fase.imag(0.0);
         }
 
       private:

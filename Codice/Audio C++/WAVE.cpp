@@ -1,4 +1,6 @@
-﻿#include "WAVE.h"
+﻿#include "IntestazionePrecompilata.h"
+
+#include "WAVE.h"
 
 #include "CodaEliminazione.h"
 #include "Oscillatori.h"
@@ -45,12 +47,12 @@ namespace WAVE
     {
         // clang-format off
          return stream
-             << L"  numero canali    : " << data.numberoCanali   << L'\n'
-             << L"  frequenza        : " << data.frequenza       << " Hz\n"
-             << L"  bits per campione: " << data.bitsPerCampione << L'\n'
-             << L"  tipo campione    : "
-                << (data.formatTag == WAVEFormat::PCM ? L"Integer": L"Float")
-                << L'\n';
+            << "  numero canali    : " << data.numberoCanali   << '\n'
+            << "  frequenza        : " << data.frequenza       << " Hz\n"
+            << "  bits per campione: " << data.bitsPerCampione << '\n'
+            << "  tipo campione    : "
+                << (data.formatTag == WAVEFormat::PCM ? "Integer": "Float")
+                << '\n';
         // clang-format on
     }
 
@@ -86,7 +88,7 @@ namespace WAVE
 
         const size_t numeroCampioni = DaSecondiACampioni(timeLen);
 
-        std::ofstream file(L"test.wav", std::ios_base::binary | std::ios_base::trunc, _SH_DENYWR);
+        std::ofstream file("test.wav", std::ios_base::binary | std::ios_base::trunc);
         if (!file.is_open())
         {
             return;
@@ -142,7 +144,7 @@ namespace WAVE
         {
             CodaEliminazione eliminatori;
 
-            std::ofstream file(L"testStereoSinistra.wav", std::ios_base::binary | std::ios_base::trunc, _SH_DENYWR);
+            std::ofstream file("testStereoSinistra.wav", std::ios_base::binary | std::ios_base::trunc);
             if (!file.is_open())
             {
                 return;
@@ -183,7 +185,7 @@ namespace WAVE
         {
             CodaEliminazione eliminatori;
 
-            std::ofstream file(L"testStereoDestra.wav", std::ios_base::binary | std::ios_base::trunc, _SH_DENYWR);
+            std::ofstream file("testStereoDestra.wav", std::ios_base::binary | std::ios_base::trunc);
             if (!file.is_open())
             {
                 return;

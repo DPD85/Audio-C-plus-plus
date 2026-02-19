@@ -1,4 +1,6 @@
-﻿#include "MIDI.h"
+﻿#include "IntestazionePrecompilata.h"
+
+#include "MIDI.h"
 
 #include "CodaEliminazione.h"
 #include "CostantiEdAltro.h"
@@ -21,7 +23,7 @@ namespace MIDI
     static std::string LeggiStringa(std::ifstream &file, size_t lunghezza);
     static unsigned int LeggiInteroALunghezzaVariabile(std::ifstream &file);
 
-    bool LeggiFile(std::wstring percorso)
+    bool LeggiFile(std::string percorso)
     {
         CodaEliminazione eliminatori;
 
@@ -78,7 +80,7 @@ namespace MIDI
                 return false;
             }
 
-            std::wcout << L"File in formato: " << formatoFile << L'\n';
+            std::cout << "File in formato: " << formatoFile << '\n';
         }
 
         // ----- -----
@@ -93,7 +95,7 @@ namespace MIDI
                 return false;
             }
 
-            std::wcout << L"Numero tracce: " << numeroTracce << L'\n';
+            std::cout << "Numero tracce: " << numeroTracce << '\n';
         }
 
         // ----- -----
@@ -112,7 +114,7 @@ namespace MIDI
                 // Numero ticchettii corrispondenti ad un quarto di nota
             }
 
-            std::wcout << L"Divisione: " << divisione << L'\n';
+            std::cout << "Divisione: " << divisione << '\n';
         }
 
         // ----- Salto eventuali byte inattesi nell'intestazione del file -----
@@ -155,7 +157,7 @@ namespace MIDI
         do
         {
             const unsigned int deltaTempo = LeggiInteroALunghezzaVariabile(file);
-            std::wcout << L"Delta tempo: " << deltaTempo << L' ' << (deltaTempo * (tempo / divisione)) << L" ms.\n";
+            std::cout << "Delta tempo: " << deltaTempo << ' ' << (deltaTempo * (tempo / divisione)) << " ms.\n";
 
             byte = LeggiByte(file);
 
@@ -178,25 +180,25 @@ namespace MIDI
                     case 0x01: // Evento testo
                     {
                         const std::string testo = LeggiStringa(file, lunghezza);
-                        std::wcout << L"Testo: " << testo.data() << L'\n';
+                        std::cout << "Testo: " << testo.data() << '\n';
                         break;
                     }
                     case 0x02: // Copyright
                     {
                         const std::string copyright = LeggiStringa(file, lunghezza);
-                        std::wcout << L"Copyright: " << copyright.data() << L'\n';
+                        std::cout << "Copyright: " << copyright.data() << '\n';
                         break;
                     }
                     case 0x03: // Nome sequenza o traccia
                     {
                         const std::string nome = LeggiStringa(file, lunghezza);
-                        std::wcout << L"Nome sequenza o traccia: " << nome.data() << L'\n';
+                        std::cout << "Nome sequenza o traccia: " << nome.data() << '\n';
                         break;
                     }
                     case 0x04: // Nome strumento
                     {
                         const std::string nome = LeggiStringa(file, lunghezza);
-                        std::wcout << L"Nome strumento: " << nome.data() << L'\n';
+                        std::cout << "Nome strumento: " << nome.data() << '\n';
                         break;
                     }
                     case 0x2F: // Fine straccia
@@ -209,7 +211,7 @@ namespace MIDI
                         const unsigned int t = LeggiInt24(file); // [µs]
 
                         tempo = t / 1000.0; // [ms]
-                        std::wcout << L"Impostazione tempo: " << tempo << L" ms.\n";
+                        std::cout << "Impostazione tempo: " << tempo << " ms.\n";
                         break;
                     }
                     case 0x58: // Firma temporale
@@ -220,8 +222,8 @@ namespace MIDI
                         const unsigned char dd = LeggiByte(file);
                         const unsigned char cc = LeggiByte(file);
                         const unsigned char bb = LeggiByte(file);
-                        std::wcout << L"Firma temporale: " << nn << L'\\' << std::pow(2, dd) << L' ' << cc << L' ' << bb
-                                   << L'\n';
+                        std::cout << "Firma temporale: " << nn << '\\' << std::pow(2, dd) << ' ' << cc << ' ' << bb
+                                  << '\n';
                         break;
                     }
                     case 0x59: // Firma della chiave
@@ -233,28 +235,28 @@ namespace MIDI
                         switch (sf)
                         {
                             case -7:
-                                std::wcout << L"7 flats";
+                                std::cout << "7 flats";
                                 break;
                             case -1:
-                                std::wcout << L"1 flats";
+                                std::cout << "1 flats";
                                 break;
                             case 0:
-                                std::wcout << L"key of C";
+                                std::cout << "key of C";
                                 break;
                             case 1:
-                                std::wcout << L"1 sharp";
+                                std::cout << "1 sharp";
                                 break;
                             case 7:
-                                std::wcout << L"7 sharp";
+                                std::cout << "7 sharp";
                                 break;
                         }
                         switch (mi)
                         {
                             case 0:
-                                std::wcout << L" major\n";
+                                std::cout << " major\n";
                                 break;
                             case 1:
-                                std::wcout << L" minor\n";
+                                std::cout << " minor\n";
                                 break;
                         }
                         break;
@@ -297,51 +299,51 @@ namespace MIDI
                     {
                         const char nota     = dato1;           // [0, 127]
                         const char velocità = LeggiByte(file); // [0, 127]
-                        std::wcout << L"Nota off (" << canale << L"): " << (int)nota << ", " << (int)velocità << L'\n';
+                        std::cout << "Nota off (" << canale << "): " << (int)nota << ", " << (int)velocità << '\n';
                         break;
                     }
                     case 0x90: // nota on
                     {
                         const char nota     = dato1;           // [0, 127]
                         const char velocità = LeggiByte(file); // [0, 127]
-                        std::wcout << L"Nota on (" << canale << L"): " << (int)nota << ", " << (int)velocità << L'\n';
+                        std::cout << "Nota on (" << canale << "): " << (int)nota << ", " << (int)velocità << '\n';
                         break;
                     }
                     case 0xA0: // polyphonic key pressure (After touch): modifica la nota mentre suona
                     {
                         const char nota = dato1, pressione = LeggiByte(file);
-                        std::wcout << L"Poly key pressure (" << canale << L"): " << (int)nota << ", " << (int)pressione
-                                   << L'\n';
+                        std::cout << "Poly key pressure (" << canale << "): " << (int)nota << ", " << (int)pressione
+                                  << '\n';
                         break;
                     }
                     case 0xB0: // control change: un altro controllo che non corrisponde alle note è stato
                                // azionato oppure c'è un cambio di modalità del canale
                     {
                         const char controllo = dato1, valore = LeggiByte(file);
-                        std::wcout << L"Control change (" << canale << L"): " << (int)controllo << ", " << (int)valore;
-                        if (controllo >= 120 && controllo <= 127) std::wcout << L" (Modalità canale)";
-                        if (controllo == 120) std::wcout << L" (All sounds off)";
-                        if (controllo == 123) std::wcout << L" (All notes off)";
-                        std::wcout << L'\n';
+                        std::cout << "Control change (" << canale << "): " << (int)controllo << ", " << (int)valore;
+                        if (controllo >= 120 && controllo <= 127) std::cout << " (Modalità canale)";
+                        if (controllo == 120) std::cout << " (All sounds off)";
+                        if (controllo == 123) std::cout << " (All notes off)";
+                        std::cout << '\n';
                         break;
                     }
                     case 0xC0: // program change
                     {
                         const char programma = dato1;
-                        std::wcout << L"Program change (" << canale << L"): " << (int)programma << L'\n';
+                        std::cout << "Program change (" << canale << "): " << (int)programma << '\n';
                         break;
                     }
                     case 0xD0: // channel pressure (After touch)
                     {
                         const char pressione = dato1;
-                        std::wcout << L"Channel pressure (" << canale << L"): " << (int)pressione << L'\n';
+                        std::cout << "Channel pressure (" << canale << "): " << (int)pressione << '\n';
                         break;
                     }
                     case 0xE0: // pitch bend: modifica del pitch, massimo 14 bit (2 byte di dati)
                     {
                         const char lsb = dato1, msb = LeggiByte(file);
-                        std::wcout << L"Pitch bend (" << canale << L"): " << ((int)msb << 8 | (int)lsb) << L'('
-                                   << (int)lsb << L", " << (int)msb << L")\n";
+                        std::cout << "Pitch bend (" << canale << "): " << ((int)msb << 8 | (int)lsb) << '(' << (int)lsb
+                                  << ", " << (int)msb << ")\n";
                         break;
                     }
                     default:
@@ -356,13 +358,13 @@ namespace MIDI
 
         if (posizioneNelFile > posFineTraccia)
         {
-            std::wcout << L"Errore: letti più byte della dimensione della traccia. Letti " << posizioneNelFile
-                       << " byte invece di " << posFineTraccia << L" byte.\n";
+            std::cout << "Errore: letti più byte della dimensione della traccia. Letti " << posizioneNelFile
+                      << " byte invece di " << posFineTraccia << " byte.\n";
         }
 
         if (!fineTraccia && posizioneNelFile >= posFineTraccia)
         {
-            std::wcout << L"Errore: manca l'evento di fine traccia.\n";
+            std::cout << "Errore: manca l'evento di fine traccia.\n";
         }
 
         if (fineTraccia && posizioneNelFile < posFineTraccia)
