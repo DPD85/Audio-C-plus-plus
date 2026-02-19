@@ -36,6 +36,7 @@
 // O.S. API ed altro
 
 #ifdef WIN32
+
 #    define NOMINMAX
 
 #    include <Windows.h>
@@ -62,4 +63,9 @@
 #    pragma warning(3:5'262) // Use [[fallthrough]] when a break statement is intentionally omitted between cases.
 #    pragma warning(3:5'264) // 'variable-name': 'const' variable is not used.
 #    pragma warning(3:5'266) // 'const' qualifier on return type has no effect.
+
+#else
+
+#    include <unistd.h>
+
 #endif

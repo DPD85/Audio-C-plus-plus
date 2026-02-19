@@ -197,26 +197,30 @@ int main()
 #else
     StrumentoMusicale *strumento = strumentoMusicale.load();
 
-    int velocità = 250000;
+    int velocità = 250'000;
 
-    for(size_t i=0; i<Note::NumeroNote;) {
+    for (size_t i = 0; i < Note::NumeroNote;)
+    {
         strumento->InizioNota((Note)i);
         usleep(velocità);
         strumento->FineNota((Note)i);
 
-        if(i!=4) i+=2; else ++i;
+        if (i != 4) i += 2;
+        else ++i;
     }
 
-    for(int i=Note::NumeroNote-1; i>=0;) {
+    for (int i = Note::NumeroNote - 1; i >= 0;)
+    {
         strumento->InizioNota((Note)i);
         usleep(velocità);
         strumento->FineNota((Note)i);
 
-        if(i!=6) i-=2; else --i;
+        if (i != 6) i -= 2;
+        else --i;
     }
 
-    while(strumento->StaSuonando())
-       usleep(1000);
+    while (strumento->StaSuonando())
+        usleep(1'000);
 #endif
 
     // ----- -----

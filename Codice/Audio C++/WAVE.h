@@ -2,8 +2,8 @@
 
 #include "CostantiEdAltro.h"
 
-#define MAKE_SIGNATURE(a, b, c, d)                                                                                 \
-    (static_cast<unsigned long>(a)) | (static_cast<unsigned long>(b) << 8) | (static_cast<unsigned long>(c) << 16) \
+#define MAKE_SIGNATURE(a, b, c, d)                                                                               \
+    static_cast<unsigned long>(a) | (static_cast<unsigned long>(b) << 8) | (static_cast<unsigned long>(c) << 16) \
         | (static_cast<unsigned long>(d) << 24)
 
 namespace WAVE

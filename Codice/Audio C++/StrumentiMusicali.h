@@ -25,8 +25,8 @@ class StrumentoMusicale
     virtual void FineNota(Note nota) = 0;
 
     /// @brief Indica se lo strumento musicale sta suonando oppure se è muto.
-    /// @retval True Lo strumento sta suonando.
-    /// @retval False Lo strumento è muto.
+    /// @retval True Lo strumento musicale sta suonando almeno una nota.
+    /// @retval False Lo strumento musicale non sta suonando nulla, è muto.
     /// @remark Consultare la documentazione degli specifici strumenti musicali per sapere se il metodo è sincronizzato
     ///         col calcolo dell'audio, ovvero col metodo Campione().
     virtual bool StaSuonando() const = 0;
