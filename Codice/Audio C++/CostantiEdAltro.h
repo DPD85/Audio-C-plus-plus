@@ -148,7 +148,7 @@ static_assert(
 inline constexpr double CalcolaFrequenzaNota(Note nota, int ottava)
 {
     // Calcolo corrispondente a 2^ottava
-    const volatile double coefficente = ottava >= 0 ? 1 << ottava : 1.0 / (1 << -ottava);
+    const double coefficente = ottava >= 0 ? 1 << ottava : 1.0 / (1 << -ottava);
     return Costanti::FrequenzeNote[nota] * coefficente;
 }
 
@@ -158,9 +158,9 @@ inline constexpr double CalcolaFrequenzaNota(Note nota, int ottava)
 inline constexpr double CalcolaFrequenzaNota(size_t numeroNota)
 {
     // Numero dell'ottava di cui fa parte la nota
-    const volatile size_t ottava = numeroNota / 12;
+    const size_t ottava = numeroNota / 12;
     // Numero del semitono corrispondete alla nota all'interno dell'ottava
-    const volatile size_t nota = numeroNota % 12;
+    const size_t nota = numeroNota % 12;
 
     // Nota: l'ottava base corrisponde alla 5° ottava nella numerazione %MIDI
     return CalcolaFrequenzaNota(static_cast<Note>(nota), static_cast<int>(ottava) - 5);

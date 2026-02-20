@@ -230,7 +230,7 @@ namespace MIDI
                     {
                         assert(lunghezza >= 2);
 
-                        const unsigned char sf = LeggiByte(file);
+                        const char sf = LeggiByte(file);
                         const unsigned char mi = LeggiByte(file);
                         switch (sf)
                         {
