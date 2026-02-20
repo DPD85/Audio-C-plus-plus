@@ -31,7 +31,7 @@ else (JACK_LIBRARIES AND JACK_INCLUDE_DIRS)
 		include(FindPackageHandleStandardArgs)
 
 		# Set JACK_FOUND if the library and include paths were found
-		find_package_handle_standard_args(jack DEFAULT_MSG JACK_LIBRARY JACK_INCLUDE_DIR)
+		find_package_handle_standard_args(Jack DEFAULT_MSG JACK_LIBRARY JACK_INCLUDE_DIR)
 
 		# Don't show include/library paths in cmake GUI
 		mark_as_advanced(JACK_INCLUDE_DIR JACK_LIBRARY)
