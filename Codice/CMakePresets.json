@@ -216,10 +216,7 @@
     },
     {
       "name": "base-build-makefiles",
-      "hidden": true,
-      "nativeToolOptions": [
-        "-j $(nproc)"
-      ]
+      "hidden": true
     },
     {
       "name": "windows-v143-x64-debug",
