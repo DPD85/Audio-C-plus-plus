@@ -12,6 +12,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Disabilito la scansione dei sorgenti per trovare dipendenze dai moduli (i moduli sono una funzionalità presente dal
+# C++20 in poi), poiché il generatore Ninja ha un bug relativo alle cartelle contenenti spazi.
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+
 # ----- Versione del tool set MSVC -----
 
 if(MSVC)
