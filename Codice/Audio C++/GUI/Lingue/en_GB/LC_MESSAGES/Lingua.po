@@ -1,0 +1,120 @@
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: "
+"Germent Pulchrum\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: "
+"2026-02-27 16:10+0000\n"
+"PO-Revision-Date: "
+"2026-02-27 16:13+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; "
+"charset=UTF-8\n"
+"Content-Transfer-Encoding: "
+"8bit\n"
+"Plural-Forms: nplurals=2; "
+"plural=(n != 1);\n"
+"X-Generator: Poedit 3.6\n"
+"X-Poedit-SourceCharset: "
+"UTF-8\n"
+"X-Poedit-KeywordsList: "
+"translate:1,1t;translate:1c,2,2t;translate:1,2,3t;translate:1c,2,3,4t;TESTO_GUI:2\n"
+"X-Poedit-"
+"Basepath: ../../..\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: Internazionalizzazione.cpp:123
+msgid "Lingua di sistema"
+msgstr "System language"
+
+#: Internazionalizzazione.cpp:124
+msgid "Italiano"
+msgstr "Italian"
+
+#: Internazionalizzazione.cpp:125
+msgid "Inglese (Inghilterra)"
+msgstr "English (England)"
+
+#: Temi.cpp:48
+msgctxt "Temi"
+msgid "Arancione scuro"
+msgstr "Dark orange"
+
+#: Temi.cpp:49
+msgctxt "Temi"
+msgid "Arancione chiaro"
+msgstr "Light orange"
+
+#: Temi.cpp:50
+msgctxt "Temi"
+msgid "Scuro"
+msgstr "Dark"
+
+#: Temi.cpp:51
+msgctxt "Temi"
+msgid "Chiaro"
+msgstr "Light"
+
+#: Temi.cpp:52
+msgctxt "Temi"
+msgid "Classico ImGui"
+msgstr "ImGui classic"
+
+#: TestiGUI.h:1
+msgid "Esci"
+msgstr "Exit"
+
+#: TestiGUI.h:2
+msgid "Impostazioni"
+msgstr "Settings"
+
+#: TestiGUI.h:3
+msgid "Debug"
+msgstr "Debug"
+
+#: TestiGUI.h:4
+msgid "Demo"
+msgstr "Demo"
+
+#: TestiGUI.h:5
+msgid "Demo plot"
+msgstr "Plot demo"
+
+#: TestiGUI.h:6
+msgid "Editor stile"
+msgstr "Style editor"
+
+#: TestiGUI.h:7
+msgid "Metriche ImGui"
+msgstr "ImGui metrics"
+
+#: TestiGUI.h:8
+msgid "Debug log"
+msgstr "Log debug"
+
+#: TestiGUI.h:9
+msgid "Lingua"
+msgstr "Language"
+
+#: TestiGUI.h:10
+msgid "Tema"
+msgstr "Theme"
+
+#: TestiGUI.h:11
+msgid "Zoom IU"
+msgstr "UI zoom"
+
+#: TestiGUI.h:12
+msgid "Default"
+msgstr "Default"
+
+#: TestiGUI.h:13
+msgid "Annulla"
+msgstr "Cancel"

@@ -2,6 +2,7 @@
 
 // C++ standard library
 
+#include <algorithm>
 #include <array>
 #include <atomic>
 #include <cassert>
@@ -10,7 +11,10 @@
 #include <clocale>
 #include <cmath>
 #include <complex>
+#include <cstdio>
 #include <cstdlib>
+#include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <iomanip>
@@ -21,17 +25,63 @@
 #include <numbers>
 #include <numeric>
 #include <ostream>
+#include <sstream>
 #include <stack>
+#include <string>
 #include <thread>
 #include <vector>
 
 // Boost
 
 #include <boost/circular_buffer.hpp>
+#include <boost/locale.hpp>
 
 // PortAudio
 
 #include <portaudio.h>
+
+// Vulkan
+
+#include <vulkan/vk_enum_string_helper.h>
+#include <vulkan/vulkan.h>
+
+// vk-bootstrap
+
+#include <VkBootstrap.h>
+
+// SLD3
+
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_vulkan.h>
+
+// ImGui
+
+#include <imgui.h>
+#include <imgui_freetype.h>
+#include <imgui_internal.h>
+
+// ImGui back-end
+
+#include <imgui_impl_sdl3.h>
+#include <imgui_impl_vulkan.h>
+
+// ImPlot
+
+#define IMPLOT_DISABLE_OBSOLETE_FUNCTIONS
+
+#include <implot.h>
+
+// IconFontCppHeaders
+
+#include <IconsFontAwesome7.h>
+
+// platform_folders
+
+#include <sago/platform_folders.h>
+
+// JSON for Modern C++ (nlohmann JSON)
+
+#include <nlohmann/json.hpp>
 
 // O.S. API ed altro
 
@@ -67,5 +117,6 @@
 #else
 
 #    include <unistd.h>
+#    include <signal.h>
 
 #endif

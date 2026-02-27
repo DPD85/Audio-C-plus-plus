@@ -17,6 +17,6 @@ add_compile_options("/Oi")
 message(STATUS "MSVC: linker genera informazioni di debug in configurazione release")
 add_link_options("/DEBUG")
 
-# Global MSBuild configuration
-#   * disable static code analisys
+# Configurazione globale di MSBuild:
+#   * disabilita l'analisi statica del codice
 configure_file(Directory.Build.props.in Directory.Build.props COPYONLY)

@@ -1,6 +1,6 @@
 ﻿find_package(Vulkan REQUIRED)
 find_package(SDL3 REQUIRED)
-find_package(Boost REQUIRED COMPONENTS container locale)
+find_package(Boost REQUIRED COMPONENTS locale)
 find_package(platform_folders REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
@@ -47,7 +47,7 @@ IncorporazioneFile(
 
 # Lingua.mo
 IncorporazioneFile(
-    INPUT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/GUI/Lingue/en_GB/LC_MESSAGES/Lingua.mo"
+    INPUT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/Lingue/en_GB/LC_MESSAGES/Lingua.mo"
     OUTPUT_NAME "${CMAKE_CURRENT_BINARY_DIR}/Generated/Lingue/en_GB"
     NAMESPACE CatalogoLingue
     SYMBOL_NAME en_GB
@@ -55,50 +55,29 @@ IncorporazioneFile(
     COMMENT "Incorporazione di Lingua.mo per la lingua en_GB"
 )
 
-add_executable(Audio-C-plus-plus)
+add_executable(Germen)
 
-set_target_properties(Audio-C-plus-plus
-    PROPERTIES
-        OUTPUT_NAME "Audio C++"
-)
-
-target_sources(Audio-C-plus-plus
+target_sources(Germen
     PRIVATE
-        "Audio C++.cpp"
         "Clock.h"
         "CodaCancellazione.cpp"
         "CodaCancellazione.h"
+        "CostantiEdAltro.h"
+        "Disegnatore.cpp"
+        "Disegnatore.h"
+        "GUI.cpp"
+        "Icone bandiere.h"
         "Impostazioni.cpp"
         "Impostazioni.h"
         "Internazionalizzazione.cpp"
         "Internazionalizzazione.h"
         "IntestazionePrecompilata.h"
-        "Utilità.h"
+        "Main.cpp"
+        "Temi.cpp"
+        "TestiGUI.h"
 
-        "Sintetizzatore/Audio.cpp"
-        "Sintetizzatore/Audio.h"
-        "Sintetizzatore/CostantiEdAltro.h"
-        "Sintetizzatore/Filtri.h"
-        "Sintetizzatore/Inviluppo.h"
-        "Sintetizzatore/MIDI.cpp"
-        "Sintetizzatore/MIDI.h"
-        "Sintetizzatore/Oscillatori.h"
-        "Sintetizzatore/StrumentiMusicali.h"
-        "Sintetizzatore/Volume.h"
-        "Sintetizzatore/WAVE.cpp"
-        "Sintetizzatore/WAVE.h"
-
-        "GUI/CostantiEdAltro.h"
-        "GUI/Disegnatore.cpp"
-        "GUI/Disegnatore.h"
-        "GUI/GUI.cpp"
-        "GUI/Icone bandiere.h"
-        "GUI/Main.cpp"
-        "GUI/Temi.cpp"
-        "GUI/TestiGUI.h"
-
-        "GUI/Estensioni ImGui/Barra di stato.cpp"
-        "GUI/Estensioni ImGui/Estensioni.h"
+        "Estensioni ImGui/Barra di stato.cpp"
+        "Estensioni ImGui/Estensioni.h"
 
         "${CMAKE_CURRENT_BINARY_DIR}/Generated/Fonts/AwesomeSolid.cpp"
         "${CMAKE_CURRENT_BINARY_DIR}/Generated/Fonts/AwesomeSolid.h"
@@ -113,20 +92,19 @@ target_sources(Audio-C-plus-plus
         "${CMAKE_CURRENT_BINARY_DIR}/Generated/Lingue/en_GB.h"
 )
 
-target_precompile_headers(Audio-C-plus-plus
+target_precompile_headers(Germen
     PRIVATE
         IntestazionePrecompilata.h
 )
 
-target_include_directories(Audio-C-plus-plus
+target_include_directories(Germen
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}"
         "${CMAKE_CURRENT_BINARY_DIR}/Generated"
 )
 
-target_link_libraries(Audio-C-plus-plus
+target_link_libraries(Germen
     PRIVATE
-        Boost::container
         Boost::locale
         IconFontCppHeaders
         ImGui
@@ -135,7 +113,6 @@ target_link_libraries(Audio-C-plus-plus
         ImGui-Vulkan
         ImPlot
         nlohmann_json::nlohmann_json
-        portaudio_static
         sago::platform_folders
         SDL3::SDL3
         vk-bootstrap::vk-bootstrap
@@ -143,17 +120,17 @@ target_link_libraries(Audio-C-plus-plus
 )
 
 if(MSVC)
-    target_link_libraries(Audio-C-plus-plus
+    target_link_libraries(Germen
         PRIVATE
             ImGui-Debuggers
     )
 
     # Alcune dipendenze di Freetype sono prive dei file PDB.
     # LNK4099: PDB 'filename' was not found with 'object/library' or at 'path'; linking object as if no debug info
-    target_link_options(Audio-C-plus-plus
+    target_link_options(Germen
         PRIVATE
             "/ignore:4099"
     )
 endif()
 
-make_source_group(TARGET Audio-C-plus-plus ADDITIONAL_SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+make_source_group(TARGET Germen ADDITIONAL_SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}")

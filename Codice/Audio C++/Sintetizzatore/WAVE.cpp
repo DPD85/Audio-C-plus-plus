@@ -2,10 +2,10 @@
 
 #include "WAVE.h"
 
-#include "CodaEliminazione.h"
+#include "CodaCancellazione.h"
 #include "Oscillatori.h"
 
-namespace WAVE
+namespace Sintetizzatore::WAVE
 {
     // ----- DataFormatChunk -----
 
@@ -74,7 +74,7 @@ namespace WAVE
 
     void CreaFileSemplice()
     {
-        CodaEliminazione eliminatori;
+        CodaCancellazione eliminatori;
 
         unsigned int timeLen = 30;
 
@@ -142,7 +142,7 @@ namespace WAVE
 
         // Solo 1° canale (sinistro)
         {
-            CodaEliminazione eliminatori;
+            CodaCancellazione eliminatori;
 
             std::ofstream file("testStereoSinistra.wav", std::ios_base::binary | std::ios_base::trunc);
             if (!file.is_open())
@@ -183,7 +183,7 @@ namespace WAVE
 
         // Solo 2° canale (destro)
         {
-            CodaEliminazione eliminatori;
+            CodaCancellazione eliminatori;
 
             std::ofstream file("testStereoDestra.wav", std::ios_base::binary | std::ios_base::trunc);
             if (!file.is_open())
@@ -233,7 +233,7 @@ namespace WAVE
         MasterRIFFChunk mc;
         mc.SetFileSize(dc.dimensione);
 
-        CodaEliminazione eliminatori;
+        CodaCancellazione eliminatori;
 
         std::ofstream file(percorso, std::ios_base::binary | std::ios_base::trunc);
         if (!file.is_open())

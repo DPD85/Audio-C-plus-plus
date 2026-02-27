@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "CostantiEdAltro.h"
+#include "Utilità.h"
 
 /// @brief %Clock utile per eseguire operazioni periodiche.
 class Clock

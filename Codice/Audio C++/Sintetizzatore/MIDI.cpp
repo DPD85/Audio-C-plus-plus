@@ -2,10 +2,10 @@
 
 #include "MIDI.h"
 
-#include "CodaEliminazione.h"
+#include "CodaCancellazione.h"
 #include "CostantiEdAltro.h"
 
-namespace MIDI
+namespace Sintetizzatore::MIDI
 {
     enum FormatiFile
     {
@@ -25,7 +25,7 @@ namespace MIDI
 
     bool LeggiFile(std::string percorso)
     {
-        CodaEliminazione eliminatori;
+        CodaCancellazione eliminatori;
 
         // ----- -----
 
@@ -375,9 +375,6 @@ namespace MIDI
         }
 
         // ----- -----
-
-        file.close();
-        eliminatori.Pulisci();
 
         return true;
     }

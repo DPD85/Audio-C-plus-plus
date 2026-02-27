@@ -7,9 +7,17 @@
   },
   "configurePresets": [
     {
+      "name": "base-preset",
+      "hidden": true,
+      "binaryDir": "${sourceParentDir}/build/${presetName}",
+      "cacheVariables": {
+        "CPM_SOURCE_CACHE": "${sourceParentDir}/build/cpm-cache"
+      }
+    },
+    {
       "name": "windows-base-preset",
       "hidden": true,
-      "binaryDir": "${sourceDir}/build/${presetName}",
+      "inherits": "base-preset",
       "cmakeExecutable": "C:\\Program Files\\CMake\\bin\\cmake.exe",
       "condition": {
         "type": "equals",
@@ -43,7 +51,7 @@
     {
       "name": "linux-base-preset",
       "hidden": true,
-      "binaryDir": "${sourceParentDir}/build/${presetName}",
+      "inherits": "base-preset",
       "generator": "Ninja",
       "environment": {
         "NINJA_STATUS": "[%f/%t] (%e) "

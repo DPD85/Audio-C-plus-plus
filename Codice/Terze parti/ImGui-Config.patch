@@ -1,0 +1,13 @@
+﻿diff --git a/imgui.h b/imgui.h
+index e42d702..1683d22 100644
+--- a/imgui.h
++++ b/imgui.h
+@@ -65,7 +65,7 @@ Index of this file:
+ // Configuration file with compile-time options
+ // (edit imconfig.h or '#define IMGUI_USER_CONFIG "myfilename.h" from your build system)
+ #ifdef IMGUI_USER_CONFIG
+-#include IMGUI_USER_CONFIG
++#include "ImGui-Config.h"
+ #endif
+ #include "imconfig.h"
+ 

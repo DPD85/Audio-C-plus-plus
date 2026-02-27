@@ -31,6 +31,7 @@ include(CMake/Piattaforma.cmake)
 include(CMake/Conan.cmake)
 include(CMake/Funzioni.cmake)
 include(CMake/Impostazioni.cmake)
+include(CMake/CPM.cmake)
 
 # ----- IDE configuration -----
 
@@ -40,6 +41,7 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT A
 # ----- Source code -----
 
 add_subdirectory("Terze parti")
+add_subdirectory("Strumenti")
 add_subdirectory("Audio C++")
 
 include_external_msproject(Grafici ${CMAKE_CURRENT_SOURCE_DIR}/Grafici/Grafici.csproj PLATFORM AnyCPU)
@@ -53,6 +55,7 @@ add_custom_target(SolutionItems SOURCES
     CMake/Compilatori/MSVC/Impostazioni.cmake
     CMake/Conan.cmake
     CMake/Funzioni.cmake
+    CMake/CPM.cmake
     CMake/Impostazioni.cmake
     CMake/Piattaforma.cmake
     CMake/Piattaforme/Linux/Impostazioni.cmake
@@ -60,11 +63,18 @@ add_custom_target(SolutionItems SOURCES
 
     "Profili Conan/Linux GCC 12 x64 debug"
     "Profili Conan/Linux GCC 12 x64 release"
+    "Profili Conan/Linux GCC 13 x64 debug"
+    "Profili Conan/Linux GCC 13 x64 release"
+    "Profili Conan/Linux GCC 14 x64 debug"
+    "Profili Conan/Linux GCC 14 x64 release"
     "Profili Conan/Windows v143 x64 debug"
     "Profili Conan/Windows v143 x64 release"
 
     "Terze parti/CMakeLists.txt"
+    "Terze parti/ImGui-Config.patch"
     "Terze parti/Readme.md"
+
+    "Audio C++/GUI/Lingue/en_GB/LC_MESSAGES/Lingua.po"
 
     .clang-format
     .editorconfig

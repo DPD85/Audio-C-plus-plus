@@ -1,0 +1,13 @@
+﻿TESTO_GUI(menuEsci, "Esci");
+TESTO_GUI(impostazioni, "Impostazioni");
+TESTO_GUI(menuDebug, "Debug");
+TESTO_GUI(demo, "Demo");
+TESTO_GUI(demoPlot, "Demo plot");
+TESTO_GUI(editorStile, "Editor stile");
+TESTO_GUI(metricheImGui, "Metriche ImGui");
+TESTO_GUI(debugLog, "Debug log");
+TESTO_GUI(lingua, "Lingua");
+TESTO_GUI(tema, "Tema");
+TESTO_GUI(zoomIU, "Zoom IU");
+TESTO_GUI(default_, "Default");
+TESTO_GUI(annulla, "Annulla");
