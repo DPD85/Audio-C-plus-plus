@@ -74,22 +74,33 @@ namespace StrumentiMusicali
             InviluppoADSR(0.02, 0.01, 0.8, 0.5), // si
         };
 
-        std::atomic<bool> stoSuonando;
-
       public:
+        /// @brief Indica l'istante in cui il musicista da inizio ad una nota.
+        /// @param nota La nota che ha inizio.
+        /// @audiosafe Campione().
         void InizioNota(Note nota) override
         {
             inviluppi[nota].InizioNota();
         }
 
+        /// @brief Indica l'istante in cui il musicista termina una nota.
+        /// @param nota La nota che ha termine.
+        /// @audiosafe Campione().
         void FineNota(Note nota) override
         {
             inviluppi[nota].FineNota();
         }
 
+        /// @brief Indica se lo strumento musicale sta suonando oppure se è muto.
+        /// @retval True Lo strumento sta suonando.
+        /// @retval False Lo strumento è muto.
+        /// @audiosafe Campione().
         bool StaSuonando() const override
         {
-            return stoSuonando.load();
+            for (const InviluppoADSR &inviluppo : inviluppi)
+                if (inviluppo.StaSuonando()) return true;
+
+            return false;
         }
 
         /// @brief Restituisce il campione audio successivo dello strumento musicale. Il valore del campione è sempre
@@ -97,7 +108,6 @@ namespace StrumentiMusicali
         double Campione() override
         {
             volatile double valore = 0;
-            bool suonoProdotto     = false;
 
             for (size_t i = 0; i < Note::NumeroNote; ++i)
             {
@@ -106,12 +116,8 @@ namespace StrumentiMusicali
                 // Se la nota è muta la salto
                 if (!inviluppi[i].StaSuonando()) continue;
 
-                suonoProdotto = true;
-
                 valore += valoreInviluppo * note[i].Campione();
             }
-
-            stoSuonando.store(suonoProdotto);
 
             return valore;
         }
@@ -146,22 +152,33 @@ namespace StrumentiMusicali
             InviluppoADSR(0.02, 0.01, 0.8, 0.5), // si
         };
 
-        std::atomic<bool> stoSuonando;
-
       public:
+        /// @brief Indica l'istante in cui il musicista da inizio ad una nota.
+        /// @param nota La nota che ha inizio.
+        /// @audiosafe Campione().
         void InizioNota(Note nota) override
         {
             inviluppi[nota].InizioNota();
         }
 
+        /// @brief Indica l'istante in cui il musicista termina una nota.
+        /// @param nota La nota che ha termine.
+        /// @audiosafe Campione().
         void FineNota(Note nota) override
         {
             inviluppi[nota].FineNota();
         }
 
+        /// @brief Indica se lo strumento musicale sta suonando oppure se è muto.
+        /// @retval True Lo strumento sta suonando.
+        /// @retval False Lo strumento è muto.
+        /// @audiosafe Campione().
         bool StaSuonando() const override
         {
-            return stoSuonando.load();
+            for (const InviluppoADSR &inviluppo : inviluppi)
+                if (inviluppo.StaSuonando()) return true;
+
+            return false;
         }
 
         /// @brief Restituisce il campione audio successivo dello strumento musicale. Il valore del campione è sempre
@@ -169,7 +186,6 @@ namespace StrumentiMusicali
         double Campione() override
         {
             volatile double valore = 0;
-            bool suonoProdotto;
 
             for (size_t i = 0; i < Note::NumeroNote; ++i)
             {
@@ -178,12 +194,8 @@ namespace StrumentiMusicali
                 // Se la nota è muta la salto
                 if (!inviluppi[i].StaSuonando()) continue;
 
-                suonoProdotto = true;
-
                 valore += valoreInviluppo * note[i].Campione();
             }
-
-            stoSuonando.store(suonoProdotto);
 
             return valore;
         }
