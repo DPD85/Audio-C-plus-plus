@@ -19,7 +19,6 @@ target_sources(Audio-C-plus-plus
         MIDI.h
         IntestazionePrecompilata.h
         Inviluppo.h
-        Normalizzatore.h
         Oscillatori.h
         StrumentiMusicali.h
         Volume.h
@@ -30,11 +29,6 @@ target_sources(Audio-C-plus-plus
 target_precompile_headers(Audio-C-plus-plus
     PRIVATE
         IntestazionePrecompilata.h
-)
-
-target_compile_definitions(Audio-C-plus-plus
-    PRIVATE
-        _UNICODE
 )
 
 target_link_libraries(Audio-C-plus-plus

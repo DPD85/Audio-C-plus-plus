@@ -5,7 +5,6 @@
 #include "CostantiEdAltro.h"
 #include "Filtri.h"
 #include "Inviluppo.h"
-#include "Normalizzatore.h"
 #include "Oscillatori.h"
 #include "StrumentiMusicali.h"
 #include "Volume.h"
@@ -657,8 +656,6 @@ static void RegistraPerGrafico()
         Volume(0.01), // si
     };
 
-    Normalizzatore normalizzatore;
-
     // ----- -----
 
     unsigned char numeroSerie   = 1;
@@ -828,82 +825,6 @@ static void RegistraPerGrafico()
 
         file9.write(reinterpret_cast<const char *>(&numeroSerie), sizeof(numeroSerie));
         file9.write(reinterpret_cast<char *>(buffer.data()), buffer.size() * sizeof(dvector::value_type));
-    }
-
-    // ----- -----
-
-    {
-        note[SOL].Reset();
-        note[LA].Reset();
-
-        for (size_t i = 0; i < numeroCampioni; ++i)
-        {
-            buffer[i] = note[SOL].Campione() + note[LA].Campione();
-        }
-
-        normalizzatore.Normalizza(buffer);
-
-        file10.write(reinterpret_cast<const char *>(&numeroSerie), sizeof(numeroSerie));
-        file10.write(reinterpret_cast<char *>(buffer.data()), buffer.size() * sizeof(dvector::value_type));
-    }
-
-    // ----- -----
-
-    {
-        note[SOL].Reset();
-        volumi[SOL].Reset();
-        note[LA].Reset();
-        volumi[LA].Reset();
-
-        volumi[SOL].Valore(1.0);
-
-        size_t i;
-        for (i = 0; i < numeroCampioni / 4; ++i)
-        {
-            buffer[i] = volumi[SOL].Smussa() * note[SOL].Campione() + volumi[LA].Smussa() * note[LA].Campione();
-        }
-
-        volumi[LA].Valore(1.0);
-
-        for (; i < numeroCampioni; ++i)
-        {
-            buffer[i] = volumi[SOL].Smussa() * note[SOL].Campione() + volumi[LA].Smussa() * note[LA].Campione();
-        }
-
-        normalizzatore.Normalizza(buffer);
-
-        file11.write(reinterpret_cast<const char *>(&numeroSerie), sizeof(numeroSerie));
-        file11.write(reinterpret_cast<char *>(buffer.data()), buffer.size() * sizeof(dvector::value_type));
-    }
-
-    // ----- -----
-
-    {
-        note[SOL].Reset();
-        volumi[SOL].Reset();
-        note[LA].Reset();
-        volumi[LA].Reset();
-
-        volumi[SOL].Valore(1.0);
-
-        size_t i;
-        for (i = 0; i < numeroCampioni / 4; ++i)
-        {
-            buffer[i] = volumi[SOL].Smussa() * note[SOL].Campione() + volumi[LA].Smussa() * note[LA].Campione();
-        }
-
-        volumi[LA].Valore(1.0);
-
-        for (; i < numeroCampioni; ++i)
-        {
-            buffer[i] = volumi[SOL].Smussa() * note[SOL].Campione() + volumi[LA].Smussa() * note[LA].Campione();
-        }
-
-        normalizzatore.Normalizza(buffer, buffer.size() / 2, 0);
-        normalizzatore.Normalizza(buffer, buffer.size() / 2, buffer.size() / 2);
-
-        file12.write(reinterpret_cast<const char *>(&numeroSerie), sizeof(numeroSerie));
-        file12.write(reinterpret_cast<char *>(buffer.data()), buffer.size() * sizeof(dvector::value_type));
     }
 
     // ----- Test inviluppo completo -----
