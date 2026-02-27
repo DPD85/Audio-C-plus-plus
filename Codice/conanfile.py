@@ -1,4 +1,4 @@
-from conan import ConanFile
+﻿from conan import ConanFile
 from conan.tools.cmake import cmake_layout, CMakeDeps
 
 class ConanApplication(ConanFile):

@@ -1,4 +1,4 @@
-set(CMAKE_FOLDER "Terze parti")
+﻿set(CMAKE_FOLDER "Terze parti")
 
 # ----- PortAudio -----
 

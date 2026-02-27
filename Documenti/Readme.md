@@ -1,4 +1,4 @@
-## Windows API
+﻿## Windows API
 
 [About the Windows Core Audio APIs - Win32 apps _ Microsoft Learn](https://learn.microsoft.com/en-us/windows/win32/coreaudio/about-the-windows-core-audio-apis)
 

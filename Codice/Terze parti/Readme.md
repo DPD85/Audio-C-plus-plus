@@ -1,4 +1,4 @@
-# Lista delle terze parti
+﻿# Lista delle terze parti
 
 |   Nome    | Versione |         Sito web           |
 |-----------|---------:|----------------------------|

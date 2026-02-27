@@ -1,4 +1,4 @@
-# Rileva su quale piattaforma stiamo compilando ed include il file di impostazioni corrispondente
+﻿# Rileva su quale piattaforma stiamo compilando ed include il file di impostazioni corrispondente
 
 if(NOT "${CMAKE_SIZEOF_VOID_P}" MATCHES 8)
     message(FATAL_ERROR "La compilazione a 32 bit non è supportata")

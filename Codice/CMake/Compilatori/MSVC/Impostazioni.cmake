@@ -1,4 +1,4 @@
-# ----- Impostazioni specifiche per MSVC -----
+﻿# ----- Impostazioni specifiche per MSVC -----
 
 set(CMAKE_CONFIGURATION_TYPES Debug Release)
 

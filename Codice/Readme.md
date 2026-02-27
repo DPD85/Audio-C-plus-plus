@@ -1,4 +1,4 @@
-## Prerequisiti per la compilazione
+﻿## Prerequisiti per la compilazione
 
 ### Windows
 

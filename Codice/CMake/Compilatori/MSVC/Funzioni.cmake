@@ -1,4 +1,4 @@
-# ----- Funzioni specifiche per MSVC -----
+﻿# ----- Funzioni specifiche per MSVC -----
 
 # Organize the sources of a target in various source groups corresponding to file folders
 # Arguments:

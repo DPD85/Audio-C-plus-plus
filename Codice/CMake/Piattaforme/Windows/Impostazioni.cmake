@@ -1,4 +1,4 @@
-# ----- Impostazioni specifiche per Windows -----
+﻿# ----- Impostazioni specifiche per Windows -----
 
 if(MSVC)
     include(CMake/Compilatori/MSVC/Impostazioni.cmake)
