@@ -19,6 +19,7 @@ namespace Sintetizzatore
         PaStreamCallbackFlags statusFlags,
         void *userData);
     static void RegistraPerGrafico();
+    static void LogMessaggiALSA(const char *file, int line, const char *function, int errorcode, const char *fmt, ...);
 
     static StrumentiMusicali::Puro strumentoPuro;
     static StrumentiMusicali::Pianoforte pianoforte;
@@ -33,6 +34,8 @@ namespace Sintetizzatore
     static std::atomic<double> durataProduzioneSuono; // [ms]
 }
 
+void snd_local_error_handler(const char *file, int line, const char *func, int errcode, const char *fmt, va_list arg) {}
+
 bool Sintetizzatore::InizializzaAudio()
 {
     CodaCancellazione eliminatori;
@@ -43,18 +46,39 @@ bool Sintetizzatore::InizializzaAudio()
 
     std::cout << "Formato dati audio\n";
     // clang-format off
-        std::cout << "  numero canali    : " << Costanti::NumeroCanali << '\n'
-                  << "  frequenza        : " << Costanti::FrequenzaCampionamento << " Hz\n"
-                  << "  bits per campione: " << 32 << '\n'
-                  << "  tipo campione    : Float\n";
+    std::cout << "  numero canali    : " << Costanti::NumeroCanali << '\n'
+                << "  frequenza        : " << Costanti::FrequenzaCampionamento << " Hz\n"
+                << "  bits per campione: " << 32 << '\n'
+                << "  tipo campione    : Float\n";
     // clang-format on
+    std::cout << '\n';
 
 #if 0
     RegistraPerGrafico();
     return EXIT_SUCCESS;
 #endif
 
+    // ----- Intercettazione dei messaggi di errore di ALSA -----
+
+#ifndef WIN32
+    snd_lib_error_set_handler(LogMessaggiALSA);
+    eliminatori.Aggiungi(
+        []()
+        {
+            snd_lib_error_set_handler(nullptr);
+        });
+#endif
+
     // ----- Inizializza la libreria PortAudio
+
+#ifndef WIN32
+
+    // int stderrBackup = dup(STDERR_FILENO);
+    // int devNullFD    = open("/dev/null", O_WRONLY);
+    // dup2(devNullFD, STDERR_FILENO);
+    // close(devNullFD);
+
+#endif
 
     {
         PaError r = Pa_Initialize();
@@ -70,6 +94,11 @@ bool Sintetizzatore::InizializzaAudio()
                 Pa_Terminate();
             });
     }
+
+#ifndef WIN32
+    // dup2(stderrBackup, STDERR_FILENO);
+    // close(stderrBackup);
+#endif
 
     // ----- Identifico la API sottostante usata da PortAudio e ne recupero le informazioni
 
@@ -681,4 +710,27 @@ static void Sintetizzatore::RegistraPerGrafico()
     volumi[SOL].Reset();
     note[LA].Reset();
     volumi[LA].Reset();
+}
+
+// Nota: questa funzione viene usata solo su Linux.
+static void Sintetizzatore::LogMessaggiALSA(
+    const char *file, int line, const char *function, int errorcode, const char *fmt, ...)
+{
+    // Stampa solo i messaggi di errore.
+    // if (errorcode == 0) return;
+
+    // Stampo solo il nome del file senza il percorso.
+    const char *nomeFile = strrchr(file, '/');
+    if (nomeFile == nullptr) nomeFile = file;
+    else nomeFile++;
+
+    std::cout << "ALSA [" << nomeFile << ":" << line << " " << function << "] ";
+    if (errorcode != 0) std::cout << "(err = " << errorcode << "): ";
+
+    va_list args;
+    va_start(args, fmt);
+    vprintf(fmt, args);
+    va_end(args);
+
+    std::cout << '\n';
 }

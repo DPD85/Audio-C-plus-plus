@@ -40,6 +40,12 @@
 
 #include <portaudio.h>
 
+// ALSA
+
+#ifndef WIN32
+#    include <alsa/asoundlib.h>
+#endif
+
 // Vulkan
 
 #include <vulkan/vk_enum_string_helper.h>
@@ -116,7 +122,7 @@
 
 #else
 
-#    include <unistd.h>
 #    include <signal.h>
+#    include <unistd.h>
 
 #endif

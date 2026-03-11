@@ -22,6 +22,7 @@ if(WIN32)
 elseif(LINUX)
     # Su Linux lascio disponibili tutti i back-end disponibili (ALSA e JACK)
     # Nota: se PortAudio non trova il SDK di un back-end esso sarà disattivato in fase di compilazione.
+    set(PA_ENABLE_DEBUG_OUTPUT ON CACHE BOOL "" FORCE)
 endif()
 
 block()
