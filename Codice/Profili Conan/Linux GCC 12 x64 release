@@ -7,3 +7,9 @@ compiler.cppstd=20
 compiler.libcxx=libstdc++11
 compiler.version=12
 os=Linux
+
+[conf]
+# Conan invocherà il gestore dei pacchetti per installare i pacchetti necessari.
+tools.system.package_manager:mode=install
+# Il gestore dei pacchetti verrà eseguito tramite sudo.
+tools.system.package_manager:sudo=true
