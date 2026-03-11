@@ -48,42 +48,44 @@ include_external_msproject(Grafici ${CMAKE_CURRENT_SOURCE_DIR}/Grafici/Grafici.c
 
 # ----- Solution Items -----
 
-add_custom_target(SolutionItems SOURCES
-    CMake/Compilatori/GCC/Funzioni.cmake
-    CMake/Compilatori/GCC/Impostazioni.cmake
-    CMake/Compilatori/MSVC/Funzioni.cmake
-    CMake/Compilatori/MSVC/Impostazioni.cmake
-    CMake/Conan.cmake
-    CMake/Funzioni.cmake
-    CMake/CPM.cmake
-    CMake/Impostazioni.cmake
-    CMake/Piattaforma.cmake
-    CMake/Piattaforme/Linux/Impostazioni.cmake
-    CMake/Piattaforme/Windows/Impostazioni.cmake
+if(MSVC)
+    add_custom_target(SolutionItems SOURCES
+        CMake/Compilatori/GCC/Funzioni.cmake
+        CMake/Compilatori/GCC/Impostazioni.cmake
+        CMake/Compilatori/MSVC/Funzioni.cmake
+        CMake/Compilatori/MSVC/Impostazioni.cmake
+        CMake/Conan.cmake
+        CMake/Funzioni.cmake
+        CMake/CPM.cmake
+        CMake/Impostazioni.cmake
+        CMake/Piattaforma.cmake
+        CMake/Piattaforme/Linux/Impostazioni.cmake
+        CMake/Piattaforme/Windows/Impostazioni.cmake
 
-    "Profili Conan/Linux GCC 12 x64 debug"
-    "Profili Conan/Linux GCC 12 x64 release"
-    "Profili Conan/Linux GCC 13 x64 debug"
-    "Profili Conan/Linux GCC 13 x64 release"
-    "Profili Conan/Linux GCC 14 x64 debug"
-    "Profili Conan/Linux GCC 14 x64 release"
-    "Profili Conan/Windows v143 x64 debug"
-    "Profili Conan/Windows v143 x64 release"
+        "Profili Conan/Linux GCC 12 x64 debug"
+        "Profili Conan/Linux GCC 12 x64 release"
+        "Profili Conan/Linux GCC 13 x64 debug"
+        "Profili Conan/Linux GCC 13 x64 release"
+        "Profili Conan/Linux GCC 14 x64 debug"
+        "Profili Conan/Linux GCC 14 x64 release"
+        "Profili Conan/Windows v143 x64 debug"
+        "Profili Conan/Windows v143 x64 release"
 
-    "Terze parti/CMakeLists.txt"
-    "Terze parti/ImGui-Config.patch"
-    "Terze parti/Readme.md"
+        "Terze parti/CMakeLists.txt"
+        "Terze parti/ImGui-Config.patch"
+        "Terze parti/Readme.md"
 
-    "Audio C++/GUI/Lingue/en_GB/LC_MESSAGES/Lingua.po"
+        "Audio C++/GUI/Lingue/en_GB/LC_MESSAGES/Lingua.po"
 
-    .clang-format
-    .editorconfig
-    .gitignore
-    CMakeLists.txt
-    CMakePresets.json
-    conanfile.py
-    Directory.Build.props.in
-    Readme.md
-)
+        .clang-format
+        .editorconfig
+        .gitignore
+        CMakeLists.txt
+        CMakePresets.json
+        conanfile.py
+        Directory.Build.props.in
+        Readme.md
+    )
 
-make_source_group(TARGET SolutionItems)
+    make_source_group(TARGET SolutionItems)
+endif()
