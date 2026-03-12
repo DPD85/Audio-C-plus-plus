@@ -3,7 +3,10 @@ find_package(SDL3 REQUIRED)
 find_package(Boost REQUIRED COMPONENTS container locale)
 find_package(platform_folders REQUIRED)
 find_package(nlohmann_json REQUIRED)
-find_package(ALSA REQUIRED)
+
+if(UNIX)
+    find_package(ALSA REQUIRED)
+endif()
 
 # Creazione delle cartelle di output per i file generati poiché non tutti i generatori di CMake la creano automaticamente.
 # Per esempio Ninja le crea mentre Unix Makefiles non lo fa.
@@ -127,7 +130,6 @@ target_include_directories(Audio-C-plus-plus
 
 target_link_libraries(Audio-C-plus-plus
     PRIVATE
-        ALSA::ALSA
         Boost::container
         Boost::locale
         IconFontCppHeaders
@@ -143,6 +145,13 @@ target_link_libraries(Audio-C-plus-plus
         vk-bootstrap::vk-bootstrap
         Vulkan::Vulkan
 )
+
+if(UNIX)
+    target_link_libraries(Audio-C-plus-plus
+        PRIVATE
+            ALSA::ALSA
+    )
+endif()
 
 if(MSVC)
     target_link_libraries(Audio-C-plus-plus
