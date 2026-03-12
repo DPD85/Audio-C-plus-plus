@@ -36,7 +36,7 @@ class ConanApplication(ConanFile):
         sdl.shared = False
         sdl.audio = False
         sdl.render = False
-        sdl.Camera = False
+        sdl.camera = False
         sdl.opengl = False
         sdl.opengles = False
         sdl.metal = False
