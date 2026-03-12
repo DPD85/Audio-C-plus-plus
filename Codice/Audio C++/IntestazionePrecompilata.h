@@ -11,6 +11,7 @@
 #include <clocale>
 #include <cmath>
 #include <complex>
+#include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

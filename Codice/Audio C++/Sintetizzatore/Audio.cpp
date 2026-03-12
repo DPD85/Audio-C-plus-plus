@@ -18,8 +18,8 @@ namespace Sintetizzatore
         const PaStreamCallbackTimeInfo *timeInfo,
         PaStreamCallbackFlags statusFlags,
         void *userData);
-    static void RegistraPerGrafico();
     static void LogMessaggiALSA(const char *file, int line, const char *function, int errorcode, const char *fmt, ...);
+    static void RegistraPerGrafico();
 
     static StrumentiMusicali::Puro strumentoPuro;
     static StrumentiMusicali::Pianoforte pianoforte;
@@ -33,8 +33,6 @@ namespace Sintetizzatore
 
     static std::atomic<double> durataProduzioneSuono; // [ms]
 }
-
-void snd_local_error_handler(const char *file, int line, const char *func, int errcode, const char *fmt, va_list arg) {}
 
 bool Sintetizzatore::InizializzaAudio()
 {
@@ -102,11 +100,10 @@ bool Sintetizzatore::InizializzaAudio()
 
     // ----- Identifico la API sottostante usata da PortAudio e ne recupero le informazioni
 
-    PaHostApiIndex indiceHostAPI;
     const PaHostApiInfo *infoHostAPI;
 
     {
-        indiceHostAPI = Pa_GetDefaultHostApi();
+        const PaHostApiIndex indiceHostAPI = Pa_GetDefaultHostApi();
         if (indiceHostAPI < 0)
         {
             std::cout << "Impossibile recuperare la API sottostante di default usate da PortAudio. Errore: "
@@ -137,10 +134,8 @@ bool Sintetizzatore::InizializzaAudio()
 
     // ----- Stampa il nome del dispositivo di riproduzione predefinito
 
-    const PaDeviceInfo *infoDispositivo;
-
     {
-        infoDispositivo = Pa_GetDeviceInfo(infoHostAPI->defaultOutputDevice);
+        const PaDeviceInfo *infoDispositivo = Pa_GetDeviceInfo(infoHostAPI->defaultOutputDevice);
         if (infoDispositivo == nullptr)
         {
             std::cout << "Impossibile recuperare le informazioni del dispositivo di riproduzione predefinito.\n";
@@ -235,7 +230,7 @@ void Sintetizzatore::TerminaAudio()
 static int Sintetizzatore::ProceduraProduzioneAudio(
     const void * /*input*/,
     void *output,
-    unsigned long frameCount, // numero di campioni da generare
+    const unsigned long numeroCampioni, // numero di campioni da generare
     const PaStreamCallbackTimeInfo * /*timeInfo*/,
     PaStreamCallbackFlags /*statusFlags*/,
     void * /*userData*/)
@@ -245,7 +240,7 @@ static int Sintetizzatore::ProceduraProduzioneAudio(
     // ----- -----
 
     StrumentoMusicale *strumento = strumentoMusicale.load();
-    for (size_t i = 0; i < frameCount; ++i)
+    for (size_t i = 0; i < numeroCampioni; ++i)
     {
         // Produco un campione audio dallo strumento musicale ed aggiungo qualche effetto.
         const double campione = /*èco.Computa*/ (strumento->Campione());
@@ -253,7 +248,7 @@ static int Sintetizzatore::ProceduraProduzioneAudio(
         // Non c'è bisogno di limitare il volume poiché ci penserà il mixer di Windows a farlo.
         // TODO: su Linux?
 
-        float *dati = reinterpret_cast<float *>(output);
+        auto dati = static_cast<float *>(output);
 
         dati[i * Costanti::NumeroCanali + Costanti::CanaleSinistro] = static_cast<float>(campione);
         dati[i * Costanti::NumeroCanali + Costanti::CanaleDestro]   = static_cast<float>(campione);
@@ -265,6 +260,29 @@ static int Sintetizzatore::ProceduraProduzioneAudio(
     durataProduzioneSuono.store(std::chrono::duration_cast<DurataMillisecondi>(tFine - tInizio).count());
 
     return paContinue;
+}
+
+// Nota: questa funzione viene usata solo su Linux.
+static void Sintetizzatore::LogMessaggiALSA(
+    const char *file, const int line, const char *function, const int errorcode, const char *fmt, ...)
+{
+    // Stampa solo i messaggi di errore.
+    if (errorcode == 0) return;
+
+    // Stampo solo il nome del file senza il percorso.
+    const char *nomeFile = strrchr(file, '/');
+    if (nomeFile == nullptr) nomeFile = file;
+    else nomeFile++;
+
+    std::cout << "ALSA [" << nomeFile << ":" << line << " " << function << "()] ";
+    if (errorcode != 0) std::cout << "(err = " << errorcode << "): ";
+
+    va_list args;
+    va_start(args, fmt);
+    vprintf(fmt, args);
+    va_end(args);
+
+    std::cout << '\n';
 }
 
 static void Sintetizzatore::RegistraPerGrafico()
@@ -710,27 +728,4 @@ static void Sintetizzatore::RegistraPerGrafico()
     volumi[SOL].Reset();
     note[LA].Reset();
     volumi[LA].Reset();
-}
-
-// Nota: questa funzione viene usata solo su Linux.
-static void Sintetizzatore::LogMessaggiALSA(
-    const char *file, int line, const char *function, int errorcode, const char *fmt, ...)
-{
-    // Stampa solo i messaggi di errore.
-    // if (errorcode == 0) return;
-
-    // Stampo solo il nome del file senza il percorso.
-    const char *nomeFile = strrchr(file, '/');
-    if (nomeFile == nullptr) nomeFile = file;
-    else nomeFile++;
-
-    std::cout << "ALSA [" << nomeFile << ":" << line << " " << function << "] ";
-    if (errorcode != 0) std::cout << "(err = " << errorcode << "): ";
-
-    va_list args;
-    va_start(args, fmt);
-    vprintf(fmt, args);
-    va_end(args);
-
-    std::cout << '\n';
 }
