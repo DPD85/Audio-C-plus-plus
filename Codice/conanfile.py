@@ -15,7 +15,13 @@ class ConanApplication(ConanFile):
         cmake.generate()
 
     def system_requirements(self):
-        packages = ["libasound2-dev", "libvulkan-dev", "vulkan-utility-libraries-dev"]
+        packages = [
+            # Audio
+            "libasound2-dev",
+            # Vulkan
+            "libvulkan-dev",
+            "vulkan-utility-libraries-dev"
+        ]
         apt = Apt(self)
         result = apt.install(packages)
         if result is not None and result != 0:
@@ -29,7 +35,6 @@ class ConanApplication(ConanFile):
         self.requires("platformfolders/4.3.0")
         self.requires("plutosvg/0.0.7")
         self.requires("sdl/3.2.20")
-        #self.requires("libalsa/system", force=True)
 
     def configure(self):
         sdl = self.options["sdl/*"]

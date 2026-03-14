@@ -14,11 +14,11 @@ namespace Sintetizzatore
     static int ProceduraProduzioneAudio(
         const void *input,
         void *output,
-        unsigned long frameCount,
+        unsigned long numeroCampioni,
         const PaStreamCallbackTimeInfo *timeInfo,
         PaStreamCallbackFlags statusFlags,
         void *userData);
-    static void LogMessaggiALSA(const char *file, int line, const char *function, int errorcode, const char *fmt, ...);
+    static void LogMessaggiALSA(const char *file, int line, const char *function, int errorCode, const char *fmt, ...);
     static void RegistraPerGrafico();
 
     static StrumentiMusicali::Puro strumentoPuro;
@@ -264,18 +264,17 @@ static int Sintetizzatore::ProceduraProduzioneAudio(
 
 // Nota: questa funzione viene usata solo su Linux.
 static void Sintetizzatore::LogMessaggiALSA(
-    const char *file, const int line, const char *function, const int errorcode, const char *fmt, ...)
+    const char *file, const int line, const char *function, const int errorCode, const char *fmt, ...)
 {
     // Stampa solo i messaggi di errore.
-    if (errorcode == 0) return;
+    if (errorCode == 0) return;
 
     // Stampo solo il nome del file senza il percorso.
     const char *nomeFile = strrchr(file, '/');
     if (nomeFile == nullptr) nomeFile = file;
     else nomeFile++;
 
-    std::cout << "ALSA [" << nomeFile << ":" << line << " " << function << "()] ";
-    if (errorcode != 0) std::cout << "(err = " << errorcode << "): ";
+    std::cout << "ALSA [" << nomeFile << ":" << line << " " << function << "()] " << "(err = " << errorCode << "): ";
 
     va_list args;
     va_start(args, fmt);

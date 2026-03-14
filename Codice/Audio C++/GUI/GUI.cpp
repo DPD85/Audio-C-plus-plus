@@ -328,7 +328,7 @@ static void GUI::TastieraPianoforte(bool *èAperta)
         int tastoPremuto = -1; // I numeri delle note identificano i tasti.
         int tastoHovered = -1;
 
-        // ----- Interazione coi tasti (es. premere un tasto)
+        // ----- Interazione coi tasti (per esempio premere un tasto)
 
         cur_key = 22;
 
@@ -382,7 +382,7 @@ static void GUI::TastieraPianoforte(bool *èAperta)
 
             ImU32 colUp   = White;
             ImU32 colDown = White;
-            if (tastoPremuto == cur_key || cur_key == 30)
+            if (tastoPremuto == cur_key)
             {
                 colUp   = Grey;
                 colDown = GreyDark;
@@ -409,7 +409,7 @@ static void GUI::TastieraPianoforte(bool *èAperta)
 
                 ImU32 colUp   = Black;
                 ImU32 colDown = Black;
-                if (tastoPremuto == cur_key || cur_key == 30)
+                if (tastoPremuto == cur_key)
                 {
                     colUp   = Grey;
                     colDown = GreyDark;
