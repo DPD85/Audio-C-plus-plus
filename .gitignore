@@ -1,4 +1,10 @@
 .vs
-/build/
-/build-cache/
-/Doxygen/html/
+out/
+
+bin/
+obj/
+
+Audio C++/*.dat
+Audio C++/[Tt]est*.wav
+
+/Documentazione/html/

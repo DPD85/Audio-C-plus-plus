@@ -1,6 +1,0 @@
-﻿bin/
-obj/
-out/
-
-Audio C++/*.dat
-Audio C++/[Tt]est*.wav
