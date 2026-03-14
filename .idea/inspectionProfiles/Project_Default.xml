@@ -1,0 +1,12 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="CppCStyleCast" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
+    <inspection_tool class="CppConditionalExpressionCanBeSimplified" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
+    <inspection_tool class="CppMemberInitializersOrder" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
+    <inspection_tool class="CppPassValueParameterByConstReference" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
+    <inspection_tool class="CppReinterpretCastFromVoidPtr" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
+    <inspection_tool class="CppTooWideScopeInitStatement" enabled="false" level="HINT" enabled_by_default="false" />
+    <inspection_tool class="CppUseAutoForNumeric" enabled="false" level="HINT" enabled_by_default="false" />
+  </profile>
+</component>
