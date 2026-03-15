@@ -1,13 +1,11 @@
-﻿#include "IntestazionePrecompilata.h"
-
-#include "CodaCancellazione.h"
+﻿#include "CodaCancellazione.h"
 
 CodaCancellazione::~CodaCancellazione()
 {
     Ripulisci();
 }
 
-void CodaCancellazione::Aggiungi(CodaCancellazione::Pulitore proc)
+void CodaCancellazione::Aggiungi(Pulitore proc)
 {
     coda.emplace(proc);
 }

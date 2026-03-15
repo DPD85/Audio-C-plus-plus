@@ -10,8 +10,8 @@ endif()
 
 # Creazione delle cartelle di output per i file generati poiché non tutti i generatori di CMake la creano automaticamente.
 # Per esempio Ninja le crea mentre Unix Makefiles non lo fa.
-make_directory("${CMAKE_CURRENT_BINARY_DIR}/Generated/Fonts")
-make_directory("${CMAKE_CURRENT_BINARY_DIR}/Generated/Lingue")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/Generated/Fonts")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/Generated/Lingue")
 
 # IBM Plex Sans.ttf
 IncorporazioneFile(

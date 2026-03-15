@@ -9,7 +9,7 @@ namespace GUI
 
     std::array<Tema, 5> Temi;
 
-    static const constexpr float DimensioneDefaultFont = 15.0f;
+    static constexpr float DimensioneDefaultFont = 15.0f;
 
     static ImGuiStyle TemaScuro();
     static ImGuiStyle TemaChiaro();
@@ -123,7 +123,7 @@ namespace GUI
 
         ImVec4 *colori = stile.Colors;
 
-        static const constexpr ImVec4 coloreArancione(1.0f, 0.5f, 0.0f, 1.0f);
+        static constexpr ImVec4 coloreArancione(1.0f, 0.5f, 0.0f, 1.0f);
 
         float tonalitàArancione, saturazioneArancione, spare;
         ImGui::ColorConvertRGBtoHSV(
@@ -185,7 +185,7 @@ namespace GUI
 
         ImVec4 *colori = stile.Colors;
 
-        static const constexpr ImVec4 coloreArancione(1.0f, 0.62353f, 0.255f, 1.0f);
+        static constexpr ImVec4 coloreArancione(1.0f, 0.62353f, 0.255f, 1.0f);
 
         float tonalitàArancione, saturazioneArancione, spare;
         ImGui::ColorConvertRGBtoHSV(
@@ -239,7 +239,7 @@ namespace GUI
     /// @param tonalitàAccento Tonalità con cui modificare il colore specificato.
     /// @param saturazioneAccento Saturazione con cui modificare il colore specificato.
     /// @param colore Il colore da modificare.
-    static void ModificaColore(float tonalitàAccento, float saturazioneAccento, ImVec4 &colore)
+    static void ModificaColore(const float tonalitàAccento, const float saturazioneAccento, ImVec4 &colore)
     {
         float spare1, saturazione, luminosità;
 
@@ -254,7 +254,7 @@ namespace GUI
     ///        trasparenza.
     /// @param tonalitàAccento Tonalità con cui modificare il colore specificato.
     /// @param colore Il colore da modificare.
-    static void ModificaColore(float tonalitàAccento, ImVec4 &colore)
+    static void ModificaColore(const float tonalitàAccento, ImVec4 &colore)
     {
         float spare1, saturazione, luminosità;
 

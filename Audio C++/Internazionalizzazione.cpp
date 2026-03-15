@@ -23,8 +23,8 @@ static void AggiornaTestiGUI();
 
 void InizializzaInternazionalizzazione()
 {
-    infoMsg.paths.push_back("");
-    infoMsg.domains.push_back(gnu_gettext::messages_info::domain("Lingua"));
+    infoMsg.paths.emplace_back("");
+    infoMsg.domains.emplace_back("Lingua");
     infoMsg.callback = CaricaCatalogoMessaggi;
 
     // ----- -----
@@ -47,7 +47,7 @@ void InizializzaInternazionalizzazione()
     ImpostaLingua(Impostazioni.linguaSelezionata);
 }
 
-void ImpostaLingua(size_t indice)
+void ImpostaLingua(const size_t indice)
 {
     const char *codice = Lingue[indice].codice;
 
@@ -106,12 +106,13 @@ void ImpostaLingua(size_t indice)
 // Carica il file con il catalogo dei messaggi tradotti.
 std::vector<char> CaricaCatalogoMessaggi(const std::string &nomeFile, const std::string & /*codifica*/)
 {
-    const constexpr char prefisso[] = "/en_GB/";
+    constexpr char prefisso[] = "/en_GB/";
 
     if (nomeFile.starts_with(prefisso))
         return std::vector<char>(
             CatalogoLingue::en_GB::Data, CatalogoLingue::en_GB::Data + std::size(CatalogoLingue::en_GB::Data));
-    else return std::vector<char>();
+
+    return std::vector<char>();
 }
 
 // ----- -----
@@ -129,5 +130,6 @@ static void AggiornaTestiGUI()
 {
 #define TESTO_GUI(var, testo) TestiGUI.var = translate(testo).str() + "###" testo
 #include "GUI/TestiGUI.h"
+
 #undef TESTO_GUI
 }

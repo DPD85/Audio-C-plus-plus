@@ -15,8 +15,8 @@ struct Impostazioni Impostazioni;
 
 // ----- -----
 
-static const constexpr char NOME_PROGRAMMA[]         = "Germen Pulchrum";
-static const constexpr char NOME_FILE_IMPOSTAZIONI[] = "Impostazioni.json";
+static constexpr char NOME_PROGRAMMA[]         = "Germen Pulchrum";
+static constexpr char NOME_FILE_IMPOSTAZIONI[] = "Impostazioni.json";
 
 const path DIRETTORIO_IMPOSTAZIONI          = path(sago::getConfigHome()) / NOME_PROGRAMMA;
 static const path PERCORSO_FILE_IMPOSTAIONI = DIRETTORIO_IMPOSTAZIONI / NOME_FILE_IMPOSTAZIONI;
@@ -51,7 +51,7 @@ bool CaricaImpostazioni()
         return false;
     }
     eliminatori.Aggiungi(
-        [&file]()
+        [&file]
         {
             file.close();
         });
@@ -110,7 +110,7 @@ bool SalvaImpostazioni()
         return false;
     }
     eliminatori.Aggiungi(
-        [&file]()
+        [&file]
         {
             file.close();
         });

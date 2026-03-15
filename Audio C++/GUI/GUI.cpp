@@ -19,7 +19,7 @@ namespace GUI
     static bool finestraDemoPlotAperta      = false;
     static int ScalaGUIPercentuale          = 100; // [%]
 
-    static bool LinguaSelezionabile(const size_t i);
+    static bool LinguaSelezionabile(size_t i);
     static void RegolazioneVolume();
     static void TastieraPianoforte(bool *èAperta);
 }
@@ -36,7 +36,7 @@ void GUI::InizializzaGUI()
 void GUI::GUI()
 {
     // Possibilità di fare il docking di una finestra sui bordi dello schermo e non solo su un'altra finestra.
-    ImGuiID idDockSpace = ImGui::DockSpaceOverViewport();
+    ImGui::DockSpaceOverViewport();
 
     // -----
 
@@ -57,7 +57,7 @@ void GUI::GUI()
 
         {
             char testoStatistiche[512];
-            int lunghezzaTesto = ImFormatString(
+            const int lunghezzaTesto = ImFormatString(
                 testoStatistiche,
                 std::size(testoStatistiche),
                 "%.3f ms (%*.3f FPS)",
@@ -153,7 +153,7 @@ void GUI::GUI()
             }
 
             {
-                const int incremento = 10;
+                constexpr int incremento = 10;
                 ImGui::InputScalar(
                     TestiGUI.zoomIU.data(), ImGuiDataType_S32, &ScalaGUIPercentuale, &incremento, nullptr, "%d %%");
                 if (ImGui::IsItemDeactivatedAfterEdit())
@@ -287,7 +287,7 @@ static void GUI::RegolazioneVolume()
     }
 }
 
-static bool has_black(int key)
+static bool has_black(const int key)
 {
     // int k  = key - 1;
     // int r  = k % 7;
@@ -296,34 +296,33 @@ static bool has_black(int key)
 
     // return !(a || b) && key != 51;
 
-    int k      = key;
-    int ottava = k / 12;
-    int nota   = k % 12;
+    const int k    = key;
+    const int nota = k % 12;
 
     return nota == 1 || nota == 3 || nota == 6 || nota == 8 || nota == 10;
 }
 
 static void GUI::TastieraPianoforte(bool *èAperta)
 {
-    const ImU32 Black    = IM_COL32(0, 0, 0, 255);
-    const ImU32 White    = IM_COL32(255, 255, 255, 255);
-    const ImU32 Grey     = IM_COL32(200, 200, 200, 255);
-    const ImU32 GreyDark = IM_COL32(100, 100, 100, 255);
-    const float scala    = 1.0f;
-    const float width    = 20 * scala;
-    const float height   = 120 * scala;
-    const int numTasti   = 52; // Tasti bianchi.
+    constexpr ImU32 Black    = IM_COL32(0, 0, 0, 255);
+    constexpr ImU32 White    = IM_COL32(255, 255, 255, 255);
+    constexpr ImU32 Grey     = IM_COL32(200, 200, 200, 255);
+    constexpr ImU32 GreyDark = IM_COL32(100, 100, 100, 255);
+    constexpr float scala    = 1.0f;
+    constexpr float width    = 20 * scala;
+    constexpr float height   = 120 * scala;
+    constexpr int numTasti   = 52; // Tasti bianchi.
 
     ImGui::SetNextWindowContentSize(ImVec2(numTasti * width, height));
     if (ImGui::Begin("Keyboard", èAperta, ImGuiWindowFlags_AlwaysAutoResize))
     {
         ImRect bb;
-        bool pressed;
-        bool hovered;
+        bool pressed = false;
+        bool hovered = false;
         bool held;
 
         ImDrawList *draw_list = ImGui::GetWindowDrawList();
-        ImVec2 p              = ImGui::GetCursorScreenPos();
+        const ImVec2 p        = ImGui::GetCursorScreenPos();
         int cur_key;           // Numero nota MIDI.
         int tastoPremuto = -1; // I numeri delle note identificano i tasti.
         int tastoHovered = -1;
@@ -339,7 +338,7 @@ static void GUI::TastieraPianoforte(bool *èAperta)
                 bb.Min = ImVec2(p.x + key * width + width * 3 / 4, p.y);
                 bb.Max = ImVec2(p.x + key * width + width * 5 / 4 + 1, p.y + height * 2 / 3);
 
-                ImGuiID id = ImGui::GetID(cur_key);
+                const ImGuiID id = ImGui::GetID(cur_key);
                 ImGui::ItemSize(bb);
                 if (ImGui::ItemAdd(bb, id)) pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held);
 
@@ -352,13 +351,15 @@ static void GUI::TastieraPianoforte(bool *èAperta)
         }
 
         cur_key = 21;
+        pressed = false;
+        hovered = false;
 
         for (int key = 0; key < numTasti; key++)
         {
             bb.Min = ImVec2(p.x + key * width, p.y);
             bb.Max = ImVec2(p.x + key * width + width, p.y + height);
 
-            ImGuiID id = ImGui::GetID(cur_key);
+            const ImGuiID id = ImGui::GetID(cur_key);
             ImGui::ItemSize(bb);
             if (ImGui::ItemAdd(bb, id)) pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held);
 
@@ -436,7 +437,7 @@ static void GUI::TastieraPianoforte(bool *èAperta)
         {
             using namespace Sintetizzatore;
 
-            StrumentiMusicali::Pianoforte *pianoforte = (StrumentiMusicali::Pianoforte *)strumentoMusicale.load();
+            auto *pianoforte = static_cast<StrumentiMusicali::Pianoforte *>(strumentoMusicale.load());
 
             if (precTastoPremuto != -1) pianoforte->FineNota(precTastoPremuto);
             if (tastoPremuto != -1) pianoforte->InizioNota(tastoPremuto);

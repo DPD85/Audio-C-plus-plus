@@ -2,6 +2,8 @@
 
 #include "CostantiEdAltro.h"
 
+#include <algorithm>
+
 namespace Sintetizzatore
 {
     /// @brief Interfaccia comune dei vari filtri.
@@ -28,13 +30,14 @@ namespace Sintetizzatore
             /// @brief Inizializza il filtro con fattore di smussamento e valore iniziale specificati.
             /// @param fattore_ Il fattore di smussamento: più è grande, maggiore è lo smussamento. [0, +∞]
             /// @param valoreIniziale Il valore smussato iniziale.
-            SmussamentoEsponenziale(double fattore_, double valoreIniziale = 0)
+            explicit SmussamentoEsponenziale(const double fattore_, const double valoreIniziale = 0)
                 : fattore(DaSmussamentoAGuadagno(fattore_))
             {
                 Reset(valoreIniziale);
             }
 
             /// @brief Restituisce il valore smussato corrente.
+            [[nodiscard]]
             double Valore() const
             {
                 return valoreSmussato;
@@ -43,7 +46,7 @@ namespace Sintetizzatore
             /// @brief Smussa il segnale in ingresso.
             /// @param valore Il campione attuale del segnale in ingresso.
             /// @return Il campione successivo del segnale smussato.
-            double Computa(double valore) noexcept override
+            double Computa(const double valore) noexcept override
             {
                 const double t = valoreSmussato.load();
                 valoreSmussato.store(t + (valore - valoreSmussato) * fattore);
@@ -62,7 +65,7 @@ namespace Sintetizzatore
             /// @param valore Il valore smussato iniziale.
             /// @remark Il valore viene impostato in modo netto ed immediato per tanto cambierà istantaneamente.
             /// @audiosafe Computa().
-            void Reset(double valore)
+            void Reset(const double valore)
             {
                 valoreSmussato.store(valore);
             }
@@ -84,12 +87,13 @@ namespace Sintetizzatore
             ///                 smussamento. [0, +∞]
             /// @param rilascio_ Il fattore di smussamento della fase di rilascio: più è grande, maggiore è lo
             ///                  smussamento. [0, +∞]
-            RilevatoreInviluppo(double attacco_, double rilascio_)
+            RilevatoreInviluppo(const double attacco_, const double rilascio_)
                 : attacco(DaSmussamentoAGuadagno(attacco_))
                 , rilascio(DaSmussamentoAGuadagno(rilascio_))
             {}
 
             /// @brief Restituisce il campione corrente dell'inviluppo
+            [[nodiscard]]
             double Inviluppo() const
             {
                 return inviluppo;
@@ -101,7 +105,7 @@ namespace Sintetizzatore
             double Computa(const double campione) noexcept override
             {
                 const double valore   = std::fabs(campione);
-                const double guadagno = (valore > inviluppo) ? attacco : rilascio;
+                const double guadagno = valore > inviluppo ? attacco : rilascio;
 
                 inviluppo += (valore - inviluppo) * guadagno;
 
@@ -127,7 +131,7 @@ namespace Sintetizzatore
             /// @brief Inizializza l'inseguitore di picchi con i parametri specificati.
             /// @param rilascio_ Il fattore di smussamento della fase di rilascio: più è grande, maggiore è lo
             ///                  smussamento. [0, +∞]
-            InseguitorePicchi(double rilascio_): RilevatoreInviluppo(0.0, rilascio_) {}
+            explicit InseguitorePicchi(const double rilascio_): RilevatoreInviluppo(0.0, rilascio_) {}
         };
 
         /// @brief Applica un ritardo ad un segnale
@@ -137,12 +141,12 @@ namespace Sintetizzatore
             /// @brief Inizializza il filtro con il ritardo specificato.
             /// @param ritardo La dimensione del ritardo applicato al segnale, espresso in secondi. Il ritardo minimo è
             ///                pari ad un campione. (0, +∞]
-            Ritardo(double ritardo): buffer(std::max<size_t>(1, DaSecondiACampioni(ritardo)), 0.0) {}
+            explicit Ritardo(const double ritardo): buffer(std::max<size_t>(1, DaSecondiACampioni(ritardo)), 0.0) {}
 
             /// @brief Ritarda il segnale in ingresso.
             /// @param campione Il campione attuale del segnale d'ingresso.
             /// @return Il campione successivo del segnale ritardato.
-            double Computa(double campione) noexcept override
+            double Computa(const double campione) noexcept override
             {
                 const double valore = buffer.back();
                 buffer.push_front(campione);
@@ -152,7 +156,7 @@ namespace Sintetizzatore
             /// @notaudiosafe Computa().
             void Reset() override
             {
-                std::fill(buffer.begin(), buffer.end(), 0.0);
+                std::ranges::fill(buffer, 0.0);
             }
 
           private:
@@ -174,7 +178,7 @@ namespace Sintetizzatore
                 /// @param CS Il coefficiente di riduzione del volume, se pari ad uno diventa un limitatore. [0, 1]
                 /// @param ritardo Il ritardo, sul segnale d'ingresso, col quale il compressore agisce, espresso in
                 ///                secondi. Il ritardo minimo è pari ad un campione. (0, +∞]
-                Compressore(double rilascio, double sogliaVolume, double CS, double ritardo)
+                Compressore(const double rilascio, const double sogliaVolume, const double CS, const double ritardo)
                     : sogliaVolumeLn(std::log(sogliaVolume))
                     , CS(CS)
                     , rilevatoreInviluppo(rilascio)
@@ -184,7 +188,7 @@ namespace Sintetizzatore
                 /// @brief Riduce l'aumento di volume del segnale d'ingresso.
                 /// @param campione Il campione corrente del segnale.
                 /// @return Il campione attuale del segnale compresso.
-                double Computa(double campione) noexcept override
+                double Computa(const double campione) noexcept override
                 {
                     const double inviluppo = rilevatoreInviluppo.Computa(campione);
 
@@ -228,8 +232,8 @@ namespace Sintetizzatore
             /// @param sogliaVolume La soglia, superata la quale, il limitatore entra in funzione. [0, 1]
             /// @param ritardo Il ritardo, sul segnale d'ingresso, col quale il limitatore agisce, espresso in secondi.
             ///                Il ritardo minimo è pari ad un campione. (0, +∞]
-            Limitatore(double rilascio, double sogliaVolume, double ritardo)
-                : Interno::Compressore(rilascio, sogliaVolume, 1.0, ritardo)
+            Limitatore(const double rilascio, const double sogliaVolume, const double ritardo)
+                : Compressore(rilascio, sogliaVolume, 1.0, ritardo)
             {}
         };
 
@@ -243,7 +247,8 @@ namespace Sintetizzatore
             /// @param proporzione La proporzione di riduzione del volume. (0, +∞]
             /// @param ritardo Il ritardo, sul segnale d'ingresso, col quale il compressore agisce, espresso in secondi.
             ///                Il ritardo minimo è pari ad un campione. (0, +∞]
-            Compressore(double rilascio, double sogliaVolume, double proporzione, double ritardo)
+            Compressore(
+                const double rilascio, const double sogliaVolume, const double proporzione, const double ritardo)
                 : Interno::Compressore(rilascio, sogliaVolume, 1.0 - 1.0 / proporzione, ritardo)
             {}
         };
@@ -256,7 +261,7 @@ namespace Sintetizzatore
             /// @param velocità La velocità con cui diminuisce il volume dell'èco, numero più grande significa minore
             ///                 velocità; un valore negativo inverte la fase del segnale. (-1, 1)
             /// @param volumeMassimo Il volume massimo dell'èco; un valore negativo inverte la fase del segnale. [-1, 1]
-            EchoWetDry(double ritardo, double velocità, double volumeMassimo)
+            EchoWetDry(const double ritardo, const double velocità, const double volumeMassimo)
                 : buffer(DaSecondiACampioni(ritardo), 0.0)
                 , velocità(velocità)
                 , volumeMassimo(volumeMassimo)
@@ -265,9 +270,9 @@ namespace Sintetizzatore
             /// @brief Applica l'èco del segnale in ingresso.
             /// @param campione Il campione attuale del segnale d'ingresso.
             /// @return Il campione attuale del segnale con èco.
-            double Computa(double campione) noexcept override
+            double Computa(const double campione) noexcept override
             {
-                double valore = buffer.back();
+                const double valore = buffer.back();
                 buffer.push_front(campione + velocità * valore);
                 return (1 - volumeMassimo) * campione + volumeMassimo * valore;
             }
@@ -275,7 +280,7 @@ namespace Sintetizzatore
             /// @notaudiosafe Computa().
             void Reset() override
             {
-                std::fill(buffer.begin(), buffer.end(), 0.0);
+                std::ranges::fill(buffer, 0.0);
             }
 
           private:
@@ -291,7 +296,7 @@ namespace Sintetizzatore
             /// @param ritardo Il ritardo dell'èco, espresso in secondi. (0, +∞]
             /// @param velocità La velocità con cui diminuisce il volume dell'èco, numero più grande significa minore
             ///                 velocità; un valore negativo inverte la fase del segnale. (-1, 1)
-            Echo(double ritardo, double velocità): EchoWetDry(ritardo, velocità, 1.0) {}
+            Echo(const double ritardo, const double velocità): EchoWetDry(ritardo, velocità, 1.0) {}
         };
 
         namespace Interno
@@ -315,7 +320,7 @@ namespace Sintetizzatore
                 BiQuad(): a0(0.0), a1(0.0), a2(0.0), b1(0.0), b2(0.0) {}
 
                 /// @brief Inizializza il filtro con i guadagni specificati.
-                BiQuad(double a0, double a1, double a2, double b1, double b2)
+                BiQuad(const double a0, const double a1, const double a2, const double b1, const double b2)
                 {
                     Coefficienti(a0, a1, a2, b1, b2);
                 }
@@ -323,7 +328,7 @@ namespace Sintetizzatore
                 /// @brief Applica il filtro al segnale in ingresso.
                 /// @param campione Il campione attuale del segnale d'ingresso.
                 /// @return Il campione successivo dell'output del filtro.
-                double Computa(double campione) noexcept override
+                double Computa(const double campione) noexcept override
                 {
                     const double output = a0 * campione                                 //
                                         + a1 * inputPrecedente1 + a2 * inputPrecedente2 //
@@ -351,7 +356,8 @@ namespace Sintetizzatore
               protected:
                 /// @brief Imposta nuovi valori per i coefficienti del filtro.
                 /// @notaudiosafe Computa().
-                void Coefficienti(double a0_, double a1_, double a2_, double b1_, double b2_)
+                void Coefficienti(
+                    const double a0_, const double a1_, const double a2_, const double b1_, const double b2_)
                 {
                     a0 = a0_;
                     a1 = a1_;
@@ -383,12 +389,13 @@ namespace Sintetizzatore
 
             /// @brief Inizializza il filtro con frequenza di taglio specificata.
             /// @param frequenzaTaglio La frequenza di taglio del filtro espressa in Hz. [0, Nyquist]
-            FiltroPassaBasso(double frequenzaTaglio)
+            explicit FiltroPassaBasso(const double frequenzaTaglio)
             {
                 FrequenzaTaglio(frequenzaTaglio);
             }
 
             /// @brief Restituisce la frequenza di taglio del filtro. [Hz]
+            [[nodiscard]]
             double FrequenzaTaglio() const
             {
                 return frequenzaTaglio;
@@ -397,20 +404,20 @@ namespace Sintetizzatore
             /// @brief Imposta la frequenza di taglio del filtro.
             /// @param frequenzaTaglio_ La frequenza di taglio del filtro espressa in Hz. [0, Nyquist]
             /// @notaudiosafe Computa().
-            void FrequenzaTaglio(double frequenzaTaglio_)
+            void FrequenzaTaglio(const double frequenzaTaglio_)
             {
                 // Limito la frequenza di taglio alla frequenza di Nyquist
                 frequenzaTaglio = std::min(frequenzaTaglio_, Costanti::FrequenzaCampionamento / 2.0);
 
-                const double theta = 2.0 * std::numbers::pi * frequenzaTaglio / Costanti::FrequenzaCampionamento;
-                const double gamma = cos(theta) / (1.0 + sin(theta));
-                const double a0    = (1.0 - gamma) / 2.0;
-                const double a1    = (1.0 - gamma) / 2.0;
-                const double a2    = 0.0;
-                const double b1    = -gamma;
-                const double b2    = 0.0;
+                const double theta  = 2.0 * std::numbers::pi * frequenzaTaglio / Costanti::FrequenzaCampionamento;
+                const double gamma  = cos(theta) / (1.0 + sin(theta));
+                const double a0     = (1.0 - gamma) / 2.0;
+                const double a1     = (1.0 - gamma) / 2.0;
+                constexpr double a2 = 0.0;
+                const double b1     = -gamma;
+                constexpr double b2 = 0.0;
 
-                BiQuad::Coefficienti(a0, a1, a2, b1, b2);
+                Coefficienti(a0, a1, a2, b1, b2);
             }
 
           private:
@@ -419,19 +426,20 @@ namespace Sintetizzatore
 
         /// @brief %Filtro passa alto del primo ordine.
         /// @warning
-        ///     Se la frequenza di taglio è uguale alla frequenza di Nyquist allora il filtro eliminerà totalmente tutte
-        ///     le frequenze dal segnale, di fatto l'output sarà silenzio.
+        ///     Se la frequenza di taglio è uguale alla frequenza di Nyquist allora il filtro eliminerà tutte le
+        ///     frequenze dal segnale, di fatto l'output sarà silenzio.
         class FiltroPassaAlto: public Interno::BiQuad
         {
           public:
             /// @brief Inizializza il filtro con la frequenza di taglio specificata.
             /// @param frequenzaTaglio La frequenza di taglio espressa in Hz. [0, Nyquist]
-            FiltroPassaAlto(double frequenzaTaglio)
+            explicit FiltroPassaAlto(const double frequenzaTaglio)
             {
                 FrequenzaTaglio(frequenzaTaglio);
             }
 
             /// @brief Restituisce la frequenza di taglio del filtro. [Hz]
+            [[nodiscard]]
             double FrequenzaTaglio() const
             {
                 return frequenzaTaglio;
@@ -440,20 +448,20 @@ namespace Sintetizzatore
             /// @brief Imposta la frequenza di taglio del filtro.
             /// @param frequenzaTaglio_ La frequenza di taglio del filtro espressa in Hz. [0, Nyquist]
             /// @notaudiosafe Computa().
-            void FrequenzaTaglio(double frequenzaTaglio_)
+            void FrequenzaTaglio(const double frequenzaTaglio_)
             {
                 // Limito la frequenza di taglio alla frequenza di Nyquist
                 frequenzaTaglio = std::min(frequenzaTaglio_, Costanti::FrequenzaCampionamento / 2.0);
 
-                const double theta = 2.0 * std::numbers::pi * frequenzaTaglio / Costanti::FrequenzaCampionamento;
-                const double gamma = cos(theta) / (1.0 + sin(theta));
-                const double a0    = (1.0 + gamma) / 2.0;
-                const double a1    = -(1.0 + gamma) / 2.0;
-                const double a2    = 0.0;
-                const double b1    = -gamma;
-                const double b2    = 0.0;
+                const double theta  = 2.0 * std::numbers::pi * frequenzaTaglio / Costanti::FrequenzaCampionamento;
+                const double gamma  = cos(theta) / (1.0 + sin(theta));
+                const double a0     = (1.0 + gamma) / 2.0;
+                const double a1     = -(1.0 + gamma) / 2.0;
+                constexpr double a2 = 0.0;
+                const double b1     = -gamma;
+                constexpr double b2 = 0.0;
 
-                BiQuad::Coefficienti(a0, a1, a2, b1, b2);
+                Coefficienti(a0, a1, a2, b1, b2);
             }
 
           private:
@@ -481,13 +489,13 @@ namespace Sintetizzatore
             /// @brief Inizializzo il filtro con guadagno zero e ritardo specificato. In queste condizioni il filtro
             /// produrrà solamente silenzio.
             /// @param ritardo La durata del ritardo. [s]
-            FiltroPassaTutto(double ritardo): buffer(DaSecondiACampioni(ritardo), 0.0), guadagno(0.0) {}
+            explicit FiltroPassaTutto(const double ritardo): buffer(DaSecondiACampioni(ritardo), 0.0), guadagno(0.0) {}
 
             /// @brief Inizializzo il filtro con guadagno e ritardo specificati.
             /// @param ritardo La durata del ritardo. [s]
             /// @param guadagno Controlla la frequenza di rottura, quella alla quale la fase è modificata di -90°.
             ///                 [0, 1]
-            FiltroPassaTutto(double ritardo, double guadagno)
+            FiltroPassaTutto(const double ritardo, const double guadagno)
                 : buffer(DaSecondiACampioni(ritardo), 0.0)
                 , guadagno(guadagno)
             {}
@@ -495,23 +503,24 @@ namespace Sintetizzatore
             /// @brief Applica il filtro al segnale in ingresso.
             /// @param campione Il campione attuale del segnale d'ingresso.
             /// @return Il campione successivo dell'output del filtro.
-            double Computa(double campione) noexcept override
+            double Computa(const double campione) noexcept override
             {
                 const double valore = buffer.back();
 
                 buffer.push_front(valore * guadagno + campione);
 
-                return campione * (-guadagno) + valore;
+                return campione * -guadagno + valore;
             }
 
             /// @notaudiosafe Computa().
             void Reset() override
             {
-                std::fill(buffer.begin(), buffer.end(), 0.0);
+                std::ranges::fill(buffer, 0.0);
             }
 
             /// @brief Restituisce il guadagno attualmente usato dal filtro. [0, 1]
             /// @notaudiosafe Computa().
+            [[nodiscard]]
             double Guadagno() const
             {
                 return guadagno;
@@ -520,7 +529,7 @@ namespace Sintetizzatore
             /// @brief Imposta il guadagno del filtro.
             /// @param guadagno_ Il nuovo guadagno. [0, 1]
             /// @notaudiosafe Computa().
-            void Guagano(double guadagno_)
+            void Guadagno(const double guadagno_)
             {
                 guadagno = guadagno_;
             }
@@ -546,14 +555,14 @@ namespace Sintetizzatore
             /// @brief Inizializza il filtro con il ritardo specificato, la massima attenuazione e frequenza di taglio
             /// di 0 Hz. In queste condizioni il filtro produrrà solamente silenzio.
             /// @param ritardo Il ritardo del segnale sommato all'input rispetto all'input. [s]
-            FiltroPettine(double ritardo): buffer(DaSecondiACampioni(ritardo), 0.0), attenuazione(0.0) {}
+            explicit FiltroPettine(const double ritardo): buffer(DaSecondiACampioni(ritardo), 0.0), attenuazione(0.0) {}
 
             /// @brief Inizializza il filtro con il ritardo, la massima attenuazione e frequenza di taglio specificati.
             /// @param ritardo Il ritardo del segnale sommato all'input rispetto all'input. [s]
             /// @param attenuazione L'attenuazione dei picchi introdotti dal filtro, 0 = nessun picco, 1 = senza
             ///                     attenuazione. [0, 1]
             /// @param frequenzaTaglio La frequenza di taglio del filtro passa basso. [Hz]
-            FiltroPettine(double ritardo, double attenuazione, double frequenzaTaglio)
+            FiltroPettine(const double ritardo, const double attenuazione, const double frequenzaTaglio)
                 : buffer(DaSecondiACampioni(ritardo), 0.0)
                 , attenuazione(attenuazione)
                 , passaBasso(frequenzaTaglio)
@@ -562,7 +571,7 @@ namespace Sintetizzatore
             /// @brief Applica il filtro al segnale in ingresso.
             /// @param campione Il campione attuale del segnale d'ingresso.
             /// @return Il campione successivo dell'output del filtro.
-            double Computa(double campione) noexcept override
+            double Computa(const double campione) noexcept override
             {
                 double valore = buffer.back();
 
@@ -576,11 +585,12 @@ namespace Sintetizzatore
             /// @notaudiosafe Computa().
             void Reset() override
             {
-                std::fill(buffer.begin(), buffer.end(), 0.0);
+                std::ranges::fill(buffer, 0.0);
             }
 
             /// @brief Restituisce il ritardo attuale del segnale sommato all'input rispetto all'input. [s]
             /// @notaudiosafe Computa().
+            [[nodiscard]]
             double Ritardo() const
             {
                 return DaCampioniASecondi(buffer.size());
@@ -589,13 +599,14 @@ namespace Sintetizzatore
             /// @brief Imposta il ritardo del segnale sommato all'input rispetto all'input.
             /// @param ritardo Il ritardo. [s]
             /// @notaudiosafe Computa().
-            void Ritardo(double ritardo)
+            void Ritardo(const double ritardo)
             {
                 buffer.resize(DaSecondiACampioni(ritardo), 0.0);
             }
 
             /// @brief Restituisce l'attenuazione dei picchi creati dal filtro. [0, 1]
             /// @notaudiosafe Computa().
+            [[nodiscard]]
             double Attenuazione() const
             {
                 return attenuazione;
@@ -604,12 +615,13 @@ namespace Sintetizzatore
             /// @brief Imposta l'attenuazione dei picchi creati dal filtro.
             /// @param attenuazione_ L'attenuazione dei picchi, 0 = nessun picco, 1 = nessuna attenuazione. [0, 1]
             /// @notaudiosafe Computa().
-            void Attenuazione(double attenuazione_)
+            void Attenuazione(const double attenuazione_)
             {
                 attenuazione = attenuazione_;
             }
 
             /// @brief Restituisce la frequenza di taglio del filtro passa basso. [Hz]
+            [[nodiscard]]
             double FrequenzaTaglio() const
             {
                 return passaBasso.FrequenzaTaglio();
@@ -618,7 +630,7 @@ namespace Sintetizzatore
             /// @brief Imposta la frequenza di taglio del filtro passa basso.
             /// @param frequenzaTaglio La frequenza di taglio. [Hz]
             /// @notaudiosafe Computa().
-            void FrequenzaTaglio(double frequenzaTaglio)
+            void FrequenzaTaglio(const double frequenzaTaglio)
             {
                 passaBasso.FrequenzaTaglio(frequenzaTaglio);
             }
@@ -654,7 +666,8 @@ namespace Sintetizzatore
             /// @param frequenzaTaglio La frequenza di taglio del filtro passa basso [Hz]; il riverbero prodotto dalle
             ///                        frequenze attenuate dal filtro svanirà molto più velocemente rispetto a quello
             ///                        prodotto dalle altre frequenze.
-            Riverbero(double dimensioneStanza, double riverbero, double frequenzaTaglio): riverbero(riverbero)
+            Riverbero(const double dimensioneStanza, const double riverbero, const double frequenzaTaglio)
+                : riverbero(riverbero)
             {
                 for (FiltroPettine &filtro : filtriPettine)
                 {
@@ -666,7 +679,7 @@ namespace Sintetizzatore
             /// @brief Applica il riverbero al segnale in ingresso.
             /// @param campione Il campione attuale del segnale d'ingresso.
             /// @return Il campione successivo del segnale con riverbero.
-            double Computa(double campione) noexcept override
+            double Computa(const double campione) noexcept override
             {
                 double output = 0.0;
 

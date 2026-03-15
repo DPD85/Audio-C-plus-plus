@@ -22,7 +22,7 @@ namespace Sintetizzatore::WAVE
         unsigned int dimensione = sizeof(DataFormatChunk) - 8;
         // Formato dei campioni (compressi, non compressi, ecc...)
         unsigned short formatTag;
-        unsigned short numberoCanali;
+        unsigned short numeroCanali;
         // Frequenza di campionamento
         unsigned int frequenza;
         unsigned int bytePerSecondo;
@@ -33,13 +33,13 @@ namespace Sintetizzatore::WAVE
         DataFormatChunk();
 
         DataFormatChunk(
-            unsigned short numberoCanali_,
+            unsigned short numeroCanali_,
             unsigned int frequenza_,
             unsigned short bitPerCampione_,
             TipoCampioni tipoCampioni = TipoCampioni::Interi);
 
         void Set(
-            unsigned short numberoCanali_,
+            unsigned short numeroCanali_,
             unsigned int frequenza_,
             unsigned short bitPerCampione_,
             TipoCampioni tipoCampioni = TipoCampioni::Interi);
@@ -61,7 +61,7 @@ namespace Sintetizzatore::WAVE
 
         MasterRIFFChunk();
 
-        inline MasterRIFFChunk(unsigned int dimensioneDati);
+        explicit inline MasterRIFFChunk(unsigned int dimensioneDati);
 
         inline void SetFileSize(unsigned int dimensioneDati);
     };

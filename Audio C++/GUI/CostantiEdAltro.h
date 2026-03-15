@@ -4,8 +4,8 @@
 
 namespace Costanti
 {
-    static const constexpr bool AbilitaDebugVulkan       = true;
-    static const constexpr bool AbilitaImGuiDebugPresent = false;
+    static constexpr auto AbilitaDebugVulkan       = true;
+    static constexpr bool AbilitaImGuiDebugPresent = false;
     // [TODO] VSync e frequenza di disegno:
     // * [Fatto] in ogni caso massimo 60 Hz poiché non sarebbe apprezzabile all'occhio umano o la differenza non sarebbe
     //   rilevante;
@@ -16,10 +16,10 @@ namespace Costanti
     //   della batteria;
     // * [Fatto] scegliere il numero di immagini nella catena di scambio, vedi
     //   https://docs.vulkan.org/samples/latest/samples/performance/swapchain_images/README.html
-    static const constexpr bool AbilitàVSync            = true;
-    static const constexpr size_t MaxFotogrammiInFlight = 3; // Minimo 2.
+    static constexpr bool AbilitàVSync            = true;
+    static constexpr size_t MaxFotogrammiInFlight = 3; // Minimo 2.
     // La GUI non verrà mai disegnata ad una frequenza superiore a questa.
-    static const constexpr double FrequenzaMassimaDisegnatore = 60; // [Hz]
+    static constexpr double FrequenzaMassimaDisegnatore = 60; // [Hz]
 }
 
 // ----- -----

@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "IntestazionePrecompilata.h"
+
 #include "CostantiEdAltro.h"
 #include "Filtri.h"
 #include "Inviluppo.h"
@@ -32,6 +34,7 @@ namespace Sintetizzatore
         /// @retval False Lo strumento musicale non sta suonando nulla, è muto.
         /// @remark Consultare la documentazione degli specifici strumenti musicali per sapere se il metodo è
         ///         sincronizzato col calcolo dell'audio, ovvero col metodo Campione().
+        [[nodiscard]]
         virtual bool StaSuonando() const = 0;
 
         /// @brief Restituisce il campione audio successivo dello strumento musicale. Il campione è spesso compreso
@@ -47,7 +50,7 @@ namespace Sintetizzatore
         class Puro: public StrumentoMusicale
         {
           private:
-            std::array<Oscillatori::OndaSinusoidale, Note::NumeroNote> note = {
+            std::array<Oscillatori::OndaSinusoidale, NumeroNote> note = {
                 Oscillatori::OndaSinusoidale(Costanti::FrequenzaDo),
                 Oscillatori::OndaSinusoidale(Costanti::FrequenzaDoDiesis),
                 Oscillatori::OndaSinusoidale(Costanti::FrequenzaRe),
@@ -62,7 +65,7 @@ namespace Sintetizzatore
                 Oscillatori::OndaSinusoidale(Costanti::FrequenzaSi),
             };
 
-            std::array<InviluppoADSR, Note::NumeroNote> inviluppi = {
+            std::array<InviluppoADSR, NumeroNote> inviluppi = {
                 InviluppoADSR(0.02, 0.01, 0.8, 0.5), // do
                 InviluppoADSR(0.02, 0.01, 0.8, 0.5), // do#
                 InviluppoADSR(0.02, 0.01, 0.8, 0.5), // re
@@ -81,7 +84,7 @@ namespace Sintetizzatore
             /// @brief Indica l'istante in cui il musicista da inizio ad una nota.
             /// @param nota La nota che ha inizio.
             /// @audiosafe Campione().
-            void InizioNota(Note nota) override
+            void InizioNota(const Note nota) override
             {
                 inviluppi[nota].InizioNota();
             }
@@ -89,7 +92,7 @@ namespace Sintetizzatore
             /// @brief Indica l'istante in cui il musicista termina una nota.
             /// @param nota La nota che ha termine.
             /// @audiosafe Campione().
-            void FineNota(Note nota) override
+            void FineNota(const Note nota) override
             {
                 inviluppi[nota].FineNota();
             }
@@ -98,6 +101,7 @@ namespace Sintetizzatore
             /// @retval True Lo strumento sta suonando.
             /// @retval False Lo strumento è muto.
             /// @audiosafe Campione().
+            [[nodiscard]]
             bool StaSuonando() const override
             {
                 for (const InviluppoADSR &inviluppo : inviluppi)
@@ -112,7 +116,7 @@ namespace Sintetizzatore
             {
                 volatile double valore = 0;
 
-                for (size_t i = 0; i < Note::NumeroNote; ++i)
+                for (size_t i = 0; i < NumeroNote; ++i)
                 {
                     const double valoreInviluppo = inviluppi[i].Computa();
 
@@ -131,7 +135,7 @@ namespace Sintetizzatore
         class PuroOndaQuadra: public StrumentoMusicale
         {
           private:
-            std::array<Oscillatori::OndaQuadra, Note::NumeroNote> note = {
+            std::array<Oscillatori::OndaQuadra, NumeroNote> note = {
                 Oscillatori::OndaQuadra(Costanti::FrequenzaDo),
                 Oscillatori::OndaQuadra(Costanti::FrequenzaDoDiesis),
                 Oscillatori::OndaQuadra(Costanti::FrequenzaRe),
@@ -146,7 +150,7 @@ namespace Sintetizzatore
                 Oscillatori::OndaQuadra(Costanti::FrequenzaSi),
             };
 
-            std::array<InviluppoADSR, Note::NumeroNote> inviluppi = {
+            std::array<InviluppoADSR, NumeroNote> inviluppi = {
                 InviluppoADSR(0.02, 0.01, 0.8, 0.5), // do
                 InviluppoADSR(0.02, 0.01, 0.8, 0.5), // do#
                 InviluppoADSR(0.02, 0.01, 0.8, 0.5), // re
@@ -165,7 +169,7 @@ namespace Sintetizzatore
             /// @brief Indica l'istante in cui il musicista da inizio ad una nota.
             /// @param nota La nota che ha inizio.
             /// @audiosafe Campione().
-            void InizioNota(Note nota) override
+            void InizioNota(const Note nota) override
             {
                 inviluppi[nota].InizioNota();
             }
@@ -173,7 +177,7 @@ namespace Sintetizzatore
             /// @brief Indica l'istante in cui il musicista termina una nota.
             /// @param nota La nota che ha termine.
             /// @audiosafe Campione().
-            void FineNota(Note nota) override
+            void FineNota(const Note nota) override
             {
                 inviluppi[nota].FineNota();
             }
@@ -182,6 +186,7 @@ namespace Sintetizzatore
             /// @retval True Lo strumento sta suonando.
             /// @retval False Lo strumento è muto.
             /// @audiosafe Campione().
+            [[nodiscard]]
             bool StaSuonando() const override
             {
                 for (const InviluppoADSR &inviluppo : inviluppi)
@@ -196,7 +201,7 @@ namespace Sintetizzatore
             {
                 volatile double valore = 0;
 
-                for (size_t i = 0; i < Note::NumeroNote; ++i)
+                for (size_t i = 0; i < NumeroNote; ++i)
                 {
                     const double valoreInviluppo = inviluppi[i].Computa();
 
@@ -221,23 +226,23 @@ namespace Sintetizzatore
 
           private:
             // Numero MIDI della nota del primo tasto a sinistra del pianoforte
-            static const constexpr size_t PrimaNotaMIDI = 21;
+            static constexpr size_t PrimaNotaMIDI = 21;
             // Numero MIDI della nota dell'ultimo tasto a destra del pianoforte
-            static const constexpr size_t UltimaNotaMIDI = 109;
+            static constexpr size_t UltimaNotaMIDI = 109;
             // Numero note del pianoforte
-            static const constexpr size_t NumeroNote = UltimaNotaMIDI - PrimaNotaMIDI;
+            static constexpr size_t NumeroNote = UltimaNotaMIDI - PrimaNotaMIDI;
             // Numero di segnali che compongono la serie armonica di una nota
-            static const constexpr size_t NumeroArmoniche = 8;
+            static constexpr size_t NumeroArmoniche = 8;
 
             using Armoniche = std::array<Oscillatori::OndaSinusoidale, NumeroArmoniche>;
             using Ampiezze  = std::array<double, NumeroArmoniche>;
 
             // Ampiezze base delle armoniche che compongono una nota, [0, 1]
-            static const constexpr Ampiezze AmpiezzeArmoniche =
+            static constexpr Ampiezze AmpiezzeArmoniche =
                 CreaListaNormalizzata(0.3982, 0.2863, 0.1141, 0.0963, 0.0437, 0.0305, 0.0194, 0.0116);
 
             // Massimo incremento delle ampiezze delle armoniche di una nota durante la fase di attacco dell'inviluppo.
-            static const constexpr double IncrementoAmpiezze = 3.0;
+            static constexpr double IncrementoAmpiezze = 3.0;
 
             struct Nota
             {
@@ -248,11 +253,11 @@ namespace Sintetizzatore
             std::array<Nota, NumeroNote> note;
 
             // Contributo della velocità tra 0% ed il 20%, [1.0, 1.2]
-            static const constexpr double ContributoVel20 = 1.0 + 0.2 * Costanti::VelocitàDefault;
+            static constexpr double ContributoVel20 = 1.0 + 0.2 * Costanti::VelocitàDefault;
             // Contributo della velocità tra 0% ed il 10%, [1.0, 1.1]
-            static const constexpr double ContributoVel10 = 1.0 + 0.1 * Costanti::VelocitàDefault;
+            static constexpr double ContributoVel10 = 1.0 + 0.1 * Costanti::VelocitàDefault;
             // Livello di sostentamento delle note
-            static const constexpr double LivelloSostentamento = 0.2 * Costanti::VelocitàDefault;
+            static constexpr double LivelloSostentamento = 0.2 * Costanti::VelocitàDefault;
 
             std::array<InviluppoADSR, NumeroNote> inviluppi;
 
@@ -283,7 +288,7 @@ namespace Sintetizzatore
             /// pianoforte.
             /// @param nota La nota che ha inizio.
             /// @audiosafe Campione().
-            void InizioNota(Note nota) override
+            void InizioNota(const Note nota) override
             {
                 inviluppi[nota + 60].InizioNota();
             }
@@ -292,7 +297,7 @@ namespace Sintetizzatore
             /// rilasciato.
             /// @param nota La nota che ha termine.
             /// @audiosafe Campione().
-            void FineNota(Note nota) override
+            void FineNota(const Note nota) override
             {
                 inviluppi[nota + 60].FineNota();
             }
@@ -304,7 +309,7 @@ namespace Sintetizzatore
             void InizioNota(unsigned char nota)
             {
                 nota -= PrimaNotaMIDI;
-                if (nota > NumeroNote) return;
+                if (nota >= NumeroNote) return;
 
                 inviluppi[nota].InizioNota();
             }
@@ -316,7 +321,7 @@ namespace Sintetizzatore
             void FineNota(unsigned char nota)
             {
                 nota -= PrimaNotaMIDI;
-                if (nota > NumeroNote) return;
+                if (nota >= NumeroNote) return;
 
                 inviluppi[nota].FineNota();
             }
@@ -325,6 +330,7 @@ namespace Sintetizzatore
             /// @retval True Lo strumento sta suonando.
             /// @retval False Lo strumento è muto.
             /// @audiosafe Campione().
+            [[nodiscard]]
             bool StaSuonando() const override
             {
                 for (const InviluppoADSR &inviluppo : inviluppi)
@@ -388,7 +394,7 @@ namespace Sintetizzatore
             /// Amplifica o riduce il volume delle armoniche con frequenza più alta.
             /// @param ampiezze Lista delle ampiezze attuali delle armoniche.
             /// @param scala Fattore di scala applicato alle ampiezze delle armoniche.
-            void AggiornaArmonica(Ampiezze &ampiezze, const double scala)
+            static void AggiornaArmonica(Ampiezze &ampiezze, const double scala)
             {
                 ampiezze[0] = AmpiezzeArmoniche[0];
                 ampiezze[1] = AmpiezzeArmoniche[1] * Costanti::VelocitàDefault;
@@ -401,7 +407,7 @@ namespace Sintetizzatore
 
                 // Normalizzo le ampiezze in modo che la loro somma sia pari ad uno, mantenendo invariate le proporzioni
                 // tra di loro.
-                volatile double n = std::accumulate(ampiezze.cbegin(), ampiezze.cend(), 0.0);
+                const double n = std::accumulate(ampiezze.cbegin(), ampiezze.cend(), 0.0);
                 for (double &ampiezza : ampiezze)
                     ampiezza /= n;
             }

@@ -15,7 +15,7 @@ class Clock
         periodo = periodo_ * 1000.0;
 
 #ifdef WIN32
-        // Cambia la risoluzione minima per i timer periodici, questo cambia la frequenza con cui il task manager del
+        // Cambia la risoluzione minima per i timer periodici, ovvero la frequenza con cui il task manager del
         // S.O programma l'esecuzione del processo e dei suoi thread, per tanto influenza la precisione della funzione
         // Sleep().
         timeBeginPeriod(static_cast<unsigned int>(sogliaSleep));
@@ -64,6 +64,7 @@ class Clock
     }
 
     /// @brief Restituisce il periodo del clock. [s]
+    [[nodiscard]]
     double Periodo() const
     {
         return periodo * 1000.0;

@@ -19,27 +19,27 @@ namespace Sintetizzatore::WAVE
     DataFormatChunk::DataFormatChunk() = default;
 
     DataFormatChunk::DataFormatChunk(
-        unsigned short numberoCanali_,
-        unsigned int frequenza_,
-        unsigned short bitPerCampione_,
-        TipoCampioni tipoCampioni)
+        const unsigned short numeroCanali_,
+        const unsigned int frequenza_,
+        const unsigned short bitPerCampione_,
+        const TipoCampioni tipoCampioni)
     {
-        Set(numberoCanali_, frequenza_, bitPerCampione_, tipoCampioni);
+        Set(numeroCanali_, frequenza_, bitPerCampione_, tipoCampioni);
     }
 
     void DataFormatChunk::Set(
-        unsigned short numberoCanali_,
-        unsigned int frequenza_,
-        unsigned short bitPerCampione_,
-        TipoCampioni tipoCampioni)
+        const unsigned short numeroCanali_,
+        const unsigned int frequenza_,
+        const unsigned short bitPerCampione_,
+        const TipoCampioni tipoCampioni)
     {
         if (tipoCampioni == TipoCampioni::Interi) formatTag = WAVEFormat::PCM;
         else formatTag = WAVEFormat::IEEE_FLOAT;
 
-        numberoCanali   = numberoCanali_;
+        numeroCanali   = numeroCanali_;
         frequenza       = frequenza_;
         bitsPerCampione = bitPerCampione_;
-        bytePerBlocco   = (numberoCanali_ * bitPerCampione_) / 8u;
+        bytePerBlocco   = numeroCanali_ * bitPerCampione_ / 8u;
         bytePerSecondo  = frequenza_ * bytePerBlocco;
     }
 
@@ -47,7 +47,7 @@ namespace Sintetizzatore::WAVE
     {
         // clang-format off
          return stream
-            << "  numero canali    : " << data.numberoCanali   << '\n'
+            << "  numero canali    : " << data.numeroCanali   << '\n'
             << "  frequenza        : " << data.frequenza       << " Hz\n"
             << "  bits per campione: " << data.bitsPerCampione << '\n'
             << "  tipo campione    : "
@@ -60,12 +60,12 @@ namespace Sintetizzatore::WAVE
 
     MasterRIFFChunk::MasterRIFFChunk() = default;
 
-    inline MasterRIFFChunk::MasterRIFFChunk(unsigned int dimensioneDati)
+    inline MasterRIFFChunk::MasterRIFFChunk(const unsigned int dimensioneDati)
     {
         SetFileSize(dimensioneDati);
     }
 
-    inline void MasterRIFFChunk::SetFileSize(unsigned int dimensioneDati)
+    inline void MasterRIFFChunk::SetFileSize(const unsigned int dimensioneDati)
     {
         fileSize = sizeof(MasterRIFFChunk) + sizeof(DataFormatChunk) + sizeof(SampledDataChunk) + dimensioneDati - 8;
     }
@@ -76,7 +76,7 @@ namespace Sintetizzatore::WAVE
     {
         CodaCancellazione eliminatori;
 
-        unsigned int timeLen = 30;
+        constexpr unsigned int timeLen = 30;
 
         DataFormatChunk df(1, static_cast<unsigned int>(Costanti::FrequenzaCampionamento), 8);
 
@@ -94,7 +94,7 @@ namespace Sintetizzatore::WAVE
             return;
         }
         eliminatori.Aggiungi(
-            [&file]()
+            [&file]
             {
                 file.close();
             });
@@ -128,7 +128,7 @@ namespace Sintetizzatore::WAVE
 
     void CreaFileStereo()
     {
-        const constexpr unsigned int timeLen = 30;
+        constexpr unsigned int timeLen = 30;
 
         DataFormatChunk df(2, static_cast<unsigned int>(Costanti::FrequenzaCampionamento), 8);
 
@@ -150,7 +150,7 @@ namespace Sintetizzatore::WAVE
                 return;
             }
             eliminatori.Aggiungi(
-                [&file]()
+                [&file]
                 {
                     file.close();
                 });
@@ -191,7 +191,7 @@ namespace Sintetizzatore::WAVE
                 return;
             }
             eliminatori.Aggiungi(
-                [&file]()
+                [&file]
                 {
                     file.close();
                 });
@@ -241,7 +241,7 @@ namespace Sintetizzatore::WAVE
             return;
         }
         eliminatori.Aggiungi(
-            [&file]()
+            [&file]
             {
                 file.close();
             });

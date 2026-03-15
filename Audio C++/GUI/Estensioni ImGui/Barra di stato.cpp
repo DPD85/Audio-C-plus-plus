@@ -4,15 +4,15 @@
 
 bool ImGui::BeginMainStatusBar()
 {
-    ImGuiContext &g          = *GImGui;
-    ImGuiViewportP *viewport = (ImGuiViewportP *)GetMainViewport();
+    const ImGuiContext &g = *GImGui;
+    auto *viewport        = static_cast<ImGuiViewportP *>(GetMainViewport());
 
-    ImGuiWindowFlags window_flags =
+    constexpr ImGuiWindowFlags window_flags =
         ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
 
-    float height = GetFrameHeight();
+    const float height = GetFrameHeight();
 
-    bool is_open = BeginViewportSideBar("##MainStatusBar", viewport, ImGuiDir_Down, height, window_flags);
+    const bool is_open = BeginViewportSideBar("##MainStatusBar", viewport, ImGuiDir_Down, height, window_flags);
     if (!is_open)
     {
         End();
@@ -30,7 +30,7 @@ bool ImGui::BeginMainStatusBar()
 
 void ImGui::EndMainStatusBar()
 {
-    ImGuiContext &g = *GImGui;
+    const ImGuiContext &g = *GImGui;
 
     if (!g.CurrentWindow->DC.MenuBarAppending)
     {
@@ -49,8 +49,8 @@ void ImGui::EndMainStatusBar()
     if (g.CurrentWindow == g.NavWindow && g.NavLayer == ImGuiNavLayer_Main && !g.NavAnyRequest && g.ActiveId == 0)
         FocusTopMostWindowUnderOne(
             g.NavWindow,
-            NULL,
-            NULL,
+            nullptr,
+            nullptr,
             ImGuiFocusRequestFlags_UnlessBelowModal | ImGuiFocusRequestFlags_RestoreFocusedChild);
 
     End();

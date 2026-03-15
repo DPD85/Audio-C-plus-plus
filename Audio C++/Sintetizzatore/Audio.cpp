@@ -61,7 +61,7 @@ bool Sintetizzatore::InizializzaAudio()
 #ifndef WIN32
     snd_lib_error_set_handler(LogMessaggiALSA);
     eliminatori.Aggiungi(
-        []()
+        []
         {
             snd_lib_error_set_handler(nullptr);
         });
@@ -79,7 +79,7 @@ bool Sintetizzatore::InizializzaAudio()
 #endif
 
     {
-        PaError r = Pa_Initialize();
+        const PaError r = Pa_Initialize();
         if (r != paNoError)
         {
             std::cout << "Inizializzazione PortAudio fallita. Errore: " << Pa_GetErrorText(r) << '\n';
@@ -87,7 +87,7 @@ bool Sintetizzatore::InizializzaAudio()
         }
 
         eliminatori.Aggiungi(
-            []()
+            []
             {
                 Pa_Terminate();
             });
@@ -148,13 +148,13 @@ bool Sintetizzatore::InizializzaAudio()
     // ----- Inizializzo il flusso per la riproduzione dell'audio
 
     {
-        PaStreamParameters formatoAudio{ .device                    = infoHostAPI->defaultOutputDevice,
+        const PaStreamParameters formatoAudio{ .device                    = infoHostAPI->defaultOutputDevice,
                                          .channelCount              = Costanti::NumeroCanali,
                                          .sampleFormat              = paFloat32,
                                          .suggestedLatency          = 0.020, // [sec.]
                                          .hostApiSpecificStreamInfo = nullptr };
 
-        PaError r = Pa_OpenStream(
+        const PaError r = Pa_OpenStream(
             &flusso,
             nullptr,
             &formatoAudio,
@@ -171,7 +171,7 @@ bool Sintetizzatore::InizializzaAudio()
         }
 
         eliminatori.Aggiungi(
-            []()
+            []
             {
                 Pa_CloseStream(flusso);
             });
@@ -195,7 +195,7 @@ bool Sintetizzatore::InizializzaAudio()
     // ----- Avvio flusso di riproduzione dell'audio
 
     {
-        PaError r = Pa_StartStream(flusso);
+        const PaError r = Pa_StartStream(flusso);
         if (r != paNoError)
         {
             std::cout << "Avvio del flusso di riproduzione dell'audio fallita. Errore: " << Pa_GetErrorText(r) << '\n';
@@ -203,7 +203,7 @@ bool Sintetizzatore::InizializzaAudio()
         }
 
         eliminatori.Aggiungi(
-            []()
+            []
             {
                 Pa_StopStream(flusso);
             });
@@ -235,7 +235,7 @@ static int Sintetizzatore::ProceduraProduzioneAudio(
     PaStreamCallbackFlags /*statusFlags*/,
     void * /*userData*/)
 {
-    std::chrono::time_point tInizio = std::chrono::high_resolution_clock::now();
+    const std::chrono::time_point tInizio = std::chrono::high_resolution_clock::now();
 
     // ----- -----
 
@@ -248,7 +248,7 @@ static int Sintetizzatore::ProceduraProduzioneAudio(
         // Non c'è bisogno di limitare il volume poiché ci penserà il mixer di Windows a farlo.
         // TODO: su Linux?
 
-        auto dati = static_cast<float *>(output);
+        auto *dati = static_cast<float *>(output);
 
         dati[i * Costanti::NumeroCanali + Costanti::CanaleSinistro] = static_cast<float>(campione);
         dati[i * Costanti::NumeroCanali + Costanti::CanaleDestro]   = static_cast<float>(campione);
@@ -256,7 +256,7 @@ static int Sintetizzatore::ProceduraProduzioneAudio(
 
     // ----- -----
 
-    std::chrono::time_point tFine = std::chrono::high_resolution_clock::now();
+    const std::chrono::time_point tFine = std::chrono::high_resolution_clock::now();
     durataProduzioneSuono.store(std::chrono::duration_cast<DurataMillisecondi>(tFine - tInizio).count());
 
     return paContinue;
@@ -324,7 +324,7 @@ static void Sintetizzatore::RegistraPerGrafico()
 
     // ----- -----
 
-    std::array<Oscillatori::OndaSinusoidale, Note::NumeroNote> note = {
+    std::array note = {
         Oscillatori::OndaSinusoidale(Costanti::FrequenzaDo),
         Oscillatori::OndaSinusoidale(Costanti::FrequenzaDoDiesis),
         Oscillatori::OndaSinusoidale(Costanti::FrequenzaRe),
@@ -339,7 +339,7 @@ static void Sintetizzatore::RegistraPerGrafico()
         Oscillatori::OndaSinusoidale(Costanti::FrequenzaSi),
     };
 
-    std::array<Volume, note.size()> volumi = {
+    std::array volumi = {
         Volume(0.01), // do
         Volume(0.01), // do#
         Volume(0.01), // re
@@ -353,6 +353,8 @@ static void Sintetizzatore::RegistraPerGrafico()
         Volume(0.01), // la#
         Volume(0.01), // si
     };
+
+    static_assert(volumi.size() == note.size(), "Ci deve essere un volume per ogni nota.");
 
     // ----- -----
 
@@ -647,8 +649,8 @@ static void Sintetizzatore::RegistraPerGrafico()
         }
 
         dvector buffer2(numeroCampioni * 2);
-        const double attacco  = 0.002;
-        const double rilascio = 1.0;
+        constexpr double attacco  = 0.002;
+        constexpr double rilascio = 1.0;
 
         {
             Filtri::RilevatoreInviluppo rilevatore(attacco, rilascio);

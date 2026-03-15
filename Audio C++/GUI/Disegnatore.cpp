@@ -10,7 +10,8 @@
 #include "Fonts/IBMPlexSans.h"
 #include "Fonts/IBMPlexSansItalic.h"
 #include "Impostazioni.h"
-#include "Internazionalizzazione.h"
+
+#include <algorithm>
 
 // ----- -----
 
@@ -109,7 +110,7 @@ int GUI::Disegnatore()
         }
 
         eliminatori.Aggiungi(
-            []()
+            []
             {
                 SDL_Quit();
             });
@@ -130,7 +131,7 @@ int GUI::Disegnatore()
         }
 
         eliminatori.Aggiungi(
-            []()
+            []
             {
                 SDL_DestroyWindow(finestra);
             });
@@ -184,7 +185,7 @@ int GUI::Disegnatore()
         istanza = risultato.value();
 
         eliminatori.Aggiungi(
-            []()
+            []
             {
                 vkb::destroy_instance(istanza);
             });
@@ -200,7 +201,7 @@ int GUI::Disegnatore()
         }
 
         eliminatori.Aggiungi(
-            []()
+            []
             {
                 SDL_Vulkan_DestroySurface(istanza, superficie, nullptr);
             });
@@ -316,7 +317,7 @@ int GUI::Disegnatore()
         dispositivo = risultato.value();
 
         eliminatori.Aggiungi(
-            []()
+            []
             {
                 vkb::destroy_device(dispositivo);
             });
@@ -352,7 +353,7 @@ int GUI::Disegnatore()
         if (!CreaCatenaScambio()) return EXIT_FAILURE;
 
         eliminatori.Aggiungi(
-            []()
+            []
             {
                 vkb::destroy_swapchain(catenaScambio);
             });
@@ -364,7 +365,7 @@ int GUI::Disegnatore()
         if (!RecuperaVisteImmagini()) return EXIT_FAILURE;
 
         eliminatori.Aggiungi(
-            []()
+            []
             {
                 catenaScambio.destroy_image_views(visteImmagini);
             });
@@ -376,7 +377,7 @@ int GUI::Disegnatore()
         if (!CreaRenderPass()) return EXIT_FAILURE;
 
         eliminatori.Aggiungi(
-            []()
+            []
             {
                 vkDestroyRenderPass(dispositivo, renderPass, nullptr);
             });
@@ -393,7 +394,7 @@ int GUI::Disegnatore()
 
         ImGui::CreateContext();
         eliminatori.Aggiungi(
-            []()
+            []
             {
                 ImGui::DestroyContext();
             });
@@ -427,7 +428,7 @@ int GUI::Disegnatore()
         {
             ImFontConfig configFont;
 
-            snprintf(configFont.Name, std::size(configFont.Name), Fonts::IBMPlexSans::Name);
+            CopiaStringa(configFont.Name, Fonts::IBMPlexSans::Name, std::size(configFont.Name));
             configFont.Flags = ImFontFlags_NoLoadError;
 
             FontNormale = io.Fonts->AddFontFromMemoryCompressedTTF(
@@ -479,7 +480,7 @@ int GUI::Disegnatore()
         {
             ImFontConfig configFont;
 
-            snprintf(configFont.Name, std::size(configFont.Name), Fonts::IBMPlexSansItalic::Name);
+            CopiaStringa(configFont.Name, Fonts::IBMPlexSansItalic::Name, std::size(configFont.Name));
             configFont.Flags = ImFontFlags_NoLoadError;
 
             FontItalico = io.Fonts->AddFontFromMemoryCompressedTTF(
@@ -538,7 +539,7 @@ int GUI::Disegnatore()
         ImGui_ImplSDL3_InitForVulkan(finestra);
 
         eliminatori.Aggiungi(
-            []()
+            []
             {
                 ImGui_ImplSDL3_Shutdown();
             });
@@ -568,7 +569,7 @@ int GUI::Disegnatore()
         }
 
         eliminatori.Aggiungi(
-            []()
+            []
             {
                 ImGui_ImplVulkan_Shutdown();
             });
@@ -579,7 +580,7 @@ int GUI::Disegnatore()
     {
         ImPlot::CreateContext();
         eliminatori.Aggiungi(
-            []()
+            []
             {
                 ImPlot::DestroyContext();
             });
@@ -591,7 +592,7 @@ int GUI::Disegnatore()
         if (!CreaBuffersFotogrammi()) return EXIT_FAILURE;
 
         eliminatori.Aggiungi(
-            []()
+            []
             {
                 for (const VkFramebuffer &frameBuffer : buffersFotogrammi)
                     vkDestroyFramebuffer(dispositivo, frameBuffer, nullptr);
@@ -615,7 +616,7 @@ int GUI::Disegnatore()
         }
 
         eliminatori.Aggiungi(
-            []()
+            []
             {
                 vkDestroyCommandPool(dispositivo, commandPool, nullptr);
             });
@@ -658,16 +659,16 @@ int GUI::Disegnatore()
         }
 
         eliminatori.Aggiungi(
-            []()
+            []
             {
-                for (const VkSemaphore &semforo : semaforiImmagineDisponibile)
-                    vkDestroySemaphore(dispositivo, semforo, nullptr);
+                for (const VkSemaphore &semaforo : semaforiImmagineDisponibile)
+                    vkDestroySemaphore(dispositivo, semaforo, nullptr);
             });
 
         // -----
 
         semaforiDisegnoUltimato.resize(catenaScambio.image_count);
-        std::fill(semaforiDisegnoUltimato.begin(), semaforiDisegnoUltimato.end(), VK_NULL_HANDLE);
+        std::ranges::fill(semaforiDisegnoUltimato, VK_NULL_HANDLE);
 
         for (size_t i = 0; i < semaforiDisegnoUltimato.size(); ++i)
         {
@@ -680,10 +681,10 @@ int GUI::Disegnatore()
         }
 
         eliminatori.Aggiungi(
-            []()
+            []
             {
-                for (const VkSemaphore &semforo : semaforiDisegnoUltimato)
-                    vkDestroySemaphore(dispositivo, semforo, nullptr);
+                for (const VkSemaphore &semaforo : semaforiDisegnoUltimato)
+                    vkDestroySemaphore(dispositivo, semaforo, nullptr);
             });
     }
 
@@ -707,7 +708,7 @@ int GUI::Disegnatore()
         }
 
         eliminatori.Aggiungi(
-            []()
+            []
             {
                 for (const VkFence &recinto : recinti)
                     vkDestroyFence(dispositivo, recinto, nullptr);
@@ -728,8 +729,8 @@ int GUI::Disegnatore()
             std::cout << "  0x" << semaforo << '\n';
 
         std::cout << "Recinti[" << recinti.size() << "]:\n";
-        for (const VkFence &recento : recinti)
-            std::cout << "  0x" << recento << '\n';
+        for (const VkFence &recinto : recinti)
+            std::cout << "  0x" << recinto << '\n';
 
         std::cout << std::dec;
     }
@@ -898,7 +899,7 @@ int GUI::Disegnatore()
             info.sType             = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
             info.renderPass        = renderPass;
             info.framebuffer       = buffersFotogrammi[indiceImmagine];
-            info.renderArea.offset = { 0, 0 };
+            info.renderArea.offset = { .x = 0, .y = 0 };
             info.renderArea.extent = catenaScambio.extent;
 
             vkCmdBeginRenderPass(buffersComandi[indiceFotogramma], &info, VK_SUBPASS_CONTENTS_INLINE);
@@ -936,7 +937,7 @@ int GUI::Disegnatore()
         // ----- Invio comandi di disegno alla scheda video -----
 
         {
-            const constexpr VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+            constexpr VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
             VkSubmitInfo submitInfo = {};
 
@@ -999,7 +1000,7 @@ int GUI::Disegnatore()
         // Alcuni driver, schede video o implementazioni della Vulkan potrebbe accettare il VSync in fase di
         // configurazione ma poi non lo onorano (per esempio llvmpipe), per tanto utilizzo un clock per assicurarmi
         // di non superare la frequenza massima di disegno.
-        if (Costanti::AbilitàVSync) DurataFotogramma = clock.AspettaTicchettioSuccessivo() * 1000.0;
+        if constexpr (Costanti::AbilitàVSync) DurataFotogramma = clock.AspettaTicchettioSuccessivo() * 1000.0;
         else
         {
             high_resolution_clock::time_point tempoFine = high_resolution_clock::now();
@@ -1022,7 +1023,7 @@ int GUI::Disegnatore()
     return EXIT_SUCCESS;
 }
 
-static void GUI::CheckVkResultFn(VkResult err)
+static void GUI::CheckVkResultFn(const VkResult err)
 {
 #ifdef WIN32
     if (err != VK_SUCCESS) DebugBreak();
@@ -1040,7 +1041,7 @@ static bool GUI::CreaCatenaScambio()
         return false;
     }
 
-    const constexpr VkPresentModeKHR modalitàPresentazione =
+    constexpr VkPresentModeKHR modalitàPresentazione =
         Costanti::AbilitàVSync ? VK_PRESENT_MODE_FIFO_KHR      // Tradizionale sincronizzazione con lo schermo (VSync).
                                : VK_PRESENT_MODE_IMMEDIATE_KHR // Nessuna sincronizzazione.
         ;
@@ -1049,10 +1050,10 @@ static bool GUI::CreaCatenaScambio()
     const vkb::Result<vkb::Swapchain> risultato =
         costruttore.set_desired_min_image_count(3)
             .set_desired_extent(larghezza, altezza)
-            .set_desired_format({ VK_FORMAT_B8G8R8A8_UNORM, VK_COLORSPACE_SRGB_NONLINEAR_KHR })
-            .add_fallback_format({ VK_FORMAT_R8G8B8A8_UNORM, VK_COLORSPACE_SRGB_NONLINEAR_KHR })
-            .add_fallback_format({ VK_FORMAT_B8G8R8_UNORM, VK_COLORSPACE_SRGB_NONLINEAR_KHR })
-            .add_fallback_format({ VK_FORMAT_R8G8B8_UNORM, VK_COLORSPACE_SRGB_NONLINEAR_KHR })
+            .set_desired_format({ .format = VK_FORMAT_B8G8R8A8_UNORM, .colorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR })
+            .add_fallback_format({ .format = VK_FORMAT_R8G8B8A8_UNORM, .colorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR })
+            .add_fallback_format({ .format = VK_FORMAT_B8G8R8_UNORM, .colorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR })
+            .add_fallback_format({ .format = VK_FORMAT_R8G8B8_UNORM, .colorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR })
             .set_image_usage_flags(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
             .set_desired_present_mode(modalitàPresentazione)
             .set_old_swapchain(catenaScambio)
@@ -1159,7 +1160,7 @@ static bool GUI::CreaRenderPass()
 static bool GUI::CreaBuffersFotogrammi()
 {
     buffersFotogrammi.resize(visteImmagini.size());
-    std::fill(buffersFotogrammi.begin(), buffersFotogrammi.end(), VK_NULL_HANDLE);
+    std::ranges::fill(buffersFotogrammi, VK_NULL_HANDLE);
 
     for (size_t i = 0; i < visteImmagini.size(); i++)
     {
@@ -1196,12 +1197,12 @@ static bool GUI::RicreaCatenaScambio()
 
     // -----
 
-    for (VkFramebuffer frameBuffer : buffersFotogrammi)
+    for (const VkFramebuffer frameBuffer : buffersFotogrammi)
         vkDestroyFramebuffer(dispositivo, frameBuffer, nullptr);
 
     vkDestroyRenderPass(dispositivo, renderPass, nullptr);
 
-    for (VkImageView vistaImmagine : visteImmagini)
+    for (const VkImageView vistaImmagine : visteImmagini)
         vkDestroyImageView(dispositivo, vistaImmagine, nullptr);
 
     // -----
@@ -1271,12 +1272,12 @@ static bool GUI::AggiungiEmojiAlFont()
     {
         ImFontConfig configFont;
 
-        snprintf(configFont.Name, std::size(configFont.Name), Fonts::BabelStoneFlags::Name);
+        CopiaStringa(configFont.Name, Fonts::BabelStoneFlags::Name, std::size(configFont.Name));
         configFont.Flags           = ImFontFlags_NoLoadError;
         configFont.FontLoaderFlags = ImGuiFreeTypeLoaderFlags_LoadColor;
         configFont.MergeMode       = true;
 
-        ImFont *font = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(
+        const ImFont *font = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(
             Fonts::BabelStoneFlags::CompressedData,
             std::size(Fonts::BabelStoneFlags::CompressedData),
             0.0f,
@@ -1293,11 +1294,11 @@ static bool GUI::AggiungiEmojiAlFont()
     {
         ImFontConfig configFont;
 
-        snprintf(configFont.Name, std::size(configFont.Name), Fonts::AwesomeSolid::Name);
+        CopiaStringa(configFont.Name, Fonts::AwesomeSolid::Name, std::size(configFont.Name));
         configFont.Flags     = ImFontFlags_NoLoadError;
         configFont.MergeMode = true;
 
-        ImFont *font = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(
+        const ImFont *font = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(
             Fonts::AwesomeSolid::CompressedData, std::size(Fonts::AwesomeSolid::CompressedData), 0.0f, &configFont);
         if (font == nullptr)
         {

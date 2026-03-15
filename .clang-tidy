@@ -53,23 +53,10 @@ Checks:          '-*,
   ,readability-container-contains
   ,readability-const-return-type
   '
-WarningsAsErrors: ''
-HeaderFileExtensions:
-  - ''
-  - h
-  - hh
-  - hpp
-  - hxx
-ImplementationFileExtensions:
-  - c
-  - cc
-  - cpp
-  - cxx
-HeaderFilterRegex: ''
-ExcludeHeaderFilterRegex: ''
-FormatStyle:     none
-User:            user
-CheckOptions:    {}
-SystemHeaders:   false
+CheckOptions:
+  - key: 'readability-implicit-bool-conversion.AllowIntegerConditions'
+    value: 'true'
+  - key: 'readability-implicit-bool-conversion.AllowPointerConditions'
+    value: 'true'
 ...
 

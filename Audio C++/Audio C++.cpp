@@ -31,7 +31,7 @@ int main()
             std::cout << "  " << name << '\n';
         std::cout << '\n';
 
-        const boost::locale::info &proprietà = std::use_facet<boost::locale::info>(std::locale());
+        const auto &proprietà = std::use_facet<boost::locale::info>(std::locale());
         std::cout << "Internazionalizzazione utilizzata:\n";
         std::cout << "  Lingua  : " << proprietà.language() << '\n'
                   << "  Stato   : " << proprietà.country() << '\n'
@@ -45,7 +45,7 @@ int main()
         {
             // Carica la informazioni in base alle impostazioni dell'ambiente e del S.O.
             const std::locale localeDefault                   = GeneratoreMultiLingua("");
-            const boost::locale::info &proprietàLocaleDefault = std::use_facet<boost::locale::info>(localeDefault);
+            const auto &proprietàLocaleDefault = std::use_facet<boost::locale::info>(localeDefault);
 
             if (proprietàLocaleDefault.language() == "it")
             {
@@ -72,7 +72,7 @@ int main()
 
     // ----- -----
 
-    int valoreUscita = GUI::Disegnatore();
+    const int valoreUscita = GUI::Disegnatore();
 
     // ----- -----
 

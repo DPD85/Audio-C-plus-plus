@@ -26,7 +26,8 @@ namespace Sintetizzatore
         /// @param decadimento_ La durata della fase di decadimento dell'inviluppo. [s]
         /// @param sostentamento_ L'ampiezza della fase di sostentamento. [0, 1]
         /// @param rilascio_ La durata della fase di rilascio dell'inviluppo. [s]
-        InviluppoADSR(double attacco_, double decadimento_, double sostentamento_, double rilascio_)
+        InviluppoADSR(
+            const double attacco_, const double decadimento_, const double sostentamento_, const double rilascio_)
         {
             attacco       = DaSecondiACampioni(attacco_);
             decadimento   = DaSecondiACampioni(decadimento_);
@@ -144,6 +145,7 @@ namespace Sintetizzatore
         /// @retval True La nota sta suonando.
         /// @retval False La nota è muta.
         /// @audiosafe Computa().
+        [[nodiscard]]
         bool StaSuonando() const
         {
             return stato.load() != Stati::Silenzio;
@@ -151,6 +153,7 @@ namespace Sintetizzatore
 
         /// @brief Restituisce lo stato attuale dell'inviluppo.
         /// @audiosafe Computa().
+        [[nodiscard]]
         Stati Stato() const
         {
             return stato.load();
@@ -171,7 +174,7 @@ namespace Sintetizzatore
         /// @cond CTOR_OP_COPY_MOVE
 
       public:
-        InviluppoADSR(const InviluppoADSR &&altro)
+        InviluppoADSR(const InviluppoADSR &&altro) noexcept
         {
             notaAttiva.store(altro.notaAttiva.load());
             stato.store(altro.stato.load());
@@ -182,7 +185,7 @@ namespace Sintetizzatore
             sostentamento = altro.sostentamento;
         }
 
-        InviluppoADSR &operator=(const InviluppoADSR &&altro)
+        InviluppoADSR &operator=(const InviluppoADSR &&altro) noexcept
         {
             notaAttiva.store(altro.notaAttiva.load());
             stato.store(altro.stato.load());

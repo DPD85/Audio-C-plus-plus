@@ -42,14 +42,14 @@ namespace Sintetizzatore
 
             /// @brief Inizializza la generazione dell'onda sinusoidale.
             /// @param frequenza La frequenza dell'onda da generare.
-            OndaSinusoidale(double frequenza)
+            explicit OndaSinusoidale(const double frequenza)
             {
                 ImpostaFrequenza(frequenza);
                 deltaFase          = nuovoDeltaFase;
                 invModuloDeltaFase = nuovoInvModuloDeltaFase;
             }
 
-            virtual double Campione() noexcept override
+            double Campione() noexcept override
             {
                 if (daAggiornare.load())
                 {
@@ -58,7 +58,7 @@ namespace Sintetizzatore
                     daAggiornare.store(false);
                 }
 
-                double campione_ = fase.imag();
+                const double campione_ = fase.imag();
 
                 // Calcolo il campione successivo dell'onda
                 fase *= deltaFase;
@@ -71,14 +71,14 @@ namespace Sintetizzatore
 
             /// @brief Cambia la frequenza dell'onda sinusoidale.
             /// @param frequenza La nuova frequenza dell'onda da generare.
-            virtual void Frequenza(double frequenza) override
+            void Frequenza(const double frequenza) override
             {
                 ImpostaFrequenza(frequenza);
                 daAggiornare.store(true);
             }
 
             /// @notaudiosafe Campione().
-            virtual void Reset() override
+            void Reset() override
             {
                 fase.real(1.0);
                 fase.imag(0.0);
@@ -95,7 +95,7 @@ namespace Sintetizzatore
             // (\f$sqrt(r^2 + i^2)\f$).
             double invModuloDeltaFase;
 
-            void ImpostaFrequenza(double frequenza)
+            void ImpostaFrequenza(const double frequenza)
             {
                 nuovoDeltaFase = std::exp(
                     dcomplex(0.0, 2 * std::numbers::pi * frequenza * (1.0 / Costanti::FrequenzaCampionamento)));
@@ -114,22 +114,22 @@ namespace Sintetizzatore
 
             /// @brief Inizializza la generazione dell'onda quadra.
             /// @param frequenza La frequenza dell'onda da generare.
-            OndaQuadra(double frequenza): sin(frequenza) {}
+            explicit OndaQuadra(const double frequenza): sin(frequenza) {}
 
-            virtual double Campione() noexcept override
+            double Campione() noexcept override
             {
                 return std::copysign(1.0, sin.Campione());
             }
 
             /// @brief Cambia la frequenza dell'onda quadra
             /// @param frequenza nuova frequenza dell'onda da generare
-            virtual void Frequenza(double frequenza) override
+            void Frequenza(const double frequenza) override
             {
                 sin.Frequenza(frequenza);
             }
 
             /// @notaudiosafe Campione().
-            virtual void Reset() override
+            void Reset() override
             {
                 sin.Reset();
             }

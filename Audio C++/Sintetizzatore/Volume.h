@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include "CostantiEdAltro.h"
 #include "Filtri.h"
 
 namespace Sintetizzatore
@@ -12,12 +11,13 @@ namespace Sintetizzatore
         /// @brief Inizializza il controllo del volume.
         /// @param fattore_ Fattore di smussamento: più è grande, maggiore è lo smussamento. [0, +∞]
         /// @param volumeIniziale Il volume iniziale. [0, 1]
-        Volume(double fattore_, double volumeIniziale = 0): smussatore(fattore_, volumeIniziale)
+        explicit Volume(const double fattore_, const double volumeIniziale = 0): smussatore(fattore_, volumeIniziale)
         {
             Reset(volumeIniziale);
         }
 
         /// @brief Restituisce il valore corrente del volume. [0, 1]
+        [[nodiscard]]
         double Valore() const
         {
             return smussatore.Valore();
@@ -25,7 +25,7 @@ namespace Sintetizzatore
 
         /// @brief Cambia il volume corrente.
         /// @param valore_ Il nuovo volume. [0, 1]
-        void Valore(double valore_)
+        void Valore(const double valore_)
         {
             nuovoValore.store(valore_);
         }
@@ -42,7 +42,7 @@ namespace Sintetizzatore
         /// @param nuovoValore_ Il volume iniziale. [0, 1]
         /// @remark Il volume viene impostato in modo netto ed immediato per tanto cambierà istantaneamente.
         /// @audiosafe Smussa().
-        void Reset(double nuovoValore_ = 0)
+        void Reset(const double nuovoValore_ = 0)
         {
             smussatore.Reset(nuovoValore_);
             nuovoValore.store(nuovoValore_);

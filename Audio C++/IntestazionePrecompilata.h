@@ -123,7 +123,7 @@
 
 #else
 
-#    include <signal.h>
+#    include <csignal>
 #    include <unistd.h>
 
 #endif

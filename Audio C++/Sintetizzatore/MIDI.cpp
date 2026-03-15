@@ -14,8 +14,8 @@ namespace Sintetizzatore::MIDI
         Formato2
     };
 
-    static inline unsigned short Endianess(unsigned short valore);
-    static inline unsigned int Endianess(unsigned int valore);
+    static unsigned short Endianess(unsigned short valore);
+    static unsigned int Endianess(unsigned int valore);
     static unsigned char LeggiByte(std::ifstream &file);
     static unsigned short LeggiInt16(std::ifstream &file);
     static unsigned int LeggiInt24(std::ifstream &file);
@@ -32,7 +32,7 @@ namespace Sintetizzatore::MIDI
         std::ifstream file(percorso, std::ios_base::binary);
         if (!file.is_open()) return false;
         eliminatori.Aggiungi(
-            [&file]()
+            [&file]
             {
                 file.close();
             });
@@ -55,16 +55,10 @@ namespace Sintetizzatore::MIDI
             char firma[4];
             file.read(firma, 4);
 
-            if (firma[0] != 'M' || firma[1] != 'T' || firma[2] != 'h' || firma[3] != 'd')
-            {
-                return false;
-            }
+            if (firma[0] != 'M' || firma[1] != 'T' || firma[2] != 'h' || firma[3] != 'd') return false;
 
             lunghezzaIntestazione = LeggiInt32(file);
-            if (lunghezzaIntestazione >= dimensioneFile)
-            {
-                return false;
-            }
+            if (lunghezzaIntestazione >= dimensioneFile) return false;
         }
 
         // ----- -----
@@ -73,27 +67,16 @@ namespace Sintetizzatore::MIDI
 
         {
             formatoFile = LeggiInt16(file);
-
-            if (formatoFile != FormatiFile::Formato0 && formatoFile != FormatiFile::Formato1
-                && formatoFile != FormatiFile::Formato2)
-            {
-                return false;
-            }
+            if (formatoFile != Formato0 && formatoFile != Formato1 && formatoFile != Formato2) return false;
 
             std::cout << "File in formato: " << formatoFile << '\n';
         }
 
         // ----- -----
 
-        unsigned short numeroTracce;
-
         {
-            numeroTracce = LeggiInt16(file);
-
-            if (formatoFile == FormatiFile::Formato0 && numeroTracce != 1)
-            {
-                return false;
-            }
+            const unsigned short numeroTracce = LeggiInt16(file);
+            if (formatoFile == Formato0 && numeroTracce != 1) return false;
 
             std::cout << "Numero tracce: " << numeroTracce << '\n';
         }
@@ -106,11 +89,10 @@ namespace Sintetizzatore::MIDI
             divisione = LeggiInt16(file);
 
             if (divisione & 0x8000)
-            {
                 // formato SMPTE non supportato
                 return false;
-            }
-            else {
+            else
+            {
                 // Numero ticchettii corrispondenti ad un quarto di nota
             }
 
@@ -131,16 +113,10 @@ namespace Sintetizzatore::MIDI
             char firma[4];
             file.read(firma, 4);
 
-            if (firma[0] != 'M' || firma[1] != 'T' || firma[2] != 'r' || firma[3] != 'k')
-            {
-                return false;
-            }
+            if (firma[0] != 'M' || firma[1] != 'T' || firma[2] != 'r' || firma[3] != 'k') return false;
 
             lunghezzaTraccia = LeggiInt32(file);
-            if (lunghezzaTraccia >= dimensioneFile)
-            {
-                return false;
-            }
+            if (lunghezzaTraccia >= dimensioneFile) return false;
         }
 
         const size_t posFineTraccia = static_cast<size_t>(file.tellg()) + lunghezzaTraccia;
@@ -230,7 +206,7 @@ namespace Sintetizzatore::MIDI
                     {
                         assert(lunghezza >= 2);
 
-                        const char sf = LeggiByte(file);
+                        const char sf          = LeggiByte(file);
                         const unsigned char mi = LeggiByte(file);
                         switch (sf)
                         {
@@ -270,7 +246,8 @@ namespace Sintetizzatore::MIDI
                 file.seekg(posFineDati, std::ios_base::beg);
             }
             // Evento MIDI, nelle specifiche del file MIDI sono previsti solo i messaggi relativi ai canali
-            else {
+            else
+            {
                 // I byte nell'intervallo [0x00, 0x7F] sono byte di dati, bit più significativo è sempre settato a zero
                 // I byte nell'intervallo [0x80, 0xFF] sono byte di stato, bit più significativo è sempre settato a uno
                 // I messaggi di un canale sono composti da un byte di stato seguito da one o due byte di dati
@@ -299,28 +276,31 @@ namespace Sintetizzatore::MIDI
                     {
                         const char nota     = dato1;           // [0, 127]
                         const char velocità = LeggiByte(file); // [0, 127]
-                        std::cout << "Nota off (" << canale << "): " << (int)nota << ", " << (int)velocità << '\n';
+                        std::cout << "Nota off (" << canale << "): " << static_cast<int>(nota) << ", "
+                                  << static_cast<int>(velocità) << '\n';
                         break;
                     }
                     case 0x90: // nota on
                     {
                         const char nota     = dato1;           // [0, 127]
                         const char velocità = LeggiByte(file); // [0, 127]
-                        std::cout << "Nota on (" << canale << "): " << (int)nota << ", " << (int)velocità << '\n';
+                        std::cout << "Nota on (" << canale << "): " << static_cast<int>(nota) << ", "
+                                  << static_cast<int>(velocità) << '\n';
                         break;
                     }
                     case 0xA0: // polyphonic key pressure (After touch): modifica la nota mentre suona
                     {
                         const char nota = dato1, pressione = LeggiByte(file);
-                        std::cout << "Poly key pressure (" << canale << "): " << (int)nota << ", " << (int)pressione
-                                  << '\n';
+                        std::cout << "Poly key pressure (" << canale << "): " << static_cast<int>(nota) << ", "
+                                  << static_cast<int>(pressione) << '\n';
                         break;
                     }
                     case 0xB0: // control change: un altro controllo che non corrisponde alle note è stato
                                // azionato oppure c'è un cambio di modalità del canale
                     {
                         const char controllo = dato1, valore = LeggiByte(file);
-                        std::cout << "Control change (" << canale << "): " << (int)controllo << ", " << (int)valore;
+                        std::cout << "Control change (" << canale << "): " << static_cast<int>(controllo) << ", "
+                                  << static_cast<int>(valore);
                         if (controllo >= 120 && controllo <= 127) std::cout << " (Modalità canale)";
                         if (controllo == 120) std::cout << " (All sounds off)";
                         if (controllo == 123) std::cout << " (All notes off)";
@@ -330,25 +310,25 @@ namespace Sintetizzatore::MIDI
                     case 0xC0: // program change
                     {
                         const char programma = dato1;
-                        std::cout << "Program change (" << canale << "): " << (int)programma << '\n';
+                        std::cout << "Program change (" << canale << "): " << static_cast<int>(programma) << '\n';
                         break;
                     }
                     case 0xD0: // channel pressure (After touch)
                     {
                         const char pressione = dato1;
-                        std::cout << "Channel pressure (" << canale << "): " << (int)pressione << '\n';
+                        std::cout << "Channel pressure (" << canale << "): " << static_cast<int>(pressione) << '\n';
                         break;
                     }
                     case 0xE0: // pitch bend: modifica del pitch, massimo 14 bit (2 byte di dati)
                     {
                         const char lsb = dato1, msb = LeggiByte(file);
-                        std::cout << "Pitch bend (" << canale << "): " << ((int)msb << 8 | (int)lsb) << '(' << (int)lsb
-                                  << ", " << (int)msb << ")\n";
+                        std::cout << "Pitch bend (" << canale
+                                  << "): " << (static_cast<int>(msb) << 8 | static_cast<int>(lsb)) << '('
+                                  << static_cast<int>(lsb) << ", " << static_cast<int>(msb) << ")\n";
                         break;
                     }
                     default:
                         assert(false && "Stato non riconosciuto");
-                        break;
                 }
             }
 
@@ -357,35 +337,29 @@ namespace Sintetizzatore::MIDI
         while (!fineTraccia || posizioneNelFile < posFineTraccia);
 
         if (posizioneNelFile > posFineTraccia)
-        {
             std::cout << "Errore: letti più byte della dimensione della traccia. Letti " << posizioneNelFile
                       << " byte invece di " << posFineTraccia << " byte.\n";
-        }
 
         if (!fineTraccia && posizioneNelFile >= posFineTraccia)
-        {
             std::cout << "Errore: manca l'evento di fine traccia.\n";
-        }
 
         if (fineTraccia && posizioneNelFile < posFineTraccia)
-        {
             // La traccia è finita prima della lunghezza specificata nell'intestazione.
             // Salto ed ignoro tutti i byte rimanenti.
             file.seekg(posFineTraccia, std::ios_base::beg);
-        }
 
         // ----- -----
 
         return true;
     }
 
-    static inline unsigned int Endianess(unsigned int valore)
+    static unsigned int Endianess(const unsigned int valore)
     {
         return (valore & 0x00'00'00'FF) << 24 | (valore & 0x00'00'FF'00) << 8 | (valore & 0xFF'00'00) >> 8
              | (valore & 0xFF'00'00'00) >> 24;
     }
 
-    static inline unsigned short Endianess(unsigned short valore)
+    static unsigned short Endianess(const unsigned short valore)
     {
         return (valore & 0x00FF) << 8 | (valore & 0xFF00) >> 8;
     }
@@ -422,7 +396,7 @@ namespace Sintetizzatore::MIDI
         return valore;
     }
 
-    static std::string LeggiStringa(std::ifstream &file, size_t lunghezza)
+    static std::string LeggiStringa(std::ifstream &file, const size_t lunghezza)
     {
         std::string valore(lunghezza + 1, '\0');
         file.read(valore.data(), lunghezza);

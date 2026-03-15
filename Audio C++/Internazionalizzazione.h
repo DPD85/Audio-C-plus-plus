@@ -10,13 +10,15 @@ struct Lingua
 struct TestiGUI
 {
 #define TESTO_GUI(var, testo) std::string var;
+
 #include "GUI/TestiGUI.h"
+
 #undef TESTO_GUI
 };
 
 extern std::array<Lingua, 3> Lingue;
 extern boost::locale::generator GeneratoreMultiLingua;
-extern struct TestiGUI TestiGUI;
+extern TestiGUI TestiGUI;
 
 void InizializzaInternazionalizzazione();
 void ImpostaLingua(size_t indice);
