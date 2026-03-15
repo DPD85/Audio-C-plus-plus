@@ -49,7 +49,7 @@ namespace Sintetizzatore
         }
 
       private:
-        std::atomic<double> nuovoValore;
+        datomic nuovoValore;
         Filtri::SmussamentoEsponenziale smussatore;
     };
 }

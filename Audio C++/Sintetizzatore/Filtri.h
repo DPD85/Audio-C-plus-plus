@@ -72,7 +72,7 @@ namespace Sintetizzatore
 
           private:
             const double fattore;
-            std::atomic<double> valoreSmussato;
+            datomic valoreSmussato;
         };
 
         /// @brief Calcola l'inviluppo del valore assoluto di un segnale.

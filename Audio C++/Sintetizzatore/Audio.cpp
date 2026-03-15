@@ -31,7 +31,7 @@ namespace Sintetizzatore
     static PaStream *flusso;
     static const PaStreamInfo *infoFlusso;
 
-    static std::atomic<double> durataProduzioneSuono; // [ms]
+    static datomic durataProduzioneSuono; // [ms]
 }
 
 bool Sintetizzatore::InizializzaAudio()
