@@ -2,13 +2,15 @@
 
 #include "CostantiEdAltro.h"
 
-#define COSTRUISCI_FIRMA(a, b, c, d)                                                                             \
-    static_cast<unsigned long>(a) | (static_cast<unsigned long>(b) << 8) | (static_cast<unsigned long>(c) << 16) \
-        | (static_cast<unsigned long>(d) << 24)
-
 namespace Sintetizzatore::WAVE
 {
 #pragma pack(push, 1)
+
+    constexpr unsigned int CostruisciFirma(const char a, const char b, const char c, const char d)
+    {
+        return static_cast<unsigned long>(a) | static_cast<unsigned long>(b) << 8 | static_cast<unsigned long>(c) << 16
+             | static_cast<unsigned long>(d) << 24;
+    }
 
     enum class TipoCampioni
     {
@@ -18,7 +20,7 @@ namespace Sintetizzatore::WAVE
 
     struct DataFormatChunk
     {
-        unsigned int firma      = COSTRUISCI_FIRMA('f', 'm', 't', ' ');
+        unsigned int firma      = CostruisciFirma('f', 'm', 't', ' ');
         unsigned int dimensione = sizeof(DataFormatChunk) - 8;
         // Formato dei campioni (compressi, non compressi, ecc...)
         unsigned short formatTag;
@@ -49,15 +51,15 @@ namespace Sintetizzatore::WAVE
 
     struct SampledDataChunk
     {
-        unsigned int firma = COSTRUISCI_FIRMA('d', 'a', 't', 'a');
+        unsigned int firma = CostruisciFirma('d', 'a', 't', 'a');
         unsigned int dimensione;
     };
 
     struct MasterRIFFChunk
     {
-        unsigned int firma = COSTRUISCI_FIRMA('R', 'I', 'F', 'F');
+        unsigned int firma = CostruisciFirma('R', 'I', 'F', 'F');
         unsigned int fileSize;
-        unsigned int firmaFormato = COSTRUISCI_FIRMA('W', 'A', 'V', 'E');
+        unsigned int firmaFormato = CostruisciFirma('W', 'A', 'V', 'E');
 
         MasterRIFFChunk();
 
